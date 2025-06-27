@@ -1,8 +1,11 @@
 package com.ehrms.tmis.securityAndAuthentication.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Process;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_ProcessRepository;
 import com.ehrms.tmis.securityAndAuthentication.jwt.AuthEntryPointJwt;
 import com.ehrms.tmis.securityAndAuthentication.jwt.JwtAuthenticationFilter;
 import com.ehrms.tmis.securityAndAuthentication.service.CustomUserDetailsService;
@@ -31,6 +36,13 @@ public class WebSecurityConfig {
         @Autowired
         private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+        @Autowired
+        private JwtAuthenticationFilter jwtFilter;
+
+        // ← NEW:
+        @Autowired
+        private M_ProcessRepository processRepo;
+
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 // String cspstring = "default-src 'self';"
@@ -48,23 +60,29 @@ public class WebSecurityConfig {
                 http
                                 .cors(AbstractHttpConfigurer::disable)
                                 .csrf(AbstractHttpConfigurer::disable)
-                                .authorizeHttpRequests((requests) -> requests
-                                                .requestMatchers("/**",
-                                                                "/api/**",
-                                                                "/user/login",
-                                                                "/static/**",
-                                                                "/userRPM/**",
-                                                                "/api/calander/**",
-                                                                "/api/venues/**",
-                                                                "/api/natureofstaff/**",
-                                                                "/api/district/**",
-                                                                "/api/banks/**",
-                                                                "/api/programs/**",
-                                                                "/test/**",
-                                                                "/user-role/**",
-                                                                "/testfrontend/**")
-                                                .permitAll()
-                                                .anyRequest().authenticated())
+                                .authorizeHttpRequests(authz -> {
+                                        // 1️⃣ Public endpoints
+                                        authz
+                                                        .requestMatchers("/", "/login.html", "/user/login").permitAll();
+
+                                        // 2️⃣ Dynamic role-based restrictions from DB
+                                        List<M_Process> allProcesses = processRepo.findAll();
+                                        for (M_Process proc : allProcesses) {
+                                                String pattern = proc.getPageURL().endsWith("/**") ? proc.getPageURL()
+                                                                : proc.getPageURL() + "/**";
+                                                String[] roles = proc.getRoles().stream()
+                                                                .map(r -> r.getRoleName().toUpperCase()
+                                                                                .replaceAll("\\s+", "_"))
+                                                                .toArray(String[]::new);
+
+                                                if (roles.length > 0) {
+                                                        authz.requestMatchers(pattern).hasAnyRole(roles);
+                                                }
+                                        }
+
+                                        // 3️⃣ Fallback
+                                        authz.anyRequest().authenticated();
+                                })
                                 .exceptionHandling(
                                                 httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
                                                                 .authenticationEntryPoint(unauthorizedHandler))

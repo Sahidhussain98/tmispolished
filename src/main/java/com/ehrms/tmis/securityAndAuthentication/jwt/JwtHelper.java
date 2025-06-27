@@ -4,14 +4,19 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtHelper {
@@ -38,7 +43,7 @@ public class JwtHelper {
         return claimsResolver.apply(claims);
     }
 
-    private Claims getAllClaimsFromToken(String token) {
+    Claims getAllClaimsFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
     }
 
@@ -47,16 +52,40 @@ public class JwtHelper {
         return expiration.before(new Date());
     }
 
-    public String generateToken(String id) {
+    // public String generateToken(String id) {
+    // Map<String, Object> claims = new HashMap<>();
+    // return doGenerateToken(claims, id);
+    // }
+
+    // private String doGenerateToken(Map<String, Object> claims, String subject) {
+    // return Jwts.builder()
+    // .setClaims(claims)
+    // .setSubject(subject)
+    // .setIssuedAt(new Date(System.currentTimeMillis()))
+    // .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY *
+    // 1000))
+    // .signWith(secretKey, SignatureAlgorithm.HS512)
+    // .compact();
+    // }
+
+    // in JwtHelper.java
+    public String generateToken(Authentication auth) {
+        UserDetails user = (UserDetails) auth.getPrincipal();
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, id);
+        // extract the role names (e.g. "ROLE_ADMIN", etc.)
+        List<String> roles = auth.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        claims.put("roles", roles);
+        return doGenerateToken(claims, user.getUsername());
     }
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();

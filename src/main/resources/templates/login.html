@@ -36,14 +36,6 @@
         max-width: 400px;
       }
 
-      /* Logo Styling */
-      .logo {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #007bff;
-        margin-bottom: 1rem;
-      }
-
       h1 {
         margin-bottom: 1rem;
         font-size: 1.8rem;
@@ -111,10 +103,9 @@
   </head>
   <body>
     <div class="login-container">
-      <div class="logo">YourLogo</div>
       <h1>Welcome Back</h1>
 
-      <form onsubmit="return validateLogin();">
+      <form id="loginForm">
         <input
           type="text"
           id="username"
@@ -129,46 +120,54 @@
           placeholder="Password"
           required
         />
-        <div class="options">
+        <!-- <div class="options">
           <label>
             <input type="checkbox" name="remember-me" />
             Remember Me
           </label>
           <a href="#" th:href="@{/forgot-password}">Forgot Password?</a>
-        </div>
+        </div> -->
         <button type="submit" id="loginBtn">Log In</button>
       </form>
 
       <div id="errorMessage" class="error" style="display: none">
-        Please enter both username and password.
+        Invalid username or password.
       </div>
     </div>
 
     <script>
-      function validateLogin() {
-        let username = document.getElementById("username").value.trim();
-        let password = document.getElementById("password").value.trim();
-        let errorMessage = document.getElementById("errorMessage");
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const errorDiv = document.getElementById("errorMessage");
+          errorDiv.style.display = "none";
 
-        if (username === "" || password === "") {
-          errorMessage.style.display = "block";
-          return false; // Prevent form submission
-        } else {
-          errorMessage.style.display = "none";
-          // Check username and redirect accordingly
-          if (username === "softwareadmin") {
-            window.location.href = "/testfrontend/softwareadmin";
-          } else if (username === "mainadmin") {
-            window.location.href = "/testfrontend/mainadmin";
-          } else if (username === "DMHO") {
-            window.location.href = "/testfrontend/dmhoadmin";
-          } else {
-            // If username is neither, you might want to show an error or a default action.
-            alert("Invalid username.");
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value;
+
+          try {
+            const res = await fetch("/user/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
+
+            const data = await res.json();
+            if (res.ok && data.token) {
+              // store token (and optionally remember-me)
+              localStorage.setItem("jwtToken", data.token);
+              // redirect to your landing page
+              window.location.href = data.redirect || "/";
+            } else {
+              throw new Error(data.message || "Authentication failed");
+            }
+          } catch (err) {
+            console.error("Login error", err);
+            errorDiv.textContent = err.message;
+            errorDiv.style.display = "block";
           }
-          return false; // Prevent default form submission since we are redirecting
-        }
-      }
+        });
     </script>
   </body>
 </html>

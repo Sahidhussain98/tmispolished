@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -16,7 +18,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.ehrms.tmis.securityAndAuthentication.service.CustomUserDetailsService;
 
+import io.jsonwebtoken.Claims;
+
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -43,11 +49,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (Username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(Username);
             if (jwtHelper.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
-                        null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+    // 1️⃣ parse roles claim
+    Claims claims = jwtHelper.getAllClaimsFromToken(token);
+    @SuppressWarnings("unchecked")
+    List<String> roles = (List<String>) claims.get("roles");
+
+    // 2️⃣ rehydrate into GrantedAuthorities
+    List<GrantedAuthority> authorities = roles.stream()
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
+
+    // 3️⃣ build auth token with those authorities
+    UsernamePasswordAuthenticationToken authToken =
+        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    SecurityContextHolder.getContext().setAuthentication(authToken);
+}
+
+            // if (jwtHelper.validateToken(token, userDetails)) {
+            //     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
+            //             null, userDetails.getAuthorities());
+            //     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            //     SecurityContextHolder.getContext().setAuthentication(authToken);
+            // }
         }
         filterChain.doFilter(request, response);
     }
