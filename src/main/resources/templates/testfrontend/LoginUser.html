@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="empCd">Employee Code</label>
+                <input type="text" id="empCd" name="empCd" required>
+            </div>
+            <div class="form-group">
+                <label for="pwdtemp">Password</label>
+                <input type="password" id="pwdtemp" name="pwdtemp" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const empCd = document.getElementById('empCd').value;
+    const pwdtemp = document.getElementById('pwdtemp').value;
+    const errorMessage = document.getElementById('errorMessage');
+    
+    try {
+        debugger;
+        const response = await fetch('http://localhost:8081/api/userLogin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ empCd, pwdtemp }),
+            credentials: 'include' // Must include this for cookies
+        });
+        
+        if (response.ok) {
+            // Double-check session is established
+            const userResponse = await fetch('http://localhost:8081/api/userinfo', {
+                credentials: 'include'
+            });
+            
+            if (userResponse.ok) {
+                window.location.href = 'UserDash.html';
+            } else {
+                errorMessage.textContent = 'Login succeeded but session not created';
+            }
+        } else {
+            errorMessage.textContent = await response.text();
+        }
+    } catch (err) {
+        errorMessage.textContent = 'Network error. Please try again.';
+        console.error('Login error:', err);
+    }
+    // ?sadsd
+});
+    </script>
+</body>
+</html>

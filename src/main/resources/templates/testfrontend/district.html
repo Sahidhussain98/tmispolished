@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>District Management</title>
+    <!-- <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    /> -->
+    <link rel="stylesheet" th:href="@{/css/tailwind2.min.css}" />
+  </head>
+  <body class="bg-gray-100">
+    <!-- Header (matching the other sites) -->
+    <div th:replace="~{testfrontend/headermainadmin :: header-navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-6">
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">
+          District Management
+        </h1>
+
+        <!-- Create District Section -->
+        <div class="mb-6">
+          <button
+            id="showCreateFormBtn"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition mb-4"
+          >
+            Add District
+          </button>
+          <div id="createForm" class="hidden bg-gray-50 p-4 rounded">
+            <h3 class="text-xl font-semibold text-gray-700 mb-3">
+              Add District
+            </h3>
+            <input
+              type="text"
+              id="createDistrictName"
+              placeholder="District Name"
+              class="w-full p-2 border border-gray-300 rounded mb-3"
+            />
+            <div class="flex space-x-3">
+              <button
+                id="createDistrictBtn"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+              >
+                Add
+              </button>
+              <button
+                id="cancelCreateFormBtn"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- District List Section -->
+        <div id="districtListContainer">
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+            All Districts
+          </h3>
+          <div id="districtList" class="space-y-4">
+            <!-- District items will be injected here -->
+          </div>
+        </div>
+
+        <!-- Update District Section -->
+        <div id="updateForm" class="hidden bg-gray-50 p-4 rounded mt-6">
+          <h3 class="text-xl font-semibold text-gray-700 mb-3">
+            Update District
+          </h3>
+          <input type="hidden" id="updateDistrictId" />
+          <input
+            type="text"
+            id="updateDistrictName"
+            placeholder="New District Name"
+            required
+            class="w-full p-2 border border-gray-300 rounded mb-3"
+          />
+          <div class="flex space-x-3">
+            <button
+              id="updateDistrictBtn"
+              class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+            >
+              Update
+            </button>
+            <button
+              id="cancelUpdateFormBtn"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Get elements
+      const districtList = document.getElementById("districtList");
+      const createForm = document.getElementById("createForm");
+      const updateForm = document.getElementById("updateForm");
+      const showCreateFormBtn = document.getElementById("showCreateFormBtn");
+
+      // Toggle Create Form visibility
+      showCreateFormBtn.addEventListener("click", () => {
+        createForm.classList.toggle("hidden");
+      });
+
+      // Cancel Create Form
+      document
+        .getElementById("cancelCreateFormBtn")
+        .addEventListener("click", () => {
+          // If using District Code, clear that field as well
+          // document.getElementById("createDistrictCode").value = "";
+          document.getElementById("createDistrictName").value = "";
+          createForm.classList.add("hidden");
+        });
+
+      // Cancel Update Form
+      document
+        .getElementById("cancelUpdateFormBtn")
+        .addEventListener("click", () => {
+          // If using District Code, clear that field as well
+          // document.getElementById("updateDistrictCode").value = "";
+          document.getElementById("updateDistrictName").value = "";
+          updateForm.classList.add("hidden");
+        });
+
+      // Load all districts when the page loads
+      window.onload = function () {
+        fetchDistricts();
+      };
+
+      // Fetch all districts from the backend
+      function fetchDistricts() {
+        fetch("/api/district/getall", {
+          method: "GET",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            districtList.innerHTML = "";
+            data.forEach((district) => {
+              const districtItem = document.createElement("div");
+              districtItem.classList.add(
+                "bg-gray-100",
+                "p-4",
+                "rounded",
+                "flex",
+                "justify-between",
+                "items-center"
+              );
+              districtItem.innerHTML = `
+                <div class="text-gray-800">
+                  <strong>${district.districtName}</strong>
+                  <!-- Uncomment below if displaying district code -->
+                  <!-- <br>Code: ${district.districtCode} -->
+                </div>
+                <div class="flex space-x-3">
+                  <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" onclick="updateDistrict(${district.districtId}, '${district.districtName}')">Update</button>
+                  <!-- To add delete functionality, uncomment below -->
+                  <!-- <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deleteDistrict(${district.districtId})">Delete</button> -->
+                </div>
+              `;
+              districtList.appendChild(districtItem);
+            });
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      // Create district
+      document
+        .getElementById("createDistrictBtn")
+        .addEventListener("click", () => {
+          // Uncomment if including District Code
+          // const code = document.getElementById("createDistrictCode").value;
+          const name = document.getElementById("createDistrictName").value;
+
+          fetch("/api/district", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              // districtCode: code,
+              districtName: name,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              alert("District created successfully!");
+              fetchDistricts();
+              // Clear fields; uncomment if using district code
+              // document.getElementById("createDistrictCode").value = "";
+              document.getElementById("createDistrictName").value = "";
+              createForm.classList.add("hidden");
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+
+      // Show update form with data prefilled
+      function updateDistrict(districtId, districtName) {
+        document.getElementById("updateDistrictId").value = districtId;
+        // Uncomment if using District Code
+        // document.getElementById("updateDistrictCode").value = districtCode;
+        document.getElementById("updateDistrictName").value = districtName;
+        updateForm.classList.remove("hidden");
+      }
+
+      // Update district details
+      document
+        .getElementById("updateDistrictBtn")
+        .addEventListener("click", () => {
+          const districtId = document.getElementById("updateDistrictId").value;
+          // Uncomment if using District Code
+          // const districtCode = document.getElementById("updateDistrictCode").value;
+          const districtName =
+            document.getElementById("updateDistrictName").value;
+
+          fetch("/api/district/update", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              districtId: districtId,
+              // districtCode: districtCode,
+              districtName: districtName,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              alert("District updated successfully!");
+              fetchDistricts();
+              updateForm.classList.add("hidden");
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+
+      // Delete district (if needed)
+      function deleteDistrict(districtId) {
+        fetch("/api/district/delete", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: districtId }),
+        })
+          .then((response) => {
+            if (response.ok) {
+              alert("District deleted successfully!");
+              fetchDistricts();
+            } else {
+              alert("Failed to delete district.");
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      // Optional: Validate District Code (if needed)
+      function validateDistrictCode() {
+        const districtCodeField = document.getElementById("createDistrictCode");
+        let value = districtCodeField.value;
+        value = value.replace(/[^0-9]/g, "");
+        if (value.length > 5) {
+          value = value.slice(0, 5);
+        }
+        districtCodeField.value = value;
+      }
+      function validateUpdateDistrictCode() {
+        const districtCodeField = document.getElementById("updateDistrictCode");
+        let value = districtCodeField.value;
+        value = value.replace(/[^0-9]/g, "");
+        if (value.length > 5) {
+          value = value.slice(0, 5);
+        }
+        districtCodeField.value = value;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assign Trainee</title>
+    <style>
+      /* Base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background-color: #f3f4f6;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+      }
+
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      /* Program Details */
+      .program-details {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+      }
+
+      .details-grid {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .detail-item label {
+        display: block;
+        font-size: 0.875rem;
+        color: #4b5563;
+        margin-bottom: 0.25rem;
+      }
+
+      .detail-item p {
+        color: #111827;
+      }
+
+      /* Trainees Container */
+      .trainees-container {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: 1fr;
+      }
+
+      @media (min-width: 1024px) {
+        .trainees-container {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      /* Trainees List */
+      .trainees-list,
+      .selected-trainees {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        height: 100%;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        color: #111827;
+        margin-bottom: 1.5rem;
+      }
+
+      .trainees-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      /* Trainee Card */
+      .trainee-card {
+        position: relative;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        transition: all 0.2s;
+      }
+
+      .trainee-card:hover {
+        border-color: #327cc1;
+      }
+
+      .trainee-card.selected {
+        border-color: #e20c0c;
+        background-color: #eff6ff;
+      }
+
+      .trainee-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+      }
+
+      .trainee-avatar {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .trainee-info h3 {
+        font-size: 1rem;
+        color: #111827;
+      }
+
+      .trainee-info p {
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+
+      .select-button {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.5rem;
+        padding: 0.5rem;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .trainee-card:hover .select-button {
+        opacity: 1;
+      }
+
+      /* Selected Trainees */
+      .selected-trainees-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .empty-message {
+        text-align: center;
+        color: #6b7280;
+        margin-top: 2rem;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 32rem;
+        position: relative;
+      }
+
+      .close-button {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+      }
+
+      .profile-header {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .profile-avatar {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .profile-details {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .detail-group h4 {
+        font-size: 0.875rem;
+        color: #4b5563;
+        margin-bottom: 0.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Program Details -->
+      <div class="program-details">
+        <h2>Program Details</h2>
+        <div class="details-grid">
+          <div class="detail-item">
+            <label>Program ID</label>
+            <p id="programId"></p>
+          </div>
+          <div class="detail-item">
+            <label>Program Name</label>
+            <p id="programName"></p>
+          </div>
+
+          <div class="detail-item">
+            <label>Venue</label>
+            <p id="programVenue"></p>
+          </div>
+
+          <div class="detail-item">
+            <label>Topic</label>
+            <p id="programTopic"></p>
+          </div>
+
+          <div class="detail-item">
+            <label>Nature of Staff</label>
+            <p id="programNatureOfStaff"></p>
+          </div>
+
+          <div class="detail-item">
+            <label>Target</label>
+            <p id="programTarget"></p>
+          </div>
+
+          <div class="detail-item">
+            <label>Start Date</label>
+            <p id="programStartDate"></p>
+          </div>
+
+          <div class="detail-item">
+            <label>End Date</label>
+            <p id="programEndDate"></p>
+          </div>
+
+          <div class="detail-item">
+            <label>Duration</label>
+            <p id="programDuration"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trainees Section -->
+      <div class="trainees-container">
+        <!-- Assigned Trainees -->
+        <div class="trainees-list">
+          <h2>Assigned Trainees</h2>
+          <div id="assignedTrainees" class="trainees-grid"></div>
+        </div>
+
+        <!-- Selected Trainees -->
+        <div class="selected-trainees">
+          <h2>Selected Trainees</h2>
+          <div id="selectedTrainees" class="selected-trainees-list">
+            <p class="empty-message">No trainees selected yet</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trainee Profile Modal -->
+      <div id="profileModal" class="modal">
+        <div class="modal-content">
+          <button class="close-button">&times;</button>
+          <div class="profile-content">
+            <div class="profile-header">
+              <img
+                id="profileAvatar"
+                class="profile-avatar"
+                src=""
+                alt="Trainee"
+              />
+              <div>
+                <h3 id="profileName"></h3>
+                <p id="profileEmail"></p>
+              </div>
+            </div>
+            <div class="profile-details">
+              <div class="detail-group">
+                <h4>Username</h4>
+                <p id="profileUsername"></p>
+              </div>
+              <div class="detail-group">
+                <h4>Address</h4>
+                <p id="profileAddress"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // State management
+      let selectedTrainees = [];
+
+      // DOM Elements
+      const programIdEl = document.getElementById('programId');
+      const programNameEl = document.getElementById('programName');
+      const programTopicEl = document.getElementById('programTopic');
+      const programVenueEl = document.getElementById('programVenue');
+      const programNatureOfStaffEl = document.getElementById('programNatureOfStaff');
+      const programTargetEl = document.getElementById('programTarget');
+      const programStartDateEl = document.getElementById('programStartDate');
+      const programEndDateEl = document.getElementById('programEndDate');
+      const programDurationEl = document.getElementById('programDuration');
+      const assignedTraineesEl = document.getElementById('assignedTrainees');
+      const selectedTraineesEl = document.getElementById('selectedTrainees');
+      const profileModal = document.getElementById('profileModal');
+
+      // Program data
+      const programData = {
+        id: "P01",
+        name: "RHFWTC",
+        topic: "Mental Health",
+        venue: "RHFWTC",
+        natureofstaff: "LHVs",
+        target: "3",
+        startdate: "2025-04-01",
+        enddate:"2025-06-30",
+        duration: "3 months",
+        trainees: [
+          {
+            id: "1",
+            name: "Sahid Hussain",
+            email: "sahid.j@gmail.com",
+            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+            username: "sahid@12",
+            address: "West Khasi Hills",
+
+          },
+          {
+            id: "2",
+            name: "Sahil Hussian",
+            email: "sahil.w@gmail.com",
+            avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+            username: "HussainSahil",
+            address: "East Khasi Hills",
+
+          },
+          {
+            id: "3",
+            name: "Sohid Hussain",
+            email: "Sohid.c@gmail.com",
+            avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+            username: "Sohid17",
+            address: "East Khasi Hills ",
+
+          }
+        ]
+      };
+
+      // Initialize program details
+      function initializeProgramDetails() {
+        programIdEl.textContent = programData.id;
+        programNameEl.textContent = programData.name;
+        programTopicEl.textContent = programData.topic;
+        programVenueEl.textContent = programData.venue;
+        programNatureOfStaffEl.textContent = programData.natureofstaff;
+        programTargetEl.textContent = programData.target;
+        programStartDateEl.textContent = programData.startdate;
+        programEndDateEl.textContent = programData.enddate;
+        programDurationEl.textContent = programData.duration;
+
+      }
+
+      // Create trainee card
+      function createTraineeCard(trainee, isSelected = false) {
+        const card = document.createElement('div');
+        card.className = trainee-card ${isSelected ? 'selected' : ''};
+        card.innerHTML = `
+          <button class="select-button" title="${isSelected ? 'Remove from selection' : 'Add to selection'}">
+            ${isSelected ? '✓' : '+'}
+          </button>
+          <div class="trainee-content">
+            <img src="${trainee.avatar}" alt="${trainee.name}" class="trainee-avatar">
+            <div class="trainee-info">
+              <h3>${trainee.name}</h3>
+              <p>${trainee.username}</p>
+            </div>
+          </div>
+        `;
+
+        // Add event listeners
+        card.querySelector('.select-button').addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleTraineeSelection(trainee);
+        });
+
+        card.querySelector('.trainee-content').addEventListener('click', () => {
+          showTraineeProfile(trainee);
+        });
+
+        return card;
+      }
+
+      // Toggle trainee selection
+      function toggleTraineeSelection(trainee) {
+        const index = selectedTrainees.findIndex(t => t.id === trainee.id);
+        if (index === -1) {
+          selectedTrainees.push(trainee);
+        } else {
+          selectedTrainees.splice(index, 1);
+        }
+        updateUI();
+      }
+
+      // Update UI
+      function updateUI() {
+        // Update assigned trainees
+        assignedTraineesEl.innerHTML = '';
+        programData.trainees.forEach(trainee => {
+          const isSelected = selectedTrainees.some(t => t.id === trainee.id);
+          assignedTraineesEl.appendChild(createTraineeCard(trainee, isSelected));
+        });
+
+        // Update selected trainees
+        if (selectedTrainees.length === 0) {
+          selectedTraineesEl.innerHTML = '<p class="empty-message">No trainees selected yet</p>';
+        } else {
+          selectedTraineesEl.innerHTML = '';
+          selectedTrainees.forEach(trainee => {
+            const card = document.createElement('div');
+            card.className = 'trainee-card';
+            card.innerHTML = `
+              <div class="trainee-content">
+                <img src="${trainee.avatar}" alt="${trainee.name}" class="trainee-avatar">
+                <div class="trainee-info">
+                  <h3>${trainee.name}</h3>
+                  <p>${trainee.specialization}</p>
+                </div>
+              </div>
+              <button class="select-button" title="Remove from selection">×</button>
+            `;
+
+            card.querySelector('.select-button').addEventListener('click', () => {
+              toggleTraineeSelection(trainee);
+            });
+
+            card.querySelector('.trainee-content').addEventListener('click', () => {
+              showTraineeProfile(trainee);
+            });
+
+            selectedTraineesEl.appendChild(card);
+          });
+        }
+      }
+
+      // Show trainee profile
+      function showTraineeProfile(trainee) {
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const profileUsername = document.getElementById('profileUsername');
+        const profileAddress = document.getElementById('profileAddress');
+        // const profileSkills = document.getElementById('profileSkills');
+
+
+        profileAvatar.src = trainee.avatar;
+        profileAvatar.alt = trainee.name;
+        profileName.textContent = trainee.name;
+        profileEmail.textContent = trainee.email;
+        profileUsername.textContent = trainee.username;
+        profileAddress.textContent = trainee.address;
+
+
+
+
+        profileModal.style.display = 'flex';
+      }
+
+      // Close modal
+      document.querySelector('.close-button').addEventListener('click', () => {
+        profileModal.style.display = 'none';
+      });
+
+      // Close modal when clicking outside
+      profileModal.addEventListener('click', (e) => {
+        if (e.target === profileModal) {
+          profileModal.style.display = 'none';
+        }
+      });
+
+      // Initialize the application
+      initializeProgramDetails();
+      updateUI();
+    </script>
+  </body>
+</html>

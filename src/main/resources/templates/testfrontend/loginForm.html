@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Login</title>
+    <!-- <link rel="stylesheet" type="text/css" href="/css/styles.css"> -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+
+  <body
+    class="container d-flex justify-content-center align-items-center vh-100"
+  >
+    <div class="card p-4 shadow-lg" style="width: 350px">
+      <div class="text-center">
+        <i class="fas fa-user-circle fa-3x mb-3 text-primary"></i>
+        <!-- Centered Icon -->
+        <h2 class="text-center">Log In</h2>
+        <!-- Centered Text -->
+      </div>
+      <form id="loginform">
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="text" name="email" required class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input
+            type="password"
+            name="password"
+            required
+            class="form-control"
+          />
+        </div>
+
+        <style>
+          .captcha-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+          }
+
+          .captcha-container img {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            height: 40px;
+          }
+
+          .refresh-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #007bff;
+          }
+
+          .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .form-input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+          }
+        </style>
+
+        <div class="captcha-container">
+          <img
+            id="captchaImage"
+            src="/captcha-image"
+            alt="CAPTCHA Image"
+            onclick="reloadCaptcha()"
+            title="Click to refresh CAPTCHA"
+          />
+
+          <button
+            type="button"
+            onclick="reloadCaptcha()"
+            class="refresh-button"
+          >
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+
+        <div class="input-group">
+          <i class="fa-solid fa-shield-halved"></i>
+          <input
+            type="text"
+            name="captcha"
+            placeholder="Enter CAPTCHA"
+            class="form-input"
+          />
+        </div>
+
+        <br />
+
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="fas fa-sign-in-alt me-2"></i> Sign In
+          <!-- Button with Icon -->
+        </button>
+      </form>
+      <p class="text-center mt-3">
+        Don't have an account?
+        <a href="/testfrontend/registrationForm" class="link-primary"
+          >Register here</a
+        >
+      </p>
+    </div>
+
+    <script>
+      function reloadCaptcha() {
+        document.getElementById("captchaImage").src =
+          "/captcha-image?" + new Date().getTime();
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        fetch("/role/getall")
+          .then((response) => response.json())
+          .then((data) => {
+            const roleSelect = document.getElementById("role");
+            data.forEach((role) => {
+              const option = document.createElement("option");
+              option.value = role.roleName;
+              option.textContent = role.roleName;
+              roleSelect.appendChild(option);
+            });
+          })
+          .catch((error) => console.error("Error fetching roles:", error));
+      });
+
+      document
+        .getElementById("loginform")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const formData = {
+            email: document.querySelector("input[name='email']").value,
+            password: document.querySelector("input[name='password']").value,
+            // captcha: document.querySelector("input[name='captcha']").value,
+          };
+
+          fetch("/login", {
+            // Ensure the endpoint matches backend @RequestMapping
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.message === "Login Successful") {
+                alert("Login Successful!");
+                window.location.href = "/testfrontend/userDash";
+              } else {
+                alert(data.message);
+                reloadCaptcha();
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("An error occurred. Please try again.");
+            });
+        });
+    </script>
+  </body>
+</html>

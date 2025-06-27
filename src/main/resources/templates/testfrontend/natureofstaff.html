@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nature of Staff</title>
+    <!-- <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    /> -->
+    <link rel="stylesheet" th:href="@{/css/tailwind2.min.css}" />
+  </head>
+  <body class="bg-gray-100">
+    <!-- Header Include -->
+    <div th:replace="~{testfrontend/headermainadmin :: header-navbar}"></div>
+
+    <!-- Main Content: Nature of Staff List -->
+    <main class="container mx-auto p-6">
+      <div class="bg-white p-8 rounded-lg shadow mb-6">
+        <h1 class="text-4xl font-bold text-gray-800 mb-6">Nature of Staff</h1>
+        <div class="mb-6 flex justify-end">
+          <button
+            id="openCreateModalBtn"
+            class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition text-xl"
+          >
+            Add Nature of Staff
+          </button>
+        </div>
+        <div id="natureofstaffListContainer">
+          <h3 class="text-3xl font-semibold text-gray-800 mb-4">
+            All Nature of Staff
+          </h3>
+          <div id="natureofstaffList"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Create Nature of Staff Modal -->
+    <div
+      id="createModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden overflow-auto"
+    >
+      <div
+        class="bg-white p-10 rounded-md shadow-2xl relative w-full max-w-2xl max-h-[90vh] overflow-auto"
+      >
+        <button
+          id="closeCreateModal"
+          class="absolute top-4 right-4 text-gray-700 hover:text-gray-900 text-3xl"
+        >
+          &times;
+        </button>
+        <h3 class="text-3xl font-semibold text-gray-800 mb-8">
+          Add Nature of Staff
+        </h3>
+        <form id="createNatureofstaffForm">
+          <div class="mb-8">
+            <label
+              for="createNatureofstaffName"
+              class="block text-gray-700 font-medium mb-4 text-2xl"
+            >
+              Nature of Staff Name
+            </label>
+            <input
+              type="text"
+              id="createNatureofstaffName"
+              name="natureOfStaffName"
+              placeholder="Nature of Staff Name"
+              required
+              class="w-full p-4 border border-gray-300 rounded-md text-xl"
+            />
+          </div>
+          <div class="flex space-x-6">
+            <button
+              type="submit"
+              id="createNatureofstaffBtn"
+              class="bg-green-600 text-white px-8 py-4 rounded-md hover:bg-green-700 transition text-2xl"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              id="cancelCreateModalBtn"
+              class="bg-red-600 text-white px-8 py-4 rounded-md hover:bg-red-700 transition text-2xl"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Update Nature of Staff Modal -->
+    <div
+      id="updateModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden overflow-auto"
+    >
+      <div
+        class="bg-white p-10 rounded-md shadow-2xl relative w-full max-w-2xl max-h-[90vh] overflow-auto"
+      >
+        <button
+          id="closeUpdateModal"
+          class="absolute top-4 right-4 text-gray-700 hover:text-gray-900 text-3xl"
+        >
+          &times;
+        </button>
+        <h3 class="text-3xl font-semibold text-gray-800 mb-8">
+          Update Nature of Staff
+        </h3>
+        <form id="updateNatureofstaffForm">
+          <input
+            type="hidden"
+            id="updateNatureofstaffId"
+            name="natureOfStaffId"
+          />
+          <div class="mb-8">
+            <label
+              for="updateNatureofstaffName"
+              class="block text-gray-700 font-medium mb-4 text-2xl"
+            >
+              New Nature of Staff Name
+            </label>
+            <input
+              type="text"
+              id="updateNatureofstaffName"
+              name="natureOfStaffName"
+              placeholder="New Nature of Staff Name"
+              required
+              class="w-full p-4 border border-gray-300 rounded-md text-xl"
+            />
+          </div>
+          <div class="flex space-x-6">
+            <button
+              type="submit"
+              id="updateNatureofstaffBtn"
+              class="bg-yellow-600 text-white px-8 py-4 rounded-md hover:bg-yellow-700 transition text-2xl"
+            >
+              Update
+            </button>
+            <button
+              type="button"
+              id="cancelUpdateModalBtn"
+              class="bg-red-600 text-white px-8 py-4 rounded-md hover:bg-red-700 transition text-2xl"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Element references
+        const natureofstaffList = document.getElementById("natureofstaffList");
+        const openCreateModalBtn =
+          document.getElementById("openCreateModalBtn");
+        const createModal = document.getElementById("createModal");
+        const closeCreateModal = document.getElementById("closeCreateModal");
+        const cancelCreateModalBtn = document.getElementById(
+          "cancelCreateModalBtn"
+        );
+        const createNatureofstaffForm = document.getElementById(
+          "createNatureofstaffForm"
+        );
+
+        const updateModal = document.getElementById("updateModal");
+        const closeUpdateModal = document.getElementById("closeUpdateModal");
+        const cancelUpdateModalBtn = document.getElementById(
+          "cancelUpdateModalBtn"
+        );
+        const updateNatureofstaffForm = document.getElementById(
+          "updateNatureofstaffForm"
+        );
+
+        // Helper functions for modals
+        function openModal(modal) {
+          modal.classList.remove("hidden");
+          document.body.classList.add("overflow-hidden");
+        }
+        function closeModal(modal) {
+          modal.classList.add("hidden");
+          document.body.classList.remove("overflow-hidden");
+        }
+
+        // Fetch and display the Nature of Staff list in a table with serial numbers, sorted alphabetically
+        function fetchNatureofstaff() {
+          fetch("/api/natureofstaff/getall", { method: "GET" })
+            .then((response) => response.json())
+            .then((data) => {
+              data.sort((a, b) =>
+                a.natureOfStaffName.localeCompare(b.natureOfStaffName)
+              );
+              let table = document.createElement("table");
+              table.classList.add(
+                "min-w-full",
+                "divide-y",
+                "divide-gray-200",
+                "shadow",
+                "rounded-lg"
+              );
+              table.innerHTML = `
+                <thead class="bg-gray-200">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sl. No</th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nature of Staff Name</th>
+                    <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200"></tbody>
+              `;
+              const tbody = table.querySelector("tbody");
+              data.forEach((item, index) => {
+                let tr = document.createElement("tr");
+                tr.innerHTML = `
+                  <td class="px-6 py-4 whitespace-nowrap text-xl">${
+                    index + 1
+                  }</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-xl"><strong>${
+                    item.natureOfStaffName
+                  }</strong></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition text-xl" onclick="openUpdateNatureofstaff(${
+                      item.natureOfStaffId
+                    }, '${item.natureOfStaffName}')">Update</button>
+                  </td>
+                `;
+                tbody.appendChild(tr);
+              });
+              natureofstaffList.innerHTML = "";
+              natureofstaffList.appendChild(table);
+            })
+            .catch((error) => console.error("Error:", error));
+        }
+
+        // Open Create Modal
+        openCreateModalBtn.addEventListener("click", () => {
+          openModal(createModal);
+        });
+        closeCreateModal.addEventListener("click", () => {
+          closeModal(createModal);
+        });
+        cancelCreateModalBtn.addEventListener("click", () => {
+          closeModal(createModal);
+        });
+
+        // Handle Create Form submission
+        createNatureofstaffForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const name = document.getElementById("createNatureofstaffName").value;
+          fetch("/api/natureofstaff", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ natureOfStaffName: name }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              alert("Nature of Staff created successfully!");
+              closeModal(createModal);
+              createNatureofstaffForm.reset();
+              fetchNatureofstaff();
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+
+        // Open Update Modal with prefilled data
+        window.openUpdateNatureofstaff = function (
+          natureOfStaffId,
+          natureOfStaffName
+        ) {
+          document.getElementById("updateNatureofstaffId").value =
+            natureOfStaffId;
+          document.getElementById("updateNatureofstaffName").value =
+            natureOfStaffName;
+          openModal(updateModal);
+        };
+
+        // Handle Update Form submission
+        updateNatureofstaffForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const id = document.getElementById("updateNatureofstaffId").value;
+          const name = document.getElementById("updateNatureofstaffName").value;
+          fetch("/api/natureofstaff/update", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              natureOfStaffId: id,
+              natureOfStaffName: name,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              alert("Nature of Staff updated successfully!");
+              closeModal(updateModal);
+              updateNatureofstaffForm.reset();
+              fetchNatureofstaff();
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+
+        // (Optional) Delete function (currently commented out in the list)
+        window.deleteNatureofstaff = function (natureOfStaffId) {
+          fetch("/api/natureofstaff/delete", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: natureOfStaffId }),
+          })
+            .then((response) => {
+              if (response.ok) {
+                alert("Nature of Staff deleted successfully!");
+                fetchNatureofstaff();
+              } else {
+                alert("Failed to delete Nature of Staff.");
+              }
+            })
+            .catch((error) => console.error("Error:", error));
+        };
+
+        // Close Update Modal events
+        closeUpdateModal.addEventListener("click", () => {
+          closeModal(updateModal);
+        });
+        cancelUpdateModalBtn.addEventListener("click", () => {
+          closeModal(updateModal);
+        });
+
+        // Initial fetch of list
+        fetchNatureofstaff();
+      });
+    </script>
+  </body>
+</html>

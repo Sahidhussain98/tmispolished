@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Training Management Information System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" th:href="@{/css/tailwind2.min.css}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
+  <style>
+    /* Custom styles */
+    .hero-gradient {
+      background: linear-gradient(135deg, #0d2c34 0%, #87c9ec 100%);
+    }
+    .leader-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .leader-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .news-item {
+      transition: color 0.2s ease;
+    }
+    .news-item:hover {
+      color: #1eaf42;
+    }
+    .gallery-image {
+      transition: transform 0.3s ease;
+    }
+    .gallery-image:hover {
+      transform: scale(1.03);
+    }
+    .emblem-logo {
+      height: 110px;
+      margin-right: 30px;
+    }
+    .activity-slider .slick-slide {
+      padding: 0 5px;
+    }
+    .activity-slider .slick-list {
+      margin: 0 -5px;
+    }
+    .activity-slider img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .slick-prev:before, .slick-next:before {
+      color: #038ca1;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white-900 text-black py-4 shadow-md">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center px-6">
+      <div class="flex items-center mb-4 md:mb-0">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxISEhUREhIWEhUXFRUWFRYVFRUWFRcXFxcWHxcSGBYYISggGBsmHhYXITEtJSkrLjAuGB8zODM4Nyg5LysBCgoKDg0OGxAQGzclHyUtNy0tLS0yMC0tLS0yLTAuMi0tLTU1LystLS0vLi0tLy8tLTYrLSsvLy0tNTUtLS8vMP/AABEIAOcA2gMBIgACEQEDEQH/xAAbAAEAAQUBAAAAAAAAAAAAAAAAAQIEBQYHA//EAEUQAAIBAwIEAwQHBAYJBQAAAAECAwAEERIhBRMiMQZBURQyYXEHFyNCgZPSUmKRoRUkM1NyghZUkqKxssHC0TRDRGOD/8QAGQEBAQEBAQEAAAAAAAAAAAAAAAECAwQF/8QAMhEAAgECBAIIBgIDAQAAAAAAAAECAxEhMWHwQVESFBUigZGxwQQTcaHR4TLxQmLiI//aAAwDAQACEQMRAD8A7jVI3p3qqgFKUoBUE1NQaAA1NQBU0ApSlAKpzQmpFATSvC4vYo8a5ETJIGplXJHcDJ71ZR+JLJgGW8tyCGIImjwQnvEb7gefpVUW8kDKUrHLx20IDC6gIK6gebHjSO7Zz2+NXVrdRyqHidZFPZkYMp/FdqOLWYPYGpqkCqqgFKUoBVJNSTQCgAqaUoBSlDQEZqapxVVAKUpQClKUApSlAKUpQClYDjHF5ueLW1QNIqCWZ2XWsaMWCDRrQuzFG2DbBT6isS3hjiBVpzxOUXWWZY00+x7E6Y+UQTpIAHfO/ma6qmv8nYlzdAK0bxDae08UW2mkmWFbQSxRxSSRiSTmOHZmTfpAT5ah+1g3HC/F8xWB54IVWdVK8u4HMV2GRE0cirhj22YjIx3xm1tj7U0vEQ5SWOaW2gUkryxpaNInQ7anldHOobdA+7XSEJQbb2yN3Laz4JZPIUisGLiJo5QVyQJkjJ5rudJnwwJOdWBID90tmLbgtzzOc0FqjEWhYqx1B4tXNwRHuuGwu+1enErEaBFKxRI0Gn7J5EdgN3fYqctk7nV5gqck2fga9uGhvFUNIsUzraiUvq2QHklpAHKKxABYZwfhVcpSi3fzB5y2TLojubdY40UtzNKSwCdjI0suk7KxJXDyKAMvuC1eHh9xBxBXEQhj4hCCqRheWk8IZmDFSVZmTcMuAcbZ71PA5VdVkS4aW56GbAdpZNQGosCByU1h1Uf2YCdQJzijxNbNbBLqAgtYPLcNbv2aO6ZyzqQekgNKozkDQQNve2sW4PjhvxsQ6FSsE3iy3KM8XMn0prIijd/u6hHrA08wgjpzq37VZcJtr67iW4mupLPmAOkFukB0I26iR5o3LvjvjSN8Y2rzfLdrvD6mrm1UrWeG8XninFrdkOruUt7gLoLsqljHKgACvhXIK7MFzgZGrZqzKLiUjFTSlZApSlAKUpQClKUApUZqaAUpSgFKUoBWt+J+MSRuIkflbJlgqNKxk5ulI+YyxqQIXYl89gACTWZ4lecqGWXSW5cbvpHdtCk6R8TjFa1AenZluGZRNc3DMFj1JgiHBzy4wNQKgEqrbjMheutNcWRllfx2sNut7Dc3MLmNi1wsLTySqxyfaFaNhkMNs6dGMDC7Vk+BXlxytTgM4gZppI0PKaUkGMoNhIQmrXoOCcAHti/4RxOSclSqMAcMcFMLuPcJbVkgjuMFWB3UrWqWcpS3lSMT2/Mj5kE/PEtvqOFWKON21IcyBCmkAEbYIBrr/JWee/Ehlo5ZVtY4mthyTCulw5lYMU2ilgC5k36WwTq74GcDHmyWW2uSz+zASzqWBVmZl0yRnIOoPBIuAe+I28jmhtVRJEieeLTDHDPHNzhGR9moubY40tNhDjlkZZgTvUcHkhS7vubCjF3jCXcaIWYXEMQWHIGoBmUkHOks3qRq0la7X19PyClfaZ4bZLlhK4iVyYhzF5urUsp0qRzFXksrY5ZJkGRqU1Y3/BIBOge9u7Z5ztAkxiWXSoGlVbeMYUKNRIPSqnO1Y+04hHPdqhkmsrhGghaIspgnWK4MbiP7yuAZBlTsdWOxrPw+GYE1cy2N7zQx58uqaSRGYNGuotldI0jfSDpB1b7dH3Hi7aLdiZnu4EYXkh1eMDRqjmCro5jdTyL0IS5Lu5HSMKMkVjrngmLLi9xLM88kgmIZtahUgEjxKAf2WZgR7uVx5GrTjlhFZRpzpLiTS5ljt2uXZJJC0fJsvvAhQNbYHdttiBV0bu8mtIEaDT7TdSrKgOVFvK7zSoRkEvy1PkchnGATiolZJxeF/TH2BlLWdUWNITNyUBCx26p7IoAyHnnZAwYAh2AbvkYYg5ydlx5o+TbOjyXTpGzIiMUiRjgPLJ7qYCsSCckggZ2zhYrgPG4upZWRzcxez2kblZAk0yySyOiEiQ436lXb4mrO1kjWCI3c4ktrnlzxxXE5e6ZNOI4DEiE3KsCh0g+9sS2d8OF81v33iW5luCW0NyEN3ei6l1yiBQywtGyOwdoxGQ5cYxqzkL2xklvZL94LsQRzXNwmpBIJo1aJNTIuiO4UK3MXmI5DaxpyNjVl4b4zaG3CtakuGcyILXQqO8jsqZcKpOMHYnSAWJCgkX3MjlbXiR4Hj0dLFJI2fLO3LBBVlGhw69fXnqG65kmpNNYA2+lYvw9f82NxzFm5UjRGVSpEmkKdXTtqwwVsYGpWwANqyea8zVnY0TSlKgFKUoBSoJqN6AGpFTSgFKUoBUE1NQBQDHlWncS4Kts+VkMdvK5yuldEMrEspDfdQyEkAg9bBRs2BuVUyRhgVYBgdiCMgj0IPetwm4kZpyultpneUwxITmV8BX1Bl5RTuCzlGwO3LAwpzWv+EJllh5sJ5rgxvNbuB9jeuykXcbNvFFJmRiBkYbYDcVd+KfD7Wtqye0PMrKLKzhflxRwe0HlrIzKMyFVOMnfGfXNet9IBpklLWayOltc5jIlRLdWfMc6nHs5J3fB0iTuuMJ60l0cMb+2mfHzMl+ZCUOlhcFJYxDFdxciW3cv0BXZMvuuFON9I6j3rXOOcTMN7JLZ5Bt4IZbmMKATHzFLwsfd1LHIMZOwAA3Ws3fzusyG4yYraBnlnOlncu2uCRVi8h7O6E4UsXwB1GtTvRKhj9sCkTusdzDGx9oupYVuH1AxH+y5zrDtn3F7ACtUoq+O9r1DMrfrbcaWX2afkSQsJlHL07FQdTsOosHM3unYtnB7tjLzg/EUeMNxFys5URsoYl1bSNUgU7gF0B3buT2UmvWGxjaSW8aAwuZVsLW0gmkjImQBWLzQ6SqAKSfLSCcHbNd/w6O1lis1vryUxxvNNFbzsFhRdI0xIuWXCs7BWLnEeO7A10Xd7qfg0n9cdogPhOaPm3V9dc2S3h1aXDPGhKZVfMOmcrpAGdJ26gart/F7Xd8rRjl2wZ44JD0k3UkHLjlctq3O6qD5Pvk7VbcX8Pxuskb30zxTMs1ncSTPLbvhcyxy6QQrqEYhyPd3+6RWS4jY/Zyy4aOTnCVbdU1IbiyVWWPCKWkRwMl49GOxA7A3F/wAsXlytvH6ZAvLG4CS3HKVba2ZgxumEf/p1jMZOiQ5LNOrEMVbWGyfLOM4bcvbaPZI5777R7ezjkVI1hREVg0z6Fc5Ds6K2Bo3271c/0hiWG/jBZXS3L5bEUFvMFjt7VVGEdlnJlPmAh33wfPjdqUe5uMzXJWGS1urtzHDpVyg5dqqJh2Qkk7eZXJOAMJY2e3r/AGtMyl9wG/a4iih5iziKBBOkboJopQZFmYj76EHSCjdtXfUMXPCLAzYit7kNDhJHmUIJCrZKCIIojXUd8gZUxkkdQAs+CWXNlEFvctaPbqRaSqscwnspBEZACw0SaZQMHuvRqGSc79w3h0VunLiQIMljgAFmPvOxHdie5rjVko5cd7+5UVWFjHBGsUShEXOAPUkksT5kkkknckk171VSvI3c0KUpQCoJqajFAAKmlKAUpSgFKUoBSlKAUpSgOf8Aje6Q30YkiM0Fvayvdq2NIgnOgyovdmTlknG4XONziqFDG4MUPLE8EMaXIuQJJLy2fuytGNTaQpwSpJJww/auvFdq44lbTKrktCyI8Z06DG+t1m6WBhkVwhLKwU6SME5rXuA3pKwSzxp9qLm7tr0kubQsG5kU7OeoL0pnVv0DTtt74q8Fbl+f3ryyV8cS3vr4PHezLJO6SS20EM0uI4pbZ5FDQrhRywjJcjWF2VydzVdnHIbpfZFV5Hjv09rBAiid5ixkiDajojB+IJnbfJOfe2YNbxPFMFRrm2YEypcPHJLdW7Nb4VFC8snV1f3rDYGsdHcCVbdHnwZEuIuVEgZBZosvtT6R1NJO8BZANxgd9Jz2WT3w3p9iF1wiEOLf2WRDLHdMby9k1PJzQ7JGMMcOJFYgbnpPqazljcXEUkCW8UdjbgPFEbjGq7lIyNSRn7POh2y3XnyOSK1i1eV+G6FRorW2nPtcbxKDcf1pWMYLNkFUO647rpyazcxmmckpDJBKHituGyRcgS28B2YcwK0cv306dIAYZGQRmau3fXfL2S1CLqZAs6BVSCYtPO9uy/1UTsghDvNoXUsq6lGd8yZwcaTj9fKld4LXQkd5ENYVTcQNNqE7OissjwMWi0hvIE40qor1RCBDEkbSRCK8xYSh/aCvMUTRM7MwZVBwmOklFGdwVw3FJbczSYuJIna5C+25jBnTo3DgKirbOsZbHSRH3BbaQjfDee+fjiUrshG1qYFAumWW9EUbjRbyztKoQ427RTs6r3yXxuoIvopzE4jdjdtZTPBbSySAQy3cscTKs/nzEJdVb4YPURmOGcQkkt2kUcye5ucwLGp5YnEwYynfaCPkq2T72qTPvbWM3JKNHIymO29rklto3DyS3klw8UZOOrQDLHoO53AOSprebafPf48SGa8N2Ri4oswAw5uLee4ICi5uep5Eij30JGYGXPnoIJJ3PTa5p4MgaS/jWcmaWzs0DScxnCTSAAxsu45oHMDMCdXwxXS68XxL7y+hqIpSlec0KUpQClKUApSlAKp1VJNAKAmlKUApSqTQFVKpWqqAwfjHw8L635WvlurLJE+kMFdc41KfeUgkEfGuXG5QtFbQcq3kknDz7SXFtBdqXEEKKwKxGRiQwxlRt93bttaT484PNI6G3mWF7gxQEnmh8wmWZOWyMAp2fJxnHYivV8PVt3Xlv+zMkand8OE3Ot0xE06xwcnBEHtUz6rt4hgNJyjDG+s6gF1KNgMVcF1SFZFjt41nubafl6tfMl0SRhG2HLRJoWlxucnFb14P4NGiLdnrmmhh3ZVHKjCDTBGAMqgz5kknck1rlv4Xtbm7lZ0K/wBaucCNmjK8tYdJUoQQdTNJ82rsqyxW9fQljXuHq09vcslwHwbhi8wjjNmjOzSzcodXMnLMFGAAuoatsV7xymZoplghuWuOXJczI5MxY6y1paguHSSJY9ZCsCCowBsDn+KeBdMgt4ZMW1yzNKJQ0zpMkbYlV2bqLZJ69QBUEDOMard8aQyyNrhiurVore0zK3JRYiyzuAyhQjKmnGM9fvdsdYyU/wCP9fXx9L5kyMvBYrMxVQ32sc7R8QZY+b0uvIZ9BV1dGDq7ME3YK2c5rGTX7l45Y7iMuWe6MOrVE80khS3REDFo+Ylw4dR5xMWznUcnwzw61/dMLxTEjWsLpE2mRipduY6sWbkFnBPSxOmTc57Zjjvh6G3uI57aJY2Q2KgKFxo9pCOMHzMbEE9+kVjpxUui/wBef4ysLGuTpNAkawxySlIorZfZ9UKNG1q7TXLsw0rqknZkZhgGJtxkg2F7PFBGLmA4hiijt+HiMktLLIBLLNNjY4IcMjDvtgEA1tnjHhItYyVWP2Vw0RQo7uGmCqsWzqeWXVezAqW22rHeFOEpdXw0osEFtHCZYEjeI+1RsCOdkaXYOHYFWOwXfBOdRqJx6by39/y+Ysbr4J4I1rCxfSJJn50ixpojRmVQUVSSfu75Pcnt2rYaUr5spOTuzoKgmhNAKyAKmlKAUpUGgJpVFV0BAFTSlAKUpQClKUApSlAKwHipOuykzgR3sef/ANI5YlH4tKo/Gs/WG8ZL/UrhsgGOJplJ7B4ftI2PyZFP4Vun/JEZV4YuA9qknl9pj/CJHA/kBWo2F7yeIW0Zzm6xcZ8svZ6H3/xWyH5yVsNprtuFjKfaLb5EYP8A7rjIiBP77BRmtV8WJGLuzEcv2tnJYQkDBB9plwVbzB0RZ+T/ABr0UopykuDvvzsRm58b4pyrqyixtNJKpPoVhYj+J2rG8E4HZy2sha2hkzNdhi8SkkpdT9yRk4Ocfyq48Y23XZXGQFgu0MhJwAkiOmT/AJmSqvo/k12EUhGOa002D/8AdPJJ/wB9YyppreZeJ5+HFVhYTZ624fj/ABKRbNn44P8AzGrXxQ3MkCA//M4dER8Y5PaHH+wQawn0d8RYzR27Kw9jSSyBJ2ZmeRtvXCWiD8T+MJxhfbbZZB73Er5m/dMYa1gLfPIA+NdfltVHp+2jN8Db/HduH4fcgjOIy4/xRkMp/ioqrgUQW5v8feuI2Pz9ltwf+Aq84+mqBk/baND8nkRT/wA1W/hxMm5mOftbqQ7+kQWAY+B5Gr/NXnT/APNrfD8GuJmKUpXIpGKmlKAUpSgFKUoBSlKAUpSgFKUoBSlKAUqnVVVAKxHipQ1s6EZV2ijf/BJKiv8A7rGrvil6IkzsXYhI1JxrdjhV/wCp9ACfKtQ4nNeXiRrDPb4aV5Y0w4EsdrOoCtMGPvHSSFTsSM7ZPWnC7TIzYfFV4kdrJcNusIMxX9poslF+YkVT81rTLXhiyC4uCCH/AKVsSWYnrMc0AfH7oaaZVHooFXXHrm4VLe0dovaJpQ05ILQIsUbS8nWVOGYpqyRtljgDFethC0fLhEksUWptKxxKY49W2ptaatbSvKwLbBVXKgkE94LoR3ltEeJm/E8kdxA1tqxzCiH96NngEgHxKT7ehwfKsl4cgCWlui9lgiUfgi1p/F+GrOsiI8iT6bOZFIIWMqTpSF8ZONKByA52G2cadv8ADTqbSDQSVESKCRgkKNOSD2O3auU1aFtfYqzNfjgS3nllQABrp5mB+6T7NC7/AA6Wmb/Oaw3iTgsazcWl3U+yW10pXurRvKzFfjqtUPzPxqixiluUvY1cCQiaGQSBhpmnnPulsAqqKigA+Sn7299x1XkaQqzAzM1pcaoXdBC0TBZcBgUh17d+lpJTn07xvGWe1ZmTabS5MturS+8kirIQMDXDKAXAPZCU1f4TVfBJMGaDzilOCfNJAJFPyGtk/wAhrVPBnENbTWk0bxrKmQshfKyKipPbKzZLBUEbg5OdZOcYq7txdxXehXhaR4mViwfEhhZGGSCOW+J2fSAw6m3woA4yp2bj4lubpSsJwbxCk0rwMVDhUli+7zYnUHmKpJzpbUrYJxgE41YrN1wlFxdmaFKUqAUpSgFKUoBSoJqNVADUrU0oBSlKAVBNSagCgAFTSsf4hueVa3Eo7pDKw+aoxFVK7sDTvF/H7Z7hY0l+0ihlwwl0wMZysKxvozzAHZWIxtpznbBlLq6STOtoWlCoM20khxHzNco6hqYqmrGnCmde+5FdvwKFTG5RQBcK7AqoiR0MeZlTtEWaJ91x/aYO1Z6VebAB5vGk0RYNs4GrSR3GD/IkY8j6XKKSSMmmcK4O5Zbi4mvJZggK82NsR88urooZcKUTBcjZjgLjFZa8jCgamuAgkddWmPKRyKQZAWTuxKqM7rq+YOdsCCgdABmOMjAxtjOP7Xb+X41ZcbQz5i5hXXMINmxpTl6pmG5xIYy+DnIHbGTk6jlLEWNehhLjU7zQFnYNzeU+ZpQWmhiWNNczJsOkgDQTkFMLnOGW1xGhWP2nBMkmJGtIuuRyxVUEbFdTOxAY4G+SKueCxjSLkjDSKOSnS3KhBblqqe91IVZsEsWPwGEnFSCcY2GQGYY6GGkZ/ZGXBPppz1ZASm3gkLGuX3CChl1TTwmZ9TtKIAHkdVTQlyiFEBCBdLKMkr1DO/rDA0ob7S7jOtkdTFCRG7deWHL6iryaOk4YMGXpODs9pchwVYalwFOrBGkY0hielc+8c7nJxkAGsZzRaMxJblxqnWW1aomzo93dzHIpQbDplAqqo3hxFjA3YLmNhNdowl5waO2yyudMZj6YznpkUrsVZQAQuQTTxbi6KsslxJpDuZF12kqETQBI1aLW3SzIgePBByXBONq2Llqiawquxt1VEXBuGlAjwu2QDlFy2wUKhOw29imW5TqmWikZlTMq6SyjQ2T+0DtjB07Haqqi5en4FjVLXxPbRSKyvE8SXBcRxsS6atSM8SFR05DSu2dxI2P3uqKwIBByDuCOxHrWicJ4DBEsZWBcKwCswBbFwtsHUE7lftpRjttisj9HamO3Fszs/LG2ok6V5k0YjGdwAYGIB7Zx2GKzWUWrx4BG1GoqqleU0KUpQClKgigI71VSlAKUpQClKUApSlAK17x2zCzkIUvGFczquNRh5UmojJHY6WODkhSBnsdhq24naCaGWE7CSN0PydSP+tag7STBrVxNFHb3GQrAi8JXIIbEtyXzq+e49TjFZtVXEMMsg52jUpXC6tGnWUUk7dQB77N3rSeDXqxW/LunjSTnXEcplKrG0r6pWB1bGPnPp9DgeRrMxcOgm08xROYiQjMkGU0MNBjCkCPpKkaQuRpJ8q7zhZ48zKM+eDw4YAMMkk6ZZVwT3xpYacnc4xk5PetdsYmdIpDiMNK4kXEhYTPHJDkyucvhtCDpHl8qvP6IwzSwyyQyEKWIOpJGwOqRC2HONichsAAN2q1mRSXbdSecZCpdVlWLSHl0ghVkB0MHxnMejOOo5j9QXvDG12cKgKMRKjIqkKrRjS6CI7KqsrLu2BjvWLJK6xpXGCcj7uFQalz7ukaWUjJXmEhSGBPtDeNHOYzpZ5CC8JcKswXObi2BOnWcjmRkjffPYvf/ANJQd5NcZxqKyxSK3S2X8sEnK4AJyF2yBVxTyzB4cLiIbOkAjPYEEZY5UEbqgJKjAONO+O1U8QxJc6djpFsjdJJYmYTFC598COItjG2s/tbe0vEdK/ZIduX9rMGjiydiVziSRyoHSowTgZGSatbG30jmFm06XfU5RyxOkmeQs2zEKAB91FAyNwJqCfDkRAgQHBjzG2M5LINLZ1ZOfsnBJ74b4E+1tw63uLi6uyXGHFvqWV1RlhUamKqcErI8qb9tB2758Y5Vjug6AKxEssylW3iVEUYGQImwIWOV36VO4GPJLRYcYwoi06kEsvJWRljKKsfuoMs7nSMgKvk1a5vmDK6NK8oknlTQRgnzGu3KE/HGAfUg1jfCNq7SmYaVQCTy6yTdXpCeQC6ZFb4nT6Vhb7j4i1J9tOyTW+rSpctI09vK0epegEa+WBnbpX57h4O4I1nbLC765CWeQ76dTfdUHsqjCj5fGkk4wd+I4mbpSleY0KUpQClKUApSlAKjNCaKKAmlKUApSoNATSoBqaAwXFfCFncSrcPFiZWDCRGZG1LjDEKcMekdwewHaueePZ3s7tIQwETxhw8sMcmp9cmcaVXddQO5JyRnY79gq04nwyC4TlzxJMuc4dQwB9RnsflXelW6LXSxRGjk49slkwfZ2b2h7frtSCJlTnNHgvuAIFxklSHKjI2HvZe0zcuQxWsiFbeYf1XoKTSOFB1Tb9TZIOSCkbHB3rfP9C+Hg5FsqnIbpZ16lBCtse4BOD8alPB1jjTyMDGMa5e2c6fe2Gd67P4iHD0Rnos1Rre4YCOSCKQsVVl5CYZ7fDyMxaYZ1bx9j0rkDBIqqK6uUX+wuCBp0hZSobTCZNgLo6dQBGANsZ3J01n7Xw7wx3aNYutGJZS06nPYuNRGrvjUMjfvVyPBXD/9WX/af0x6+m1ZdWOT9P2WxrU0c+tf6uxfWY1aTRJJ1RZUrI1wcZC6++Mpp++WrymNxLjESKHYIoeJSQ0qJIrZ52+MNgfvYOBW0nwRw7ubSM/PUe341B8D8N/1OH8VzU+dDa/YszQJ5pg6KEi1NDJcDTBFgpHKrAMzTb4UNCD95G7knpsbLi1zLc2dvGiHnJEzBIkVhCzIGZt20kRxdz91+3VXTf8AQnhv+o2/5S1d8GgsoneG2ijhdffVIuUT26h0jWNxuMjcV06xC2CuTonvZ8GgibWqZcZ63JdwSWLEFidOSzE4x7xrIUpXibbzNimaVT3qAkGppSgFKUNAKVTmqqAgCppSgFKUoBUEVNKAYpSlAK5/xnxBMhv+XdTf1WIsoNqpQzBZHMRcR7qFEJzkbOTn06BVhxThaTxzREsqzRPE+nGcOpXWM9mAPf5ZzgY6UpRi+8iMwtzLcLIsKy3UzaUd2jis9MauWALczST7rHCBj09txm0s725kkhUXcgWZ59GqGFXaONcrKEZAQCcDceh2zW2+zjUrA4IGk/vL+yfx3Hpv6nNq3BYeetwqKkiliWVVBfUpGHYDLd8960qi4oWNLm43IzMFvyzpfwW8YEcOSjvAkje57w5ko9OjttV5x3itzAJcTzYjZI+Y6WaxtI+giNVOHfZx2Hyzvjab7g8Ui6caMzwzsUABaSGSNwW23zylB88VTxbgkFwDrjXXp0iXSpkUZBwrEZAyBtWlUhhh6afslmVXUbpBgzuGGNU2iPVjVuSpXSAB327DNawOI3TXaWwluEHNkjeSSOy0krC0i6AhLbjSepQME+e1bsRnasXF4fgR43iQRaJGkwgADM0TR9XyUgD00gdqxCaV7orRr8l9cawFu5Apukt1Z4YULnB5uhWQE6SpGe2x9M14ccvbpCNElywS4gi55ishErSTRxtgZEp2kK7IRk+ma2q/4NBI6zMirIjo4kCrr6T7pfGdP41PEeEpMCpYgM8MhAxu8Mkbo348tQfgK1GpFNYfYWL2BCqgMxcgbsQAT8SFAA/CvSlK4FIxU1CsDuDn5VNAKUpQClKUBGKmlKAUpSgFKUoBXP8Ax5m4v7Oxd3WB0lkkWM4LlEcgH1xy/wDe/h0Cte8V+FlvDFIsz280JJjlj7gNjKkbZG3qP4Eg9qElGd3r4YEkro1fg3iuK2slS1FxdublbeNLkiNg8m4TOOlB2wexONh2yFp9IBIiMtuIs3UlpcfaZ5MiLlSOnDg4PmMYPevYfR9EtqsCzyCVZxci42L84bayp7jHln45zVZ8AxGyktGldmll58kxC6zLkEsF7AEDGPia7uVB4vnt8vczaRibj6TWWKFzbRo8kL3DJJcBAIldlRUYp1yPpYhcenfyyieNnluYbe2tTMssEFwH5gUpFKy62ZSPuqc7EknAxXvxTwUrmF4J3tXigFtqRUfVCMYXqHSw3wR2zV/aeG0jvPbBIxItlttLYPSGU6y3ct0/zrLlQtdLnz8N3+o7xrtj9IUkk8cZtNMb3T23M5wbqUrghdIP3gTnbfYmvJfpGnMgRbHUpuZLUETrlpF06QAyjBOoE52APc74ylt4EjQxnnueXdvdjpXdn0fZ/Lo/nUW3gKNGRue50XrXnuruzBBy/wDD0fPetdL4fl66jvGPX6RybaKQwxpNLNLEFkmCQrysFnaUjYdSjt3NVv8ASIzR2jwWnOa5W4OjnBSjwe8oYrhhkE522HbO1XQ8AqsSJHcMksc8k0cuhG0mQAOhRtmU4H8BV4fB6l7SRp5Ha2WZctgmQzKQzMfLGdsfAVG/h+C589bew7xrc3jS7mbhkkEehLhpA6B0IkKSaWTUy5UKBqB2zqx5Vtvi3xAbNItEXOlmlWGJNQQFm8yx7D/yOw3Fhw/wPHEtkomc+xvK65VevmtkhvTHwrJ+KfDy3saLzGhkikWWKRQCUdex0nuP/ArMpUXNWWGPq7ewV7HO/GvH5L+0gQ2+CL4wXEXOwGlQdMGrAyHDk6uylPka6TxgFbKbA0EW0mwOSuIztq88etYOLwDGIYozO5ZLwXjyELmWUd8j7oO3b0rab+2EsUkROA6OmR3GpSM/zpVqQfRUck2EnxOfcG8VTWtnw6JIDdSXCXGMy6GzE2QMsCDnVvkjAHn2q6i+kCSWG0MVpzJbrn/ZiUKFWEsHIYjckAkA47EfPKW3glE9i+2c+xiYL0r183GdXpjHlVnF9HaJFaxx3Usb2xm0yqF1skxJdMdgdyAfidq25UHi87vn/t/yLSNY8FzolvwhNLnVcXWkpKY1HWRlkAIkB1dsjz9SK2Hh/wBIMkssI9kxDPcNDFLzRuFIBYppyDuDjt332q/4f4FjiWzUTMfZJJZF6V6zIckH0x8Kt7H6PEiljkF1KUinaaKEquhNRBKZ7nsN/h27k2dSjNtvXnzf6IlJG7UpSvCdBSlKAUpUZoATQGuQ/WRe+kP5bfqp9ZF76Q/lt+qvZ1GqeDtGjqdfpXJYPpB4g+rQkLaVLNiNtlHc+/Xl9ZN76Q/lt+qnUquhe0aOvkdfqCa5D9ZN76Q/lt+qn1kXvpD+W36qdRqk7Ro6nXVWqq5B9ZN76Q/lt+qn1k3vpD+W36qdRqjtGjqdfpXIPrJvfSH8tv1U+sm99Ify2/VTqNUdo0dTrxNAa5D9ZF76Q/lt+qn1kXvpD+W36qdRqjtGjqdfpXIPrJvfSH8tv1U+sm99Ify2/VTqNUdo0dTr9K5B9ZN76Q/lt+qh+ki99Ify2/VTqNUdo0dTruM1VXIPrJvfSH8tv1U+sm99Ify2/VTqNUdo0dTr9K5B9ZN76Q/lt+qn1k3vpD+W36qdRqjtGjqdeNRmuSr9Il+cYSI5OBiJ9z6Dq3OxoPpCv+2iL4fZP8P3v3h/EetTqVTQvaFHXyOuUrkv1g8R/u4/yZPh+98R/EVQPpGvz2WI+n2b/qp1KpoO0KWvkddpXIT9JF930w4zj+zbv6e93ov0j3x2Cwn5Rsf+6r1GqO0aOp1w71OmuSN9IXEB3jjA+MTj/u+I/jVH1k3vpD+W36qdSq6DtCjr5GuW3EdEfL5UbdYYllyTj7p9RgsP8xxXuOMKDkW8P3+6KffbPpjbsNth2pSvrOEWfDVSSKYuL6V0CGPAIIyu+NKAqf2gdAJz3JNT/S66tRt4feLYCKBuoXGMeWCQO2TnG1KVOhEvzJcyZ+MhkKezwrkEFlQavdxkHGRg7j5CsXSlaUUsjMpOWYpSlUyKUpQClKUApSlAKUpQClKUApSlAXUXEZVVUDYVTlRhTg5z3x67/gK9/wCnbj+8+HuJ22JHb1UGppWXCL4G1UmsmzzTi8wwNY2xjKoe2MeXw/4+tecHEZUOVbB0lfdU7Egkbj4D40pToR5D5kuZcf07cf3nr9xPM5J7d8+dUNxmcjGvYFTsqDdSCCSBv2FKVPlx5F+bPm/M8X4hIU5Zbp2BAAGQNOOw8tK/wxVtSlaSSyMNt5n/2Q=="
+             alt="Indian Emblem" class="emblem-logo">
+        <div>
+          <h1 class="text-xl md:text-2xl font-semibold">Health Department of Meghalaya</h1>
+          <p class="text-sm">Government of Meghalaya</p>
+        </div>
+      </div>
+      <nav class="flex flex-wrap justify-center gap-3 md:gap-4">
+        <a href="/" class="px-2 py-1 rounded hover:bg-blue-100 transition">Home</a>
+        <a href="#" class="px-2 py-1 rounded hover:bg-blue-100 transition">About Us</a>
+        <a href="#" class="px-2 py-1 rounded hover:bg-blue-100 transition">DHS (MI)</a>
+        <a href="#" class="px-2 py-1 rounded hover:bg-blue-100 transition">DM&HO</a>
+        <a href="#" class="px-2 py-1 rounded hover:bg-blue-100 transition">Facilities</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Banner -->
+  <section class="hero-gradient text-white py-8">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-2">Training Management Information System (THMIS)</h2>
+      <p class="text-xl md:text-2xl mb-4">Government of Meghalaya</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8 flex-grow">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Leaders Panel -->
+      <div class="space-y-6">
+        <div class="leader-card bg-blue-100 p-4 rounded-lg shadow-md text-center">
+          <img src="https://meghealth.gov.in/images/minister1.jpg" alt="CM of Meghalaya" 
+               class="w-24 h-24 object-cover rounded-full mb-4 mx-auto border-2 border-blue-500">
+          <h3 class="text-xl font-semibold text-black-900">Hon'ble Chief Minister</h3>
+          <p class="text-gray-600">Shri. Conrad K. Sangma</p>
+        </div>
+        
+        <div class="leader-card bg-blue-100 p-4 rounded-lg shadow-md text-center">
+          <img src="https://meghealth.gov.in/images/minister2.jpg" alt="Health Minister" 
+               class="w-24 h-24 object-cover rounded-full mb-4 mx-auto border-2 border-blue-500">
+          <h3 class="text-xl font-semibold text-black-900">Hon'ble Health Minister</h3>
+          <p class="text-gray-600">Dr. Mazel Ampareen Lyngdoh</p>
+        </div>
+        
+        <div class="bg-white p-4 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold mb-3 text-blue-900 border-b pb-2">Quick Links</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-blue-700 hover:underline flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+              </svg>
+              Training Calendar</a></li>
+            <li><a href="#" class="text-blue-700 hover:underline flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+              </svg>
+              Training Materials</a></li>
+            <li><a href="#" class="text-blue-700 hover:underline flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+              </svg>
+              Reports & Analytics</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Announcements -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-2">Announcements</h3>
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div class="bg-blue-100 text-blue-800 rounded-full p-2 mr-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold">Upcoming Training Program</h4>
+                <p class="text-sm text-gray-600">New training program on "Immunization" starting next month.</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="bg-blue-100 text-blue-800 rounded-full p-2 mr-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold">System Maintenance</h4>
+                <p class="text-sm text-gray-600">The THMIS portal will be unavailable on Sunday, 10:00 PM to 2:00 AM for scheduled maintenance.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gallery Section - Image Slider -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <!-- <h3 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-2"></h3> -->
+          <div class="activity-slider">
+            <div>
+              <img src="https://meghealth.gov.in/images/slides/5.jpg" alt="Health Camp" class="w-full">
+            </div>
+            <div>
+              <img src="https://meghealth.gov.in/images/slides/1.jpg" alt="Training Session" class="w-full">
+            </div>
+            <div>
+              <img src="https://meghealth.gov.in/images/slides/2.jpg" alt="Community Outreach" class="w-full">
+            </div>
+            <div>
+              <img src="https://meghealth.gov.in/images/slides/3.jpg" alt="Medical Facility" class="w-full">
+            </div>
+            <div>
+              <img src="https://meghealth.gov.in/images/slides/4.jpg" alt="Health Workshop" class="w-full">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8 mt-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h4 class="text-lg font-semibold mb-4">THMIS</h4>
+          <p class="text-gray-400 text-sm">Training Management Information System for Health Department of Meghalaya, Government of Meghalaya.</p>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-white transition">Home</a></li>
+            <li><a href="#" class="hover:text-white transition">Training Programs</a></li>
+            <li><a href="#" class="hover:text-white transition">Resources</a></li>
+            <li><a href="#" class="hover:text-white transition">Contact Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Departments</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-white transition">Health & Family Welfare</a></li>
+            <li><a href="#" class="hover:text-white transition">DHS (MI)</a></li>
+            <li><a href="#" class="hover:text-white transition">DM&HO</a></li>
+            <li><a href="#" class="hover:text-white transition">NHM</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Contact</h4>
+          <address class="text-sm text-gray-400 not-italic">
+            Health Department,<br>
+            Government of Meghalaya,<br>
+            Shillong - 793001<br>
+            <a href="mailto:info@thmis.meghalaya.gov.in" class="hover:text-white transition">info@thmis.meghalaya.gov.in</a>
+          </address>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
+        &copy; Site Designed and Hosted by National Informatics Centre, Meghalaya State Centre
+        <br>2025 Government of Meghalaya. All Rights Reserved.</br>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript for slider -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      $('.activity-slider').slick({
+        dots: true,
+        infinite: true,
+        speed: 300,
+        slidesToShow: 1,
+        adaptiveHeight: true,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        arrows: true
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EHRMS Training MIssion Director Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      header {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+      .dropdown-menu {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col">
+      <div th:replace="testfrontend/headersoftwareadmin :: header-navbar"></div>
+
+      <main class="flex-grow container mx-auto p-6">
+        <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+          <div class="flex flex-wrap justify-between items-center">
+            <label class="font-semibold">Session Start Date</label>
+            <select class="border p-2 rounded">
+              <option>Between</option>
+            </select>
+            <input type="date" class="border p-2 rounded" />
+            <input type="date" class="border p-2 rounded" />
+            <select class="border p-2 rounded">
+              <option>Select Districts</option>
+            </select>
+            <button class="bg-gray-300 p-2 rounded">Clear</button>
+            <button class="bg-blue-500 text-white p-2 rounded">Apply</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-xl font-semibold">Total Trainees</h3>
+            <p class="text-3xl font-bold text-blue-600">11025</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-xl font-semibold">Total Programs</h3>
+            <p class="text-3xl font-bold text-green-600">21</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-xl font-semibold">Total Sessions</h3>
+            <p class="text-3xl font-bold text-indigo-600">3446</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-xl font-semibold mb-4">Training Details</h3>
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="border p-2">Program Name</th>
+                  <th class="border p-2">Users Trained</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="border p-2">Child Health</td>
+                  <td class="border p-2">4530</td>
+                </tr>
+                <tr>
+                  <td class="border p-2">Immunization</td>
+                  <td class="border p-2">5770</td>
+                </tr>
+                <tr>
+                  <td class="border p-2">Maternal Health</td>
+                  <td class="border p-2">1355</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-xl font-semibold mb-4">Training Session Details</h3>
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="border p-2">District</th>
+                  <th class="border p-2">Users Trained</th>
+                  <th class="border p-2">Total Sessions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="border p-2">West Garo Hills</td>
+                  <td class="border p-2">952</td>
+                  <td class="border p-2">972</td>
+                </tr>
+                <tr>
+                  <td class="border p-2">Ri Bhoi</td>
+                  <td class="border p-2">824</td>
+                  <td class="border p-2">735</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
+            <h3 class="text-xl font-semibold mb-2">Upcoming Sessions</h3>
+            <div class="overflow-auto h-60 border rounded">
+              <table class="min-w-full text-left">
+                <thead class="bg-blue-500 text-white">
+                  <tr>
+                    <th class="p-2">Program Name</th>
+                    <th class="p-2">Topic Name</th>
+                    <th class="p-2">Session Start Date</th>
+                    <th class="p-2">Session Venue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="session : ${upcomingSessions}" class="border-b">
+                    <td class="p-2" th:text="${session.programName}"></td>
+                    <td class="p-2" th:text="${session.topicName}"></td>
+                    <td class="p-2" th:text="${session.startDate}"></td>
+                    <td class="p-2" th:text="${session.venue}"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
+            <h3 class="text-xl font-semibold mb-2">Completed Trainings</h3>
+            <div class="h-60 bg-blue-500 rounded"></div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <h3 class="text-xl font-semibold mb-2 text-blue-600">
+            Non Programmatic Training
+          </h3>
+          <div class="overflow-auto border rounded">
+            <table class="min-w-full text-left">
+              <thead class="bg-blue-300">
+                <tr>
+                  <th class="p-2">District</th>
+                  <th class="p-2">Activities Name</th>
+                  <th class="p-2">Date Of Training</th>
+                  <th class="p-2">ANMs</th>
+                  <th class="p-2">MLHP</th>
+                  <th class="p-2">Staff Nurses</th>
+                  <th class="p-2">Supervisors</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  th:each="training : ${nonProgrammaticTrainings}"
+                  class="border-b"
+                >
+                  <td class="p-2" th:text="${training.district}"></td>
+                  <td class="p-2" th:text="${training.activityName}"></td>
+                  <td class="p-2" th:text="${training.date}"></td>
+                  <td class="p-2" th:text="${training.anms}"></td>
+                  <td class="p-2" th:text="${training.mlph}"></td>
+                  <td class="p-2" th:text="${training.staffNurses}"></td>
+                  <td class="p-2" th:text="${training.supervisors}"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+
+      <footer class="bg-gray-200 text-center p-4 mt-10">
+        <p>&copy; 2023 EHRMS Training System. All rights reserved.</p>
+      </footer>
+    </div>
+  </body>
+</html>
