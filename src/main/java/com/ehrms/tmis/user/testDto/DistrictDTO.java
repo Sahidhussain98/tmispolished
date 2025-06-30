@@ -1,4 +1,4 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
 public class DistrictDTO {
     private Long districtId;

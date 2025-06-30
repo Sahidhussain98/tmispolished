@@ -1,9 +1,9 @@
-package com.tmisehrms.user.service;
+package com.ehrms.tmis.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_User;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_UserRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_User;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_UserRepository;
 
 public class M_UserService {
 

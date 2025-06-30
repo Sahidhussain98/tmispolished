@@ -28,7 +28,7 @@ public class SqlServerConfig {
                 .driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
                 .url("jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=ehrms")
                 .username("sa")
-                .password("ehrms")
+                .password("H12aT34e")
                 .build();
     }
 

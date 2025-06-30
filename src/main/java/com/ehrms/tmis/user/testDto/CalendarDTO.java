@@ -1,11 +1,6 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Program;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Topic;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Venue;
 
 import lombok.Data;
 
@@ -18,7 +13,5 @@ public class CalendarDTO {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String duration;
-  
-    
-   
+
 }

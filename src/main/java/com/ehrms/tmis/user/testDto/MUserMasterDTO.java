@@ -1,10 +1,9 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tmisehrms.database.msSql.sqlEntity.MUserMaster;
+import com.ehrms.tmis.database.msSql.sqlEntity.MUserMaster;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
 import java.util.Map;
 
@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_District;
-import com.tmisehrms.user.service.M_DistrictService;
+
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_District;
+import com.ehrms.tmis.user.service.M_DistrictService;
 
 @RestController
 @RequestMapping("/api/district")

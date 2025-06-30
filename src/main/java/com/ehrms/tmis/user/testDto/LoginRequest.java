@@ -1,7 +1,7 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
 public class LoginRequest {
-    
+
     private String empCd;
     private String pwdtemp;
 
@@ -21,7 +21,4 @@ public class LoginRequest {
         this.pwdtemp = pwdtemp;
     }
 
-   
 }
-    
-

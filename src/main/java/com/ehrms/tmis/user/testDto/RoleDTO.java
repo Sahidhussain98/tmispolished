@@ -1,8 +1,6 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
-import java.util.List;
-
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_District;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_District;
 
 public class RoleDTO {
 

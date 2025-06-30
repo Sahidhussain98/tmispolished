@@ -1,11 +1,11 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
 import java.util.List;
 
 public class UserInfoRequest {
 
     private String empCd;
-   
+
     private List<String> roles;
 
     public String getEmpCd() {
@@ -24,6 +24,4 @@ public class UserInfoRequest {
         this.roles = roles;
     }
 
-
-    
 }

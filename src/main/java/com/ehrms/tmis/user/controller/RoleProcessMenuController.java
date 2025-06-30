@@ -1,16 +1,17 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Menu;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Process;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Role;
-import com.tmisehrms.user.service.M_MenuService;
-import com.tmisehrms.user.service.M_ProcessService;
-import com.tmisehrms.user.service.M_RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Menu;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Process;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Role;
+import com.ehrms.tmis.user.service.M_MenuService;
+import com.ehrms.tmis.user.service.M_ProcessService;
+import com.ehrms.tmis.user.service.M_RoleService;
 
 import java.util.List;
 import java.util.Map;

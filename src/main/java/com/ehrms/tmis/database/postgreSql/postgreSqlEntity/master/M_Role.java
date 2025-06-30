@@ -33,8 +33,12 @@ public class M_Role {
 	@Column(name = "roleDescription")
 	private String roleDescription;
 
-	@Column(length = 150, unique = true, nullable = false)
+	@Column(length = 150, nullable = false)
 	private String landingPage;
+
+	/** New: folder under /Users/<templatePackage> */
+	@Column(length = 50, nullable = false)
+	private String templatePackage;
 
 	@ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnoreProperties({ "roles" })

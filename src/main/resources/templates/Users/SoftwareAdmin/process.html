@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Process Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <main layout:fragment="content">
+ 
+
+      <!-- Main Content -->
+      <main
+        class="container mx-auto max-w-4xl p-6 bg-white rounded shadow mt-8"
+      >
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+          Process Management
+        </h1>
+        <div class="flex justify-center mb-6">
+          <button
+            id="showCreateFormBtn"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Create Process
+          </button>
+        </div>
+
+        <!-- Create Process Form -->
+        <div
+          id="createForm"
+          class="hidden bg-gray-50 p-6 rounded border border-gray-200 mb-6"
+        >
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+            Create Process
+          </h3>
+          <div class="space-y-4">
+            <input
+              type="number"
+              id="createProcessCode"
+              placeholder="Process Code"
+              min="0"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+            <input
+              type="text"
+              id="createProcessName"
+              placeholder="Process Name"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+            <input
+              type="text"
+              id="createProcessPageURL"
+              placeholder="Page URL"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+            <label
+              for="createProcessMenu"
+              class="block text-gray-700 font-semibold"
+              >Select Menu:</label
+            >
+            <select
+              id="createProcessMenu"
+              class="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="">Select a Menu</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-4 mt-4">
+            <button
+              id="createProcessBtn"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+            >
+              Create
+            </button>
+            <button
+              id="cancelCreateFormBtn"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Process List -->
+        <div id="processListContainer">
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+            All Processes
+          </h3>
+          <div id="processList" class="space-y-4">
+            <!-- Process items will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Update Process Form -->
+        <div
+          id="updateForm"
+          class="hidden bg-gray-50 p-6 rounded border border-gray-200 mt-6"
+        >
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+            Update Process
+          </h3>
+          <input type="hidden" id="updateProcessId" />
+          <div class="space-y-4">
+            <input
+              type="number"
+              id="updateProcessCode"
+              placeholder="Process Code"
+              min="0"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+            <input
+              type="text"
+              id="updateProcessName"
+              placeholder="New Process Name"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+            <input
+              type="text"
+              id="updateProcessPageURL"
+              placeholder="New Page URL"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+            <label
+              for="updateProcessMenu"
+              class="block text-gray-700 font-semibold"
+              >Select Menu:</label
+            >
+            <select
+              id="updateProcessMenu"
+              class="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="">Select a New Menu</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-4 mt-4">
+            <button
+              id="updateProcessBtn"
+              class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+            >
+              Update
+            </button>
+            <button
+              id="cancelUpdateFormBtn"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <script>
+        const processList = document.getElementById("processList");
+        const showCreateFormBtn = document.getElementById("showCreateFormBtn");
+        const createForm = document.getElementById("createForm");
+        const updateForm = document.getElementById("updateForm");
+
+        // Toggle Create Form visibility
+        showCreateFormBtn.addEventListener("click", () => {
+          createForm.classList.toggle("hidden");
+        });
+
+        // Cancel Create Form
+        document
+          .getElementById("cancelCreateFormBtn")
+          .addEventListener("click", () => {
+            document.getElementById("createProcessCode").value = "";
+            document.getElementById("createProcessName").value = "";
+            document.getElementById("createProcessPageURL").value = "";
+            document.getElementById("createProcessMenu").value = "";
+            createForm.classList.add("hidden");
+          });
+
+        // Cancel Update Form
+        document
+          .getElementById("cancelUpdateFormBtn")
+          .addEventListener("click", () => {
+            document.getElementById("updateProcessCode").value = "";
+            document.getElementById("updateProcessName").value = "";
+            document.getElementById("updateProcessPageURL").value = "";
+            updateForm.classList.add("hidden");
+          });
+
+        // Fetch menus for dropdown in create form
+        function fetchMenus() {
+          fetch("/userRPM/menu/getall", { method: "GET" })
+            .then((response) => response.json())
+            .then((data) => {
+              const menuSelect = document.getElementById("createProcessMenu");
+              menuSelect.innerHTML = '<option value="">Select a Menu</option>';
+              data.forEach((menu) => {
+                const option = document.createElement("option");
+                option.value = menu.menuID;
+                option.textContent = menu.menuName;
+                menuSelect.appendChild(option);
+              });
+            })
+            .catch(console.error);
+        }
+
+        // Initialize dropdown and processes on page load
+        window.onload = () => {
+          fetchMenus();
+          fetchProcesses();
+        };
+
+        // Fetch Processes
+        function fetchProcesses() {
+          fetch("/userRPM/process/getall", { method: "GET" })
+            .then((response) => response.json())
+            .then((data) => {
+              processList.innerHTML = "";
+              data.forEach((process) => {
+                const processItem = document.createElement("div");
+                processItem.classList.add(
+                  "bg-gray-100",
+                  "p-4",
+                  "rounded",
+                  "flex",
+                  "justify-between",
+                  "items-center"
+                );
+                processItem.innerHTML = `
+                <div class="process-details text-gray-800">
+                  <strong>${process.processName}</strong><br>
+                  Code: ${process.processCode}<br>
+                  Mapped to menu: ${
+                    process.menu ? process.menu.menuName : "Menu not mapped"
+                  } | Code: ${process.menu ? process.menu.menuCode : "N/A"}<br>
+                  Page URL: ${process.pageURL}
+                </div>
+                <div class="process-actions flex space-x-3">
+                  <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" onclick="editProcess(${
+                    process.processId
+                  }, '${process.processCode}', '${process.processName}', '${
+                  process.pageURL
+                }', '${process.menu ? process.menu.menuID : ""}')">Edit</button>
+                  <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deleteProcess(${
+                    process.processId
+                  })">Delete</button>
+                </div>
+              `;
+                processList.appendChild(processItem);
+              });
+            })
+            .catch(console.error);
+        }
+
+        // Create Process
+        document
+          .getElementById("createProcessBtn")
+          .addEventListener("click", () => {
+            const code = document.getElementById("createProcessCode").value;
+            const name = document.getElementById("createProcessName").value;
+            const pageURL = document.getElementById(
+              "createProcessPageURL"
+            ).value;
+            const menuID = document.getElementById("createProcessMenu").value;
+            fetch("/userRPM/process/createorupdateprocess", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                processCode: code,
+                processName: name,
+                pageURL: pageURL,
+                menuID: menuID,
+              }),
+            })
+              .then((response) => response.json())
+              .then(() => {
+                alert("Process created successfully!");
+                fetchProcesses();
+                document.getElementById("createProcessCode").value = "";
+                document.getElementById("createProcessName").value = "";
+                document.getElementById("createProcessPageURL").value = "";
+                document.getElementById("createProcessMenu").value = "";
+                createForm.classList.add("hidden");
+              })
+              .catch(console.error);
+          });
+
+        // Edit Process
+        function editProcess(id, code, name, pageURL, menuID) {
+          document.getElementById("updateProcessId").value = id;
+          document.getElementById("updateProcessCode").value = code;
+          document.getElementById("updateProcessName").value = name;
+          document.getElementById("updateProcessPageURL").value = pageURL;
+          document.getElementById("updateProcessMenu").value = menuID;
+          // Populate the update dropdown
+          fetch("/userRPM/menu/getall", { method: "GET" })
+            .then((response) => response.json())
+            .then((menus) => {
+              const updateMenuSelect =
+                document.getElementById("updateProcessMenu");
+              updateMenuSelect.innerHTML =
+                '<option value="">Select a New Menu</option>';
+              menus.forEach((menu) => {
+                const option = document.createElement("option");
+                option.value = menu.menuID;
+                option.textContent = menu.menuName;
+                if (menu.menuID == menuID) option.selected = true;
+                updateMenuSelect.appendChild(option);
+              });
+            })
+            .catch(console.error);
+          updateForm.classList.remove("hidden");
+        }
+
+        // Update Process
+        document
+          .getElementById("updateProcessBtn")
+          .addEventListener("click", () => {
+            const id = document.getElementById("updateProcessId").value;
+            const code = document.getElementById("updateProcessCode").value;
+            const name = document.getElementById("updateProcessName").value;
+            const pageURL = document.getElementById(
+              "updateProcessPageURL"
+            ).value;
+            const menuID = document.getElementById("updateProcessMenu").value;
+            fetch("/userRPM/process/updateprocess", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                processId: id,
+                processCode: code,
+                processName: name,
+                pageURL: pageURL,
+                menuID: menuID,
+              }),
+            })
+              .then(() => {
+                alert("Process updated successfully!");
+                fetchProcesses();
+                updateForm.classList.add("hidden");
+              })
+              .catch(console.error);
+          });
+
+        // Delete Process
+        function deleteProcess(id) {
+          fetch("/userRPM/process/deleteprocess", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          })
+            .then(() => {
+              alert("Process deleted successfully!");
+              fetchProcesses();
+            })
+            .catch(console.error);
+        }
+      </script>
+    </main>
+  </body>
+</html>

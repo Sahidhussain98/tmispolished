@@ -1,12 +1,11 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
 import java.time.LocalDateTime;
 
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.CalendarDetails;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.CalendarDetails;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

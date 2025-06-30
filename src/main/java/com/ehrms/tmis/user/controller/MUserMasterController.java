@@ -1,8 +1,9 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.tmisehrms.user.service.MUserMasterrService;
-import com.tmisehrms.user.testDto.MUserMasterDTO;
+
+import com.ehrms.tmis.database.msSql.sqlEntity.MUserMaster;
+import com.ehrms.tmis.user.service.MUserMasterrService;
+import com.ehrms.tmis.user.testDto.MUserMasterDTO;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -28,8 +31,19 @@ public class MUserMasterController {
 
   @GetMapping("/all")
   public ResponseEntity<List<MUserMasterDTO>> getAllTrainees() {
-    List<MUserMasterDTO> dtos = mUserMasterrService.getAllTrainees();
-    return ResponseEntity.ok(dtos);
+    List<MUserMaster> trainees = mUserMasterrService.getTrainees();
+    Map<String, String> empCdToFullName = getEmpCdToFullNameMap();
+
+    List<MUserMasterDTO> filteredTrainees = trainees.stream()
+        .filter(trainee -> empCdToFullName.containsKey(trainee.getId().getEmpCd().trim()))
+        .map(trainee -> {
+          MUserMasterDTO dto = new MUserMasterDTO(trainee);
+          dto.setFullName(empCdToFullName.get(trainee.getId().getEmpCd().trim()));
+          return dto;
+        })
+        .collect(Collectors.toList());
+
+    return ResponseEntity.ok(filteredTrainees);
   }
 
   @PersistenceContext(unitName = "sqlServer")

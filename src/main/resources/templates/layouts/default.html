@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title layout:fragment="title">EHRMS</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="h-screen overflow-hidden bg-gray-100">
+    <!-- FIXED HEADER (64px tall) -->
+    <header
+      class="fixed top-0 left-0 right-0 h-16 z-50 shadow bg-indigo-600 text-white"
+      th:replace="fragments/Header :: header-navbar"
+    ></header>
+
+    <!-- FIXED FOOTER (48px tall) -->
+    <footer
+      class="fixed bottom-0 left-0 right-0 h-12 z-50 shadow-inner bg-indigo-700 text-white"
+      th:replace="fragments/Footer :: footer-bar"
+    ></footer>
+
+    <!-- SIDEBAR: sits between header & footer, scrolls its own content -->
+    <aside
+      class="fixed left-0 top-16 bottom-12 w-64 bg-indigo-100 border-r border-indigo-200 overflow-y-auto z-40"
+      th:replace="fragments/Sidebar :: sidebar(${menuMap}, ${templatePackage})"
+    ></aside>
+
+    <!-- MAIN CONTENT: sits to the right of the sidebar, scrollable -->
+    <main
+      layout:fragment="content"
+      class="absolute top-16 bottom-12 left-64 right-0 p-6 overflow-auto"
+    >
+      <!-- page content is injected here -->
+    </main>
+  </body>
+</html>

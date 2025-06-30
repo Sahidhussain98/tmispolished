@@ -1,4 +1,4 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.tmisehrms.user.service.UserRoleMappingService;
-import com.tmisehrms.user.testDto.RoleAssignmentDTO;
-import com.tmisehrms.user.testDto.RoleDTO;
-import com.tmisehrms.user.testDto.UserRoleMappingDTO;
+
+import com.ehrms.tmis.user.service.UserRoleMappingService;
+import com.ehrms.tmis.user.testDto.RoleAssignmentDTO;
+import com.ehrms.tmis.user.testDto.RoleDTO;
+import com.ehrms.tmis.user.testDto.UserRoleMappingDTO;
 
 @RestController
 @RequestMapping("/api")

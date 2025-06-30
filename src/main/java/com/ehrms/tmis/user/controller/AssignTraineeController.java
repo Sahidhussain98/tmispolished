@@ -1,4 +1,4 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.Transactional.T_AssignTrainee;
-import com.tmisehrms.user.service.AssignTraineeService;
-import com.tmisehrms.user.service.EmployeeService;
-import com.tmisehrms.user.testDto.EmployeeNameDTO;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_AssignTrainee;
+import com.ehrms.tmis.user.service.AssignTraineeService;
+import com.ehrms.tmis.user.service.EmployeeService;
+import com.ehrms.tmis.user.testDto.EmployeeNameDTO;
 
 @CrossOrigin(origins = "*")
 @RestController

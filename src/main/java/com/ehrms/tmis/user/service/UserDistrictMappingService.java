@@ -1,18 +1,18 @@
-package com.tmisehrms.user.service;
-
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.Transactional.T_UserDistrictMapping;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_District;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Role;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_User;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_DistrictRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_UserRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserDistrictMappingRepository;
-import com.tmisehrms.user.testDto.RoleDTO;
+package com.ehrms.tmis.user.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_UserDistrictMapping;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_District;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Role;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_User;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_DistrictRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_UserRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserDistrictMappingRepository;
+import com.ehrms.tmis.user.testDto.RoleDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;

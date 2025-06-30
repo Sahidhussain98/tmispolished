@@ -1,4 +1,4 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

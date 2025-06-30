@@ -1,9 +1,4 @@
-package com.tmisehrms.user.controller;
-
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_District;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_User;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_UserRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_DistrictRepository;
+package com.ehrms.tmis.user.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_District;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_User;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_DistrictRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_UserRepository;
 
 import java.util.Map;
 import java.util.Optional;

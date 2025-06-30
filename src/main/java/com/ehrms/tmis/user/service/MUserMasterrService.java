@@ -1,4 +1,4 @@
-package com.tmisehrms.user.service;
+package com.ehrms.tmis.user.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,14 +13,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.tmisehrms.database.msSql.sqlEntity.MUserMaster;
-import com.tmisehrms.database.msSql.sqlRepository.MUserMasterRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.Transactional.T_UserRoleMapping;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Role;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserRoleMappingRepository;
-import com.tmisehrms.user.testDto.DistrictDTO;
-import com.tmisehrms.user.testDto.MUserMasterDTO;
+import com.ehrms.tmis.database.msSql.sqlEntity.MUserMaster;
+import com.ehrms.tmis.database.msSql.sqlRepository.MUserMasterRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_UserRoleMapping;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Role;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserRoleMappingRepository;
+import com.ehrms.tmis.user.testDto.DistrictDTO;
+import com.ehrms.tmis.user.testDto.MUserMasterDTO;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -39,9 +39,9 @@ public class MUserMasterrService {
         @Autowired
         private M_RoleRepository roleRepository;
 
-        // public List<MUserMaster> getAllTrainees() {
-        // return mUserMasterRepository.findAll();
-        // }
+        public List<MUserMaster> getTrainees() {
+                return mUserMasterRepository.findAll();
+        }
 
         public List<MUserMasterDTO> getAllTrainees() {
                 // 1) load all users

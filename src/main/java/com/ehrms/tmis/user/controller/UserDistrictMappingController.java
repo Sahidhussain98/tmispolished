@@ -1,10 +1,10 @@
-package com.tmisehrms.user.controller;
-
-import com.tmisehrms.user.service.UserDistrictMappingService;
+package com.ehrms.tmis.user.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.ehrms.tmis.user.service.UserDistrictMappingService;
 
 import java.util.List;
 

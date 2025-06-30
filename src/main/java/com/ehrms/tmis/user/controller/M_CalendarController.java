@@ -1,7 +1,8 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.*;
-import com.tmisehrms.user.service.*;
+import com.ehrms.tmis.Users.ProgramManagerCumConsultant.Service.*;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.*;
+import com.ehrms.tmis.user.service.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -151,18 +152,11 @@ public class M_CalendarController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PostMapping("/all")
-    public ResponseEntity<List<M_Calendar>> getAllMcalendar(
-            @RequestBody(required = false) M_Calendar filter) {
-        List<M_Calendar> calendars = mCalendarService.getAllMcalendarWithDetails(filter);
-        return ResponseEntity.ok(calendars);
+    @GetMapping("/all")
+    public ResponseEntity<List<M_Calendar>> getAllMcalendar() {
+        List<M_Calendar> calendars = mCalendarService.getAllMcalendarWithDetails();
+        return new ResponseEntity<>(calendars, HttpStatus.OK);
     }
-
-    // @GetMapping("/all")
-    // public ResponseEntity<List<M_Calendar>> getAllMcalendar() {
-    // List<M_Calendar> calendars = mCalendarService.getAllMcalendarWithDetails();
-    // return new ResponseEntity<>(calendars, HttpStatus.OK);
-    // }
 
     @DeleteMapping("/delete/{calendarId}")
     public ResponseEntity<Void> deleteMcalendar(@PathVariable Long calendarId) {

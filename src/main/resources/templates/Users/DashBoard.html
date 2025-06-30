@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --light-gray: #f8f9fa;
+        --dark-gray: #6c757d;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --sidebar-width: 280px;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar Styles */
+      .sidebar {
+        width: var(--sidebar-width);
+        background-color: var(--secondary-color);
+        color: white;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+        z-index: 1000;
+      }
+
+      .sidebar-header {
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+      }
+
+      .sidebar-header h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .sidebar-header h3 i {
+        margin-right: 0.5rem;
+      }
+
+      .user-info {
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .user-info-item {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .user-info-item i {
+        width: 20px;
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+      }
+
+      .user-info-label {
+        font-weight: 600;
+        margin-right: 0.5rem;
+        min-width: 80px;
+      }
+
+      .user-roles {
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .role-badge {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+      }
+
+      .calendar-summary {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 1rem 0;
+      }
+
+      .calendar-item {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .calendar-item:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+      }
+
+      .calendar-item.active {
+        background-color: var(--primary-color);
+      }
+
+      .calendar-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .calendar-item-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: 0;
+      }
+
+      .calendar-item-date {
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
+
+      .calendar-item-details {
+        font-size: 0.85rem;
+        opacity: 0.9;
+      }
+
+      .sidebar-footer {
+        padding: 1rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logout-btn {
+        width: 100%;
+        background-color: #dc3545;
+        border: none;
+        color: white;
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .logout-btn:hover {
+        background-color: #c82333;
+      }
+
+      .logout-btn i {
+        margin-right: 0.5rem;
+      }
+
+      /* Main Content Styles */
+      .main-content {
+        margin-left: var(--sidebar-width);
+        flex-grow: 1;
+        padding: 2rem;
+        transition: all 0.3s;
+      }
+
+      .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      /* Responsive Styles */
+      @media (max-width: 992px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .sidebar-toggle {
+          display: block !important;
+        }
+      }
+
+      /* Toggle Button */
+      .sidebar-toggle {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1100;
+        display: none;
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem;
+        font-size: 1.2rem;
+      }
+
+      /* Training Table Styles */
+      .training-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .training-table th {
+        background-color: var(--light-gray);
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .training-table td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+      }
+
+      .training-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .training-table tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+
+      /* Certificate Modal Styles */
+      .certificate {
+        max-width: 900px;
+        margin: 50px auto;
+        background: #ffffff;
+        padding: 40px;
+        border: 10px solid #007bff;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .certificate h1 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #007bff;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+      }
+
+      .certificate .cert-content {
+        font-size: 1.2rem;
+        margin-top: 20px;
+        color: #333;
+      }
+
+      .certificate .info-table td {
+        padding: 10px 5px;
+        vertical-align: top;
+      }
+
+      .certificate .footer {
+        margin-top: 40px;
+        font-size: 0.95rem;
+        color: #777;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+      }
+
+      /* Status Badges */
+      .badge-upcoming {
+        background-color: #17a2b8;
+        color: white;
+      }
+
+      .badge-ongoing {
+        background-color: #007bff;
+        color: white;
+      }
+
+      .badge-completed {
+        background-color: #28a745;
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main layout:fragment="content"></main>
+    <!-- Sidebar Toggle Button (visible on mobile) -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h3><i class="fas fa-user-shield"></i> Employee Dashboard</h3>
+      </div>
+
+      <div class="user-info">
+        <div class="user-info-item">
+          <i class="fas fa-id-card"></i>
+          <span class="user-info-label">Emp Code:</span>
+          <span id="sidebarEmpCd" class="data-placeholder">Loading...</span>
+        </div>
+        <div class="user-info-item">
+          <i class="fas fa-user"></i>
+          <span class="user-info-label">Name:</span>
+          <span id="sidebarEmpName" class="data-placeholder">Loading...</span>
+        </div>
+      </div>
+
+      <div class="user-roles">
+        <h5><i class="fas fa-user-tag"></i> Assigned Roles</h5>
+        <div id="sidebarRolesLoading" class="text-center py-2">
+          <div
+            class="spinner-border spinner-border-sm text-light"
+            role="status"
+          >
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <span class="ms-2">Loading roles...</span>
+        </div>
+        <ul
+          id="sidebarRolesList"
+          class="list-unstyled mt-2"
+          style="display: none"
+        ></ul>
+        <div
+          id="sidebarNoRoles"
+          class="text-center text-light py-2"
+          style="display: none"
+        >
+          <i class="fas fa-info-circle me-2"></i>No roles assigned
+        </div>
+      </div>
+
+      <div class="calendar-summary">
+        <h5><i class="fas fa-calendar-alt"></i> Training Summary</h5>
+
+        <!-- Upcoming Trainings -->
+        <div class="calendar-item">
+          <div class="calendar-item-header">
+            <h6 class="calendar-item-title text-info">
+              <i class="fas fa-calendar-plus me-2"></i>Upcoming
+            </h6>
+            <span id="sidebarUpcomingCount" class="badge badge-upcoming"
+              >0</span
+            >
+          </div>
+          <div id="sidebarUpcomingList" class="calendar-item-details">
+            <div class="text-center py-2">
+              <div
+                class="spinner-border spinner-border-sm text-info"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span class="ms-2">Loading...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ongoing Trainings -->
+        <div class="calendar-item">
+          <div class="calendar-item-header">
+            <h6 class="calendar-item-title text-primary">
+              <i class="fas fa-spinner me-2"></i>Ongoing
+            </h6>
+            <span id="sidebarOngoingCount" class="badge badge-ongoing">0</span>
+          </div>
+          <div id="sidebarOngoingList" class="calendar-item-details">
+            <div class="text-center py-2">
+              <div
+                class="spinner-border spinner-border-sm text-primary"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span class="ms-2">Loading...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed Trainings -->
+        <div class="calendar-item">
+          <div class="calendar-item-header">
+            <h6 class="calendar-item-title text-success">
+              <i class="fas fa-check-circle me-2"></i>Completed
+            </h6>
+            <span id="sidebarCompletedCount" class="badge badge-completed"
+              >0</span
+            >
+          </div>
+          <div id="sidebarCompletedList" class="calendar-item-details">
+            <div class="text-center py-2">
+              <div
+                class="spinner-border spinner-border-sm text-success"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span class="ms-2">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="sidebarLogoutBtn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Loading State -->
+      <div id="loading" class="text-center py-5">
+        <div
+          class="spinner-border text-primary"
+          style="width: 3rem; height: 3rem"
+          role="status"
+        >
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-3">Loading dashboard...</p>
+      </div>
+
+      <!-- Content (hidden initially) -->
+      <div id="content" style="display: none">
+        <div class="dashboard-header">
+          <h1 class="display-6">
+            <i class="fas fa-calendar-alt me-2"></i>Training Programs
+          </h1>
+          <p class="text-muted">
+            View and manage your assigned training programs
+          </p>
+        </div>
+
+        <!-- Upcoming Programs Section -->
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-calendar-plus me-2"></i>Upcoming Programs
+              <span id="upcomingCount" class="badge bg-white text-info ms-2"
+                >0</span
+              >
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="training-table">
+                <thead>
+                  <tr>
+                    <th>Program</th>
+                    <th>Topic</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th>
+                    <th>Venue</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="upcomingTableBody"></tbody>
+              </table>
+            </div>
+            <div id="noUpcoming" class="text-center text-muted py-3">
+              <i class="fas fa-info-circle me-2"></i>No upcoming training
+              programs
+            </div>
+            <!-- noCalendars placeholder -->
+            <div
+              id="noCalendars"
+              class="text-center text-muted py-5"
+              style="display: none"
+            >
+              <i class="fas fa-info-circle me-2"></i>
+              No training calendars available.
+            </div>
+          </div>
+        </div>
+
+        <!-- Ongoing Programs Section -->
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-spinner me-2"></i>Ongoing Programs
+              <span id="ongoingCount" class="badge bg-white text-primary ms-2"
+                >0</span
+              >
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="training-table">
+                <thead>
+                  <tr>
+                    <th>Program</th>
+                    <th>Topic</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th>
+                    <th>Venue</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="ongoingTableBody"></tbody>
+              </table>
+            </div>
+            <div id="noOngoing" class="text-center text-muted py-3">
+              <i class="fas fa-info-circle me-2"></i>No ongoing training
+              programs
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed Programs Section -->
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-check-circle me-2"></i>Completed Programs
+              <span id="completedCount" class="badge bg-white text-success ms-2"
+                >0</span
+              >
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="training-table">
+                <thead>
+                  <tr>
+                    <th>Program</th>
+                    <th>Topic</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th>
+                    <th>Venue</th>
+                    <th>Status</th>
+                    <th>Certificate</th>
+                  </tr>
+                </thead>
+                <tbody id="completedTableBody"></tbody>
+              </table>
+            </div>
+            <div id="noCompleted" class="text-center text-muted py-3">
+              <i class="fas fa-info-circle me-2"></i>No completed training
+              programs
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div
+        id="errorMessage"
+        class="alert alert-danger mt-3 text-center"
+        style="display: none"
+      ></div>
+    </div>
+
+    <!-- Certificate Modal -->
+    <div
+      class="modal fade"
+      id="downloadModal"
+      tabindex="-1"
+      aria-labelledby="downloadModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="downloadModalLabel">
+              Certificate of Completion
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="certificate text-center">
+              <h1>Certificate of Completion</h1>
+              <p class="lead">This is to certify to</p>
+              <h2 class="my-3" id="GlobalUserFullName"></h2>
+              <p class="cert-content">
+                has successfully completed the training program.
+              </p>
+
+              <table
+                class="table table-borderless info-table mt-4 text-left mx-auto"
+                style="max-width: 600px"
+              >
+                <tr>
+                  <td><strong>Program Name:</strong></td>
+                  <td>
+                    <p
+                      id="programNameValue"
+                      class="form-control-plaintext mb-0"
+                    >
+                      N/A
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Topic:</strong></td>
+                  <td>
+                    <p id="topicValue" class="form-control-plaintext mb-0">
+                      N/A
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Start Date:</strong></td>
+                  <td>
+                    <p id="startDateValue" class="form-control-plaintext mb-0">
+                      N/A
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>End Date:</strong></td>
+                  <td>
+                    <p id="endDateValue" class="form-control-plaintext mb-0">
+                      N/A
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Venue:</strong></td>
+                  <td>
+                    <p id="venueValue" class="form-control-plaintext mb-0">
+                      N/A
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="pdfGenerate">
+              Download Certificate
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jsPDF and html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script> -->
+
+    <script>
+      // Global variables
+      let GlobalUserFullName = "";
+      let GlobalsidebarEmpName = "";
+      let currentUserEmpCd = "";
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Sidebar toggle functionality
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const sidebar = document.getElementById("sidebar");
+
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+        });
+
+        // Initialize the dashboard
+        initializeDashboard();
+      });
+
+      async function initializeDashboard() {
+        try {
+          debugger;
+          // Show loading state
+          document.getElementById("loading").style.display = "block";
+          document.getElementById("content").style.display = "none";
+
+          // Fetch user info
+          const userInfo = await fetchUserInfo();
+          currentUserEmpCd = userInfo.empCd || "";
+          GlobalUserFullName = userInfo.fullName || "";
+
+          // Update sidebar user info
+          document.getElementById("sidebarEmpCd").textContent =
+            userInfo.empCd || "N/A";
+          document.getElementById("sidebarEmpName").textContent =
+            userInfo.fullName || "N/A";
+
+          // Load roles
+          await loadRoles();
+
+          // Load training calendars
+          await loadTrainingCalendars();
+
+          // Hide loading and show content
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("content").style.display = "block";
+
+          // Set up logout button
+          document
+            .getElementById("sidebarLogoutBtn")
+            .addEventListener("click", logoutUser);
+        } catch (error) {
+          console.error("Dashboard initialization error:", error);
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("errorMessage").textContent =
+            error.message || "Error loading dashboard";
+          document.getElementById("errorMessage").style.display = "block";
+
+          // Redirect to login if unauthorized
+          if (error.message.includes("Unauthorized")) {
+            setTimeout(() => {
+              window.location.href = "LoginUser.html";
+            }, 2000);
+          }
+        }
+      }
+
+      async function logoutUser() {
+        const logoutBtn = document.getElementById("sidebarLogoutBtn");
+
+        try {
+          // Show loading state on button
+          logoutBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+          logoutBtn.disabled = true;
+
+          const response = await fetch("/api/logout", {
+            method: "POST",
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            // Redirect to login page after successful logout
+            window.location.href = "LoginUser.html";
+          } else {
+            throw new Error("Logout failed");
+          }
+        } catch (error) {
+          console.error("Logout error:", error);
+          // Restore button state
+          logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+          logoutBtn.disabled = false;
+
+          // Show error message
+          document.getElementById("errorMessage").textContent =
+            "Logout failed. Please try again.";
+          document.getElementById("errorMessage").style.display = "block";
+        }
+      }
+
+      async function fetchUserInfo() {
+        const response = await fetch("/api/userinfo", {
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(error || "Failed to fetch user data");
+        }
+
+        return await response.json();
+      }
+
+      async function loadRoles() {
+        const rolesList = document.getElementById("sidebarRolesList");
+        const rolesLoading = document.getElementById("sidebarRolesLoading");
+        const noRoles = document.getElementById("sidebarNoRoles");
+
+        try {
+          const response = await fetch("/api/userinfo", {
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch roles");
+          }
+
+          const userInfo = await response.json();
+
+          if (userInfo.roles && userInfo.roles.length > 0) {
+            rolesLoading.style.display = "none";
+            rolesList.innerHTML = "";
+
+            userInfo.roles.forEach((role) => {
+              const li = document.createElement("li");
+              li.className = "mb-2";
+
+              // Create a clickable link for each role
+              const roleLink = document.createElement("a");
+              roleLink.href = getRolePageUrl(role);
+              roleLink.className =
+                "text-decoration-none text-white d-flex align-items-center";
+              roleLink.style.cursor = "pointer";
+
+              roleLink.innerHTML = `
+                    <span class="badge bg-primary me-2"><i class="fas fa-user-tag"></i></span>
+                    <span>${role}</span>
+                `;
+
+              li.appendChild(roleLink);
+              rolesList.appendChild(li);
+            });
+
+            rolesList.style.display = "block";
+          } else {
+            rolesLoading.style.display = "none";
+            noRoles.style.display = "block";
+          }
+        } catch (error) {
+          console.error("Error loading roles:", error);
+          rolesLoading.style.display = "none";
+          noRoles.innerHTML = `
+            <div class="text-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error loading roles
+            </div>
+        `;
+          noRoles.style.display = "block";
+        }
+      }
+
+      // Helper function to determine the URL for each role
+      function getRolePageUrl(role) {
+        const roleMap = {
+          Trainee: "trainee.html",
+          "Principal cum State Nodal Officer": "mainadmin.html",
+          "District Medical & Health Officer (DMHO)": "dmhoadmin.html",
+          Manager: "manager-dashboard.html",
+          // Add more role-page mappings as needed
+        };
+
+        // Default to home page if role not found in map
+        return roleMap[role] || "index.html";
+      }
+
+      async function loadTrainingCalendars() {
+        if (!currentUserEmpCd) {
+          document.getElementById("noCalendars").style.display = "block";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `/api/assigntrainee/getByEmpCd/${currentUserEmpCd}`,
+            {
+              credentials: "include",
+            }
+          );
+
+          if (!response.ok) {
+            const errorDetails = await response.text();
+            throw new Error(
+              `Server error: ${response.status} - ${errorDetails}`
+            );
+          }
+
+          const trainingAssignments = await response.json();
+
+          if (!trainingAssignments || trainingAssignments.length === 0) {
+            document.getElementById("noCalendars").style.display = "block";
+            return;
+          }
+
+          const calendars = processCalendarData(trainingAssignments);
+          renderCalendars(calendars);
+          updateSidebarSummary(calendars);
+        } catch (error) {
+          console.error("Error loading calendars:", error);
+          document.getElementById("noCalendars").innerHTML = `
+                    <div class="text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading calendars. ${error.message}
+                    </div>
+                `;
+          document.getElementById("noCalendars").style.display = "block";
+        }
+      }
+
+      function processCalendarData(trainingAssignments) {
+        return trainingAssignments
+          .map((assignment) => {
+            const calendar =
+              assignment.calendar || assignment.Calendar || assignment;
+
+            const programName =
+              calendar.programeName?.programName ||
+              calendar.programName ||
+              calendar.Program?.name ||
+              "Training Program";
+
+            const topic =
+              calendar.topic?.topicName ||
+              calendar.topicName ||
+              calendar.Topic?.name ||
+              "General Training";
+
+            return {
+              id: calendar.calendarId || calendar.id,
+              programName: programName,
+              topic: calendar.topicName || calendar.topic,
+              venue: calendar.venueName || calendar.venue,
+              startDate: calendar.startDate || calendar.startDateTime,
+              endDate: calendar.endDate || calendar.endDateTime,
+              duration: calendar.duration,
+              description: calendar.description || "",
+              status: assignment.status || calendar.status || "Upcoming",
+              trainer:
+                calendar.trainer?.trainerName ||
+                calendar.trainerName ||
+                calendar.Trainer?.name ||
+                "Not assigned",
+              trainingMode: calendar.trainingMode,
+              materials: calendar.materials || [],
+              assignmentId: assignment.id || assignment.assignmentId,
+            };
+          })
+          .filter((calendar) => calendar.id);
+      }
+
+      function renderCalendars(calendars) {
+        // Clear previous data
+        document.getElementById("completedTableBody").innerHTML = "";
+        document.getElementById("ongoingTableBody").innerHTML = "";
+        document.getElementById("upcomingTableBody").innerHTML = "";
+
+        // Hide all "no data" messages initially
+        document.getElementById("noCompleted").style.display = "none";
+        document.getElementById("noOngoing").style.display = "none";
+        document.getElementById("noUpcoming").style.display = "none";
+
+        // Get current date for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Sort calendars by start date (soonest first)
+        calendars.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+        // Counters for each category
+        let completedCount = 0;
+        let ongoingCount = 0;
+        let upcomingCount = 0;
+
+        calendars.forEach((calendar) => {
+          const startDate = calendar.startDate
+            ? new Date(calendar.startDate)
+            : null;
+          const endDate = calendar.endDate ? new Date(calendar.endDate) : null;
+
+          // Determine the status based on dates if not explicitly provided
+          let status = calendar.status || "Upcoming";
+          if (startDate && endDate) {
+            if (endDate < today) {
+              status = "Completed";
+            } else if (startDate <= today && today <= endDate) {
+              status = "Ongoing";
+            } else {
+              status = "Upcoming";
+            }
+          }
+
+          const statusClass = getStatusBadgeClass(status);
+          const hasMaterials =
+            calendar.materials && calendar.materials.length > 0;
+
+          const row = document.createElement("tr");
+
+          // Program cell with description as tooltip if available
+          const programCell = document.createElement("td");
+          programCell.innerHTML = `
+                    <div class="fw-semibold">${calendar.programName}</div>
+                    ${
+                      calendar.description
+                        ? `<small class="text-muted">${calendar.description}</small>`
+                        : ""
+                    }
+                `;
+
+          // Topic cell
+          const topicCell = document.createElement("td");
+          topicCell.textContent = calendar.topic;
+
+          // Start Date cell
+          const startDateCell = document.createElement("td");
+          startDateCell.textContent = calendar.startDate
+            ? formatDate(calendar.startDate)
+            : "Not specified";
+
+          // End Date cell
+          const endDateCell = document.createElement("td");
+          endDateCell.textContent = calendar.endDate
+            ? formatDate(calendar.endDate)
+            : "Not specified";
+
+          // Duration cell
+          const durationCell = document.createElement("td");
+          durationCell.textContent = calendar.duration
+            ? `${calendar.duration} days`
+            : "N/A";
+
+          // Venue cell
+          const venueCell = document.createElement("td");
+          venueCell.innerHTML = `
+                    <div>${calendar.venue || "N/A"}</div>
+                    <small class="text-muted">${
+                      calendar.trainingMode || ""
+                    }</small>
+                `;
+
+          // Status cell
+          const statusCell = document.createElement("td");
+          statusCell.innerHTML = `<span class="badge ${statusClass}">${status}</span>`;
+
+          // Append all cells to the row
+          row.appendChild(programCell);
+          row.appendChild(topicCell);
+          row.appendChild(startDateCell);
+          row.appendChild(endDateCell);
+          row.appendChild(durationCell);
+          row.appendChild(venueCell);
+          row.appendChild(statusCell);
+
+          // Add certificate download button for completed programs
+          if (status.toLowerCase() === "completed") {
+            const actionCell = document.createElement("td");
+            const calendarStr = JSON.stringify(calendar).replace(
+              /'/g,
+              "&apos;"
+            ); // escape single quotes
+
+            actionCell.innerHTML = `
+                        <button 
+                            type="button" 
+                            class="btn btn-sm btn-primary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#downloadModal"
+                            data-calendar='${calendarStr}'
+                            onclick="handleCalendarButtonClick(this)">
+                            <i class="fas fa-download me-1"></i> Certificate
+                        </button>
+                    `;
+
+            row.appendChild(actionCell);
+            document.getElementById("completedTableBody").appendChild(row);
+            completedCount++;
+          } else if (status.toLowerCase() === "ongoing") {
+            document.getElementById("ongoingTableBody").appendChild(row);
+            ongoingCount++;
+          } else {
+            document.getElementById("upcomingTableBody").appendChild(row);
+            upcomingCount++;
+          }
+        });
+
+        // Update counts in main content
+        document.getElementById("completedCount").textContent = completedCount;
+        document.getElementById("ongoingCount").textContent = ongoingCount;
+        document.getElementById("upcomingCount").textContent = upcomingCount;
+
+        // Show/hide empty state messages
+        if (completedCount === 0) {
+          document.getElementById("noCompleted").style.display = "block";
+        }
+
+        if (ongoingCount === 0) {
+          document.getElementById("noOngoing").style.display = "block";
+        }
+
+        if (upcomingCount === 0) {
+          document.getElementById("noUpcoming").style.display = "block";
+        }
+      }
+
+      function updateSidebarSummary(calendars) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const upcomingCalendars = calendars.filter((calendar) => {
+          const startDate = calendar.startDate
+            ? new Date(calendar.startDate)
+            : null;
+          return startDate && startDate > today;
+        });
+
+        const ongoingCalendars = calendars.filter((calendar) => {
+          const startDate = calendar.startDate
+            ? new Date(calendar.startDate)
+            : null;
+          const endDate = calendar.endDate ? new Date(calendar.endDate) : null;
+          return startDate && endDate && startDate <= today && today <= endDate;
+        });
+
+        const completedCalendars = calendars.filter((calendar) => {
+          const endDate = calendar.endDate ? new Date(calendar.endDate) : null;
+          return endDate && endDate < today;
+        });
+
+        // Update counts in sidebar
+        document.getElementById("sidebarUpcomingCount").textContent =
+          upcomingCalendars.length;
+        document.getElementById("sidebarOngoingCount").textContent =
+          ongoingCalendars.length;
+        document.getElementById("sidebarCompletedCount").textContent =
+          completedCalendars.length;
+
+        // Update upcoming list in sidebar
+        const upcomingList = document.getElementById("sidebarUpcomingList");
+        upcomingList.innerHTML = "";
+
+        if (upcomingCalendars.length > 0) {
+          upcomingCalendars.slice(0, 3).forEach((calendar) => {
+            const item = document.createElement("div");
+            item.className = "mb-2";
+            item.innerHTML = `
+                        <div class="fw-semibold">${calendar.programName}</div>
+                        <small class="text-info">${formatDate(
+                          calendar.startDate
+                        )} - ${formatDate(calendar.endDate)}</small>
+                    `;
+            upcomingList.appendChild(item);
+          });
+
+          if (upcomingCalendars.length > 3) {
+            const moreItem = document.createElement("div");
+            moreItem.className = "text-center text-info";
+            moreItem.textContent = `+${upcomingCalendars.length - 3} more`;
+            upcomingList.appendChild(moreItem);
+          }
+        } else {
+          upcomingList.innerHTML =
+            '<div class="text-center text-muted">No upcoming programs</div>';
+        }
+
+        // Update ongoing list in sidebar
+        const ongoingList = document.getElementById("sidebarOngoingList");
+        ongoingList.innerHTML = "";
+
+        if (ongoingCalendars.length > 0) {
+          ongoingCalendars.slice(0, 3).forEach((calendar) => {
+            const item = document.createElement("div");
+            item.className = "mb-2";
+            item.innerHTML = `
+                        <div class="fw-semibold">${calendar.programName}</div>
+                        <small class="text-primary">Ends on ${formatDate(
+                          calendar.endDate
+                        )}</small>
+                    `;
+            ongoingList.appendChild(item);
+          });
+
+          if (ongoingCalendars.length > 3) {
+            const moreItem = document.createElement("div");
+            moreItem.className = "text-center text-primary";
+            moreItem.textContent = `+${ongoingCalendars.length - 3} more`;
+            ongoingList.appendChild(moreItem);
+          }
+        } else {
+          ongoingList.innerHTML =
+            '<div class="text-center text-muted">No ongoing programs</div>';
+        }
+
+        // Update completed list in sidebar
+        const completedList = document.getElementById("sidebarCompletedList");
+        completedList.innerHTML = "";
+
+        if (completedCalendars.length > 0) {
+          completedCalendars.slice(0, 3).forEach((calendar) => {
+            const item = document.createElement("div");
+            item.className = "mb-2";
+            item.innerHTML = `
+                        <div class="fw-semibold">${calendar.programName}</div>
+                        <small class="text-success">Completed on ${formatDate(
+                          calendar.endDate
+                        )}</small>
+                    `;
+            completedList.appendChild(item);
+          });
+
+          if (completedCalendars.length > 3) {
+            const moreItem = document.createElement("div");
+            moreItem.className = "text-center text-success";
+            moreItem.textContent = `+${completedCalendars.length - 3} more`;
+            completedList.appendChild(moreItem);
+          }
+        } else {
+          completedList.innerHTML =
+            '<div class="text-center text-muted">No completed programs</div>';
+        }
+      }
+
+      function getStatusBadgeClass(status) {
+        if (!status) return "bg-secondary";
+
+        switch (status.toLowerCase()) {
+          case "completed":
+            return "bg-success";
+          case "in progress":
+          case "ongoing":
+            return "bg-primary";
+          case "upcoming":
+            return "bg-info";
+          case "cancelled":
+          case "canceled":
+            return "bg-danger";
+          case "postponed":
+            return "bg-warning text-dark";
+          default:
+            return "bg-secondary";
+        }
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+
+      function handleCalendarButtonClick(btn) {
+        debugger;
+        const rawData = btn.getAttribute("data-calendar");
+        try {
+          const calendar = JSON.parse(rawData.replace(/&apos;/g, "'"));
+          populateDownloadModal(calendar);
+        } catch (e) {
+          console.error("Invalid calendar data");
+        }
+      }
+
+      function safeValue(val) {
+        return val && val.trim && val.trim() !== "" ? val : "N/A";
+      }
+
+      function formatInputDate(dateStr) {
+        if (!dateStr) return "N/A";
+        const date = new Date(dateStr);
+        return isNaN(date.getTime())
+          ? "N/A"
+          : date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+      }
+
+      function populateDownloadModal(calendar) {
+        debugger;
+        $("#downlaodModal").data("calendar", calendar);
+
+        // $('#downlaodModal .modal-title').text(`Assignment ID: ${safeValue(String(calendar.assignmentId || calendar.id))}`);
+        $("#programNameValue").text(safeValue(calendar.programName));
+        $("#topicValue").text(safeValue(calendar.topic));
+        $("#startDateValue").text(formatInputDate(calendar.startDate));
+        $("#endDateValue").text(formatInputDate(calendar.endDate));
+        $("#venueValue").text(safeValue(calendar.venue));
+        $("#GlobalUserFullName").text(GlobalUserFullName);
+        $("#saveChangesBtn").prop("disabled", true);
+      }
+
+      document
+        .getElementById("pdfGenerate")
+        .addEventListener("click", function () {
+          const modalContent = document.querySelector(
+            "#downloadModal .modal-content"
+          );
+          const downloadBtn = document.getElementById("pdfGenerate");
+          const modalTitle = document.getElementById("downloadModalLabel");
+          const closeButton = document.getElementById("modalCloseButton");
+
+          const topicElem = document.getElementById("topicValue");
+          const topic = topicElem
+            ? topicElem.innerText.trim().replace(/\s+/g, "_")
+            : "Topic";
+
+          const userInfoElem = document.getElementById("GlobalUserFullName");
+          const GlobalUserFullName = userInfoElem
+            ? userInfoElem.innerText.trim().replace(/\s+/g, "_")
+            : "User";
+
+          // Hide elements before generating the PDF
+          downloadBtn.style.display = "none";
+          if (modalTitle) modalTitle.style.display = "none";
+          html2canvas(modalContent).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jspdf.jsPDF("p", "pt", "a4");
+
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+            // Restore hidden elements
+            downloadBtn.style.display = "";
+            if (modalTitle) modalTitle.style.display = "";
+            if (closeButton) closeButton.style.display = "";
+
+            // Save with dynamic filename
+            pdf.save(`${GlobalUserFullName}_${topic}.pdf`);
+          });
+        });
+    </script>
+    </main>
+  </body>
+</html>

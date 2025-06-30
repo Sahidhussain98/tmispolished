@@ -1,4 +1,4 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -9,16 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import com.tmisehrms.database.msSql.sqlEntity.MUserMaster;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.Transactional.T_UserRoleMapping;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Role;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserRoleMappingRepository;
-import com.tmisehrms.user.service.EmployeeService;
-import com.tmisehrms.user.service.UserLoginService;
-import com.tmisehrms.user.testDto.LoginRequest;
-import com.tmisehrms.user.testDto.EmployeeNameDTO; // Import EmployeeNameDTO
+import com.ehrms.tmis.database.msSql.sqlEntity.MUserMaster;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_UserRoleMapping;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Role;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserRoleMappingRepository;
+import com.ehrms.tmis.securityAndAuthentication.jwt.JwtHelper;
+import com.ehrms.tmis.user.service.EmployeeService;
+import com.ehrms.tmis.user.service.UserLoginService;
+import com.ehrms.tmis.user.testDto.EmployeeNameDTO;
+import com.ehrms.tmis.user.testDto.LoginRequest;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
@@ -102,26 +104,40 @@ public class UserLoginController {
         }
     }
 
-    @GetMapping("/userinfo")
-    public ResponseEntity<?> getUserInfo(HttpSession session) {
-        try {
-            String empCd = (String) session.getAttribute("empCd");
+    @Autowired
+    private JwtHelper jwtHelper;
 
-            if (empCd == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+    @GetMapping("/userinfo")
+    public ResponseEntity<?> getUserInfo(@CookieValue(name = "JWT", required = false) String jwt) {
+        try {
+            if (jwt == null || jwt.isBlank()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT token missing");
             }
 
-            // Get fresh employee names map
+            // Extract claims from token
+            // 1️⃣ Extract username from token (empCd is the subject)
+            String empCd = jwtHelper.getUsernameFromToken(jwt);
+
+            if (empCd == null || empCd.isBlank()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT token");
+            }
+            // 2️⃣ Extract roles from token
+            List<String> roles = jwtHelper.getClaimFromToken(jwt, claims -> {
+                Object raw = claims.get("roles");
+                if (raw instanceof List<?>) {
+                    return ((List<?>) raw).stream().map(Object::toString).collect(Collectors.toList());
+                }
+                return List.of();
+            });
+
+            // Get full name from service
             List<EmployeeNameDTO> employeeNames = employeeService.getEmployeeNames();
             Map<String, String> empCdToFullName = employeeNames.stream()
                     .collect(Collectors.toMap(
                             e -> e.getEmpcd().trim().toLowerCase(),
                             EmployeeNameDTO::getFullName));
 
-            // Get the full name for the current user
-            String fullName = empCdToFullName.get(empCd.trim().toLowerCase());
-
-            List<String> roles = (List<String>) session.getAttribute("roles");
+            String fullName = empCdToFullName.getOrDefault(empCd.trim().toLowerCase(), "Unknown");
 
             Map<String, Object> response = new HashMap<>();
             response.put("empCd", empCd);
@@ -131,11 +147,8 @@ public class UserLoginController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            logger.error("Error fetching user info: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError()
-                    .body(Map.of(
-                            "error", "Failed to fetch user info",
-                            "message", e.getMessage()));
+            logger.error("Error decoding JWT / fetching user info: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired JWT token");
         }
     }
 

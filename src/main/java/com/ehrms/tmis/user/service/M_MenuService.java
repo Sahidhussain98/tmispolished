@@ -1,13 +1,13 @@
-package com.tmisehrms.user.service;
-
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Menu;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Process;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_MenuRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_ProcessRepository;
+package com.ehrms.tmis.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Menu;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Process;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_MenuRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_ProcessRepository;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,6 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.CalendarDetails;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.CalendarDetails;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

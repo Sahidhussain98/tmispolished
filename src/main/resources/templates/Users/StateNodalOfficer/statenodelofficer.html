@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar Management</title>
+
+    <!-- <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" /> -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.min.css}" />
+    <style>
+      input[readonly] {
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+      }
+
+      .modal-container {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      body.overflow-hidden {
+        overflow: hidden;
+      }
+      #createModal .grid,
+      #updateModal .grid {
+        padding-bottom: 1rem;
+      }
+      .flex label {
+        flex-shrink: 0;
+      }
+      #updateProgramNameDisplay,
+      #updateTopicDisplay,
+      #updateDistrictDisplay {
+        background-color: #f3f4f6;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: normal;
+        color: #374151;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #d1d5db;
+      }
+      input[type="hidden"] {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100">
+    <main layout:fragment="content">
+      <div class="container mx-auto max-w-screen-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-3xl font-bold text-gray-800">Calendar Management</h1>
+          <button
+            id="openCreateModalBtn"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Create New Calendar
+          </button>
+        </div>
+
+        <div
+          id="calendarListContainer"
+          class="bg-white p-6 rounded-lg shadow mb-6"
+        >
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+            All Calendars
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    Sl. No
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    Program
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    Topic
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    District
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    Venue
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    Nature
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    Target
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    Start Date
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    End Date
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    Duration
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-right"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="calendarList" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="createModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-40 p-4"
+      >
+        <div
+          class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl"
+        >
+          <button
+            id="closeCreateModal"
+            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
+          >
+            ×
+          </button>
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">Create Calendar</h3>
+          <form id="createCalendarForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  for="createProgramName"
+                  class="block text-gray-700 font-semibold mb-2"
+                  >Programme:</label
+                >
+                <select
+                  id="createProgramName"
+                  name="programmeName"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Programme --</option>
+                </select>
+
+                <label
+                  for="createNatureOfStaff"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Nature of Staff:</label
+                >
+                <select
+                  id="createNatureOfStaff"
+                  name="natureOfStaff"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Nature of Staff --</option>
+                </select>
+
+                <label
+                  for="createDistrict"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >District:</label
+                >
+                <select
+                  id="createDistrict"
+                  name="district"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select District --</option>
+                </select>
+
+                <label
+                  for="createVenue"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Venue:</label
+                >
+                <select
+                  id="createVenue"
+                  name="venue"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Venue --</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  for="createTopic"
+                  class="block text-gray-700 font-semibold mb-2"
+                  >Topic:</label
+                >
+                <select
+                  id="createTopic"
+                  name="topic"
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Topic --</option>
+                </select>
+
+                <label
+                  for="createTarget"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Target:</label
+                >
+                <input
+                  type="number"
+                  id="createTarget"
+                  name="target"
+                  placeholder="Target (Optional)"
+                  min="1"
+                  class="w-full p-2 border border-gray-300 rounded"
+                />
+
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="createStartDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >Start Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="createStartDate"
+                    name="startDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateCreateDuration()"
+                  />
+                </div>
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="createEndDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >End Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="createEndDate"
+                    name="endDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateCreateDuration()"
+                  />
+                </div>
+
+                <label
+                  for="createDuration"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Duration (days):</label
+                >
+                <input
+                  type="number"
+                  id="createDuration"
+                  name="duration"
+                  placeholder="Auto-calculated"
+                  class="w-full p-2 border border-gray-300 rounded"
+                  readonly
+                />
+              </div>
+            </div>
+            <div class="flex justify-end mt-6 space-x-4">
+              <button
+                type="submit"
+                id="createCalendarBtn"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+              >
+                Create
+              </button>
+              <button
+                type="button"
+                id="cancelCreateModalBtn"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div
+        id="updateModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 p-4"
+      >
+        <div
+          class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl"
+        >
+          <button
+            id="closeUpdateModal"
+            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
+          >
+            ×
+          </button>
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">Update Calendar</h3>
+          <form id="updateCalendarForm">
+            <input type="hidden" id="updateCalendarId" name="calendarId" />
+            <input type="hidden" id="updateProgramName" name="programmeName" />
+            <input type="hidden" id="updateTopic" name="topic" />
+            <input type="hidden" id="updateDistrict" name="district" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-gray-700 font-semibold mb-2"
+                  >Programme:</label
+                >
+                <div id="updateProgramNameDisplay"></div>
+
+                <label class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >District:</label
+                >
+                <div id="updateDistrictDisplay"></div>
+
+                <label
+                  for="updateNatureOfStaff"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Nature of Staff:</label
+                >
+                <select
+                  id="updateNatureOfStaff"
+                  name="natureOfStaff"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Nature of Staff --</option>
+                </select>
+
+                <label
+                  for="updateVenue"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Venue:</label
+                >
+                <select
+                  id="updateVenue"
+                  name="venue"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Venue --</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-gray-700 font-semibold mb-2"
+                  >Topic:</label
+                >
+                <div id="updateTopicDisplay"></div>
+
+                <label
+                  for="updateTarget"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Target:</label
+                >
+                <input
+                  type="number"
+                  id="updateTarget"
+                  name="target"
+                  placeholder="Target (optional)"
+                  min="1"
+                  class="w-full p-2 border border-gray-300 rounded"
+                />
+
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="updateStartDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >Start Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="updateStartDate"
+                    name="startDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateUpdateDuration()"
+                  />
+                </div>
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="updateEndDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >End Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="updateEndDate"
+                    name="endDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateUpdateDuration()"
+                  />
+                </div>
+
+                <label
+                  for="updateDuration"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Duration (days):</label
+                >
+                <input
+                  type="number"
+                  id="updateDuration"
+                  name="duration"
+                  placeholder="Auto-calculated"
+                  class="w-full p-2 border border-gray-300 rounded"
+                  readonly
+                />
+              </div>
+            </div>
+            <div class="flex justify-end mt-6 space-x-4">
+              <button
+                type="submit"
+                id="updateCalendarBtn"
+                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+              >
+                Update
+              </button>
+              <button
+                type="button"
+                id="cancelUpdateModalBtn"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const createModal = document.getElementById("createModal");
+          const openCreateModalBtn =
+            document.getElementById("openCreateModalBtn");
+          const closeCreateModalBtn =
+            document.getElementById("closeCreateModal");
+          const cancelCreateModalBtn = document.getElementById(
+            "cancelCreateModalBtn"
+          );
+          const createCalendarForm =
+            document.getElementById("createCalendarForm");
+          const createProgramSelect =
+            document.getElementById("createProgramName");
+          const createTopicSelect = document.getElementById("createTopic");
+          const createDistrictSelect =
+            document.getElementById("createDistrict");
+          const createVenueSelect = document.getElementById("createVenue");
+          const createStartDateInput =
+            document.getElementById("createStartDate");
+          const createEndDateInput = document.getElementById("createEndDate");
+          const createDurationInput = document.getElementById("createDuration");
+
+          const updateModal = document.getElementById("updateModal");
+          const closeUpdateModalBtn =
+            document.getElementById("closeUpdateModal");
+          const cancelUpdateModalBtn = document.getElementById(
+            "cancelUpdateModalBtn"
+          );
+          const updateCalendarForm =
+            document.getElementById("updateCalendarForm");
+          const updateStartDateInput =
+            document.getElementById("updateStartDate");
+          const updateEndDateInput = document.getElementById("updateEndDate");
+          const updateDurationInput = document.getElementById("updateDuration");
+
+          const calendarListBody = document.getElementById("calendarList");
+
+          function openModal(modalElement) {
+            if (modalElement) {
+              modalElement.classList.remove("hidden");
+              document.body.classList.add("overflow-hidden");
+            } else {
+              console.error("Attempted to open a null modal element");
+            }
+          }
+
+          function closeModal(modalElement) {
+            if (modalElement) {
+              modalElement.classList.add("hidden");
+              document.body.classList.remove("overflow-hidden");
+            } else {
+              console.error("Attempted to close a null modal element");
+            }
+          }
+
+          function populateSelect(
+            selectId,
+            url,
+            defaultText,
+            valueField,
+            textField,
+            selectedValue = null
+          ) {
+            const selectElement = document.getElementById(selectId);
+            if (!selectElement) {
+              console.error(`Select element not found: ${selectId}`);
+              return;
+            }
+            selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+            selectElement.disabled = true;
+
+            fetch(url, { method: "GET" })
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(
+                    `HTTP error! Status: ${response.status} for ${url}`
+                  );
+                return response.json();
+              })
+              .then((data) => {
+                if (!Array.isArray(data)) {
+                  console.error(
+                    `Expected array but got ${typeof data} from ${url}`
+                  );
+                  data = [];
+                }
+                selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+                data.forEach((item) => {
+                  const option = document.createElement("option");
+                  option.value = item.hasOwnProperty(valueField)
+                    ? item[valueField]
+                    : "";
+                  option.textContent = item.hasOwnProperty(textField)
+                    ? item[textField]
+                    : "Invalid Data";
+                  if (
+                    selectedValue != null &&
+                    String(option.value) === String(selectedValue)
+                  ) {
+                    option.selected = true;
+                  }
+                  selectElement.appendChild(option);
+                });
+                selectElement.disabled = false;
+              })
+              .catch((error) => {
+                console.error(`Error populating ${selectId}:`, error);
+                selectElement.innerHTML = `<option value="">-- Error Loading --</option>`;
+                selectElement.disabled = true;
+              });
+          }
+
+          function fetchTopicsForProgram(
+            programId,
+            topicSelectId,
+            selectedTopicId = null
+          ) {
+            const topicSelect = document.getElementById(topicSelectId);
+            if (!topicSelect) {
+              console.error(`Topic select element not found: ${topicSelectId}`);
+              return;
+            }
+            topicSelect.innerHTML = `<option value="">-- Loading Topics --</option>`;
+            topicSelect.disabled = true;
+
+            if (!programId) {
+              topicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
+              return;
+            }
+
+            fetch("/api/programs/by-program", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ programId: Number(programId) }),
+            })
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(
+                    `HTTP error! Status: ${response.status} fetching topics for program ${programId}`
+                  );
+                return response.json();
+              })
+              .then((data) => {
+                if (!Array.isArray(data)) {
+                  console.error(
+                    `Expected array but got ${typeof data} when fetching topics`
+                  );
+                  topicSelect.innerHTML = `<option value="">-- Error: Invalid Data --</option>`;
+                  return;
+                }
+
+                const defaultOptionText =
+                  topicSelectId === "createTopic"
+                    ? "-- Select Topic --"
+                    : "-- Select Topic --";
+                topicSelect.innerHTML = `<option value="">${defaultOptionText}</option>`;
+                data.forEach((topic) => {
+                  const option = document.createElement("option");
+                  option.value = topic.topicId;
+                  option.textContent = topic.topicName;
+                  if (
+                    selectedTopicId != null &&
+                    String(topic.topicId) === String(selectedTopicId)
+                  ) {
+                    option.selected = true;
+                  }
+                  topicSelect.appendChild(option);
+                });
+                topicSelect.disabled = false;
+              })
+              .catch((error) => {
+                console.error("Error fetching topics:", error);
+                topicSelect.innerHTML = `<option value="">-- Error Loading Topics --</option>`;
+              });
+          }
+
+          function fetchVenuesForDistrict(
+            districtId,
+            venueSelectId,
+            selectedVenueId = null
+          ) {
+            const venueSelect = document.getElementById(venueSelectId);
+            if (!venueSelect) {
+              console.error(`Venue select element not found: ${venueSelectId}`);
+              return;
+            }
+            venueSelect.innerHTML = `<option value="">-- Loading Venues --</option>`;
+            venueSelect.disabled = true;
+
+            if (!districtId) {
+              venueSelect.innerHTML = `<option value="">-- Select District First --</option>`;
+              return;
+            }
+
+            const url = `/api/venues/by-district/${districtId}`;
+
+            fetch(url, { method: "GET" })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error(
+                    `HTTP error! Status: ${response.status} fetching venues for district ${districtId}`
+                  );
+                }
+                const contentType = response.headers.get("content-type");
+                if (
+                  contentType &&
+                  contentType.indexOf("application/json") !== -1
+                ) {
+                  return response.json();
+                } else {
+                  console.error(`Received non-JSON response from ${url}`);
+                  throw new Error(
+                    "Server did not return JSON data for venues."
+                  );
+                }
+              })
+              .then((data) => {
+                if (!Array.isArray(data)) {
+                  console.error(
+                    `Expected array but got ${typeof data} when fetching venues from ${url}`
+                  );
+                  venueSelect.innerHTML = `<option value="">-- Error: Invalid Data --</option>`;
+                  return;
+                }
+
+                venueSelect.innerHTML = `<option value="">-- Select Venue --</option>`;
+                data.forEach((venue) => {
+                  const option = document.createElement("option");
+                  option.value = venue?.venueId ?? "";
+                  option.textContent = venue?.venueName ?? "Unnamed Venue";
+                  if (
+                    selectedVenueId != null &&
+                    String(option.value) === String(selectedVenueId)
+                  ) {
+                    option.selected = true;
+                  }
+                  venueSelect.appendChild(option);
+                });
+                venueSelect.disabled = false;
+              })
+              .catch((error) => {
+                console.error("Error fetching or processing venues:", error);
+                venueSelect.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
+              });
+          }
+
+          function calculateDuration(
+            startDateStr,
+            endDateStr,
+            durationInputEl
+          ) {
+            if (!startDateStr || !endDateStr || !durationInputEl) {
+              if (durationInputEl) durationInputEl.value = "";
+              return;
+            }
+            const start = new Date(startDateStr);
+            const end = new Date(endDateStr);
+
+            if (
+              !isNaN(start.getTime()) &&
+              !isNaN(end.getTime()) &&
+              end >= start
+            ) {
+              const diffTime = Math.abs(end - start);
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+              durationInputEl.value = diffDays;
+            } else {
+              durationInputEl.value = "";
+              if (
+                end < start &&
+                !isNaN(start.getTime()) &&
+                !isNaN(end.getTime())
+              ) {
+                console.warn("End date is before start date.");
+              }
+            }
+          }
+
+          function fetchCalendars() {
+            if (!calendarListBody) return;
+            calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading calendars...</td></tr>`;
+
+            fetch("/api/calendar/all")
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(
+                    `HTTP error! Status: ${response.status} fetching calendars`
+                  );
+                return response.json();
+              })
+              .then((data) => {
+                if (!Array.isArray(data)) {
+                  console.error(
+                    "Expected array but got non-array for calendars:",
+                    data
+                  );
+                  calendarListBody.innerHTML =
+                    '<tr><td colspan="11" class="text-center p-4 text-red-500">Error: Invalid data format received.</td></tr>';
+                  return;
+                }
+                data.sort((a, b) =>
+                  (a.programeName?.programName ?? "").localeCompare(
+                    b.programeName?.programName ?? ""
+                  )
+                );
+                calendarListBody.innerHTML = "";
+
+                if (data.length === 0) {
+                  calendarListBody.innerHTML =
+                    '<tr><td colspan="11" class="text-center p-4">No calendars found.</td></tr>';
+                  return;
+                }
+
+                const formatDate = (dateStr) => {
+                  if (!dateStr) return "N/A";
+                  try {
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return "Invalid Date";
+                    return d.toLocaleDateString("en-GB");
+                  } catch (e) {
+                    console.error("Error formatting date:", dateStr, e);
+                    return "Error";
+                  }
+                };
+                const formatForDateInput = (dateStr) => {
+                  if (!dateStr) return "";
+                  try {
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return "";
+                    return d.toISOString().split("T")[0];
+                  } catch (e) {
+                    console.error(
+                      "Error formatting date for input:",
+                      dateStr,
+                      e
+                    );
+                    return "";
+                  }
+                };
+
+                data.forEach((calendar, index) => {
+                  const tr = document.createElement("tr");
+                  tr.className = "hover:bg-gray-50";
+                  const display = (val) =>
+                    val != null && val !== "" ? val : "N/A";
+                  const calendarId = calendar.calendarId;
+                  const programId = calendar.programeName?.programId ?? null;
+                  const programName =
+                    calendar.programeName?.programName ?? "N/A";
+                  const topicId = calendar.topic?.topicId ?? null;
+                  const topicName = calendar.topic?.topicName ?? "N/A";
+                  const districtId = calendar.district?.districtId ?? null;
+                  const districtName = calendar.district?.districtName ?? "N/A";
+                  const venueId = calendar.venueName?.venueId ?? null;
+                  const venueName = calendar.venueName?.venueName ?? "N/A";
+                  const natureOfStaffId =
+                    calendar.natureOfStuffName?.natureOfStaffId ?? null;
+                  const natureOfStaffName =
+                    calendar.natureOfStuffName?.natureOfStaffName ?? "N/A";
+                  const target = calendar.target ?? "";
+                  const startDate = formatForDateInput(calendar.startDate);
+                  const endDate = formatForDateInput(calendar.endDate);
+                  const duration = calendar.duration ?? "";
+
+                  const escapeQuotes = (str) =>
+                    String(str ?? "")
+                      .replace(/"/g, '\\"')
+                      .replace(/'/g, "\\'");
+
+                  tr.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${
+                                  index + 1
+                                }</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${programName}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${topicName}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${districtName}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${venueName}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${natureOfStaffName}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${display(
+                                  target
+                                )}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(
+                                  calendar.startDate
+                                )}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(
+                                  calendar.endDate
+                                )}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${
+                                  duration ? `${duration} days` : "N/A"
+                                }</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">
+                                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition"
+                                        onclick='editCalendar(
+                                            ${calendarId}, ${topicId}, ${programId}, "${escapeQuotes(
+                    programName
+                  )}",
+                                            ${natureOfStaffId}, ${venueId}, "${escapeQuotes(
+                    target
+                  )}",
+                                            "${startDate}", "${endDate}", "${escapeQuotes(
+                    duration
+                  )}",
+                                            "${escapeQuotes(
+                                              topicName
+                                            )}", ${districtId}, "${escapeQuotes(
+                    districtName
+                  )}"
+                                        )'>
+                                        Update
+                                    </button>
+                                </td>
+                            `;
+                  calendarListBody.appendChild(tr);
+                });
+              })
+              .catch((error) => {
+                console.error("Error fetching or processing calendars:", error);
+                calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500">Error loading calendars. ${error.message}</td></tr>`;
+              });
+          }
+
+          if (
+            createModal &&
+            openCreateModalBtn &&
+            createCalendarForm &&
+            createDistrictSelect &&
+            createVenueSelect
+          ) {
+            openCreateModalBtn.addEventListener("click", () => {
+              createCalendarForm.reset();
+              if (createDurationInput) createDurationInput.value = "";
+              if (createTopicSelect) {
+                createTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
+                createTopicSelect.disabled = true;
+              }
+              if (createVenueSelect) {
+                createVenueSelect.innerHTML = `<option value="">-- Select District First --</option>`;
+                createVenueSelect.disabled = true;
+              }
+              openModal(createModal);
+              populateSelect(
+                "createProgramName",
+                "/api/programs/getall",
+                "-- Select Programme --",
+                "programId",
+                "programName"
+              );
+              populateSelect(
+                "createNatureOfStaff",
+                "/api/natureofstaff/getall",
+                "-- Select Nature of Staff --",
+                "natureOfStaffId",
+                "natureOfStaffName"
+              );
+              populateSelect(
+                "createDistrict",
+                "/api/district/getall",
+                "-- Select District --",
+                "districtId",
+                "districtName"
+              );
+            });
+
+            if (closeCreateModalBtn)
+              closeCreateModalBtn.addEventListener("click", () =>
+                closeModal(createModal)
+              );
+            if (cancelCreateModalBtn)
+              cancelCreateModalBtn.addEventListener("click", () =>
+                closeModal(createModal)
+              );
+
+            if (createProgramSelect) {
+              createProgramSelect.addEventListener("change", function () {
+                fetchTopicsForProgram(this.value, "createTopic");
+              });
+            }
+
+            if (createDistrictSelect) {
+              createDistrictSelect.addEventListener("change", function () {
+                fetchVenuesForDistrict(this.value, "createVenue");
+              });
+            }
+
+            if (createStartDateInput)
+              createStartDateInput.addEventListener("change", () =>
+                calculateDuration(
+                  createStartDateInput.value,
+                  createEndDateInput.value,
+                  createDurationInput
+                )
+              );
+            if (createEndDateInput)
+              createEndDateInput.addEventListener("change", () =>
+                calculateDuration(
+                  createStartDateInput.value,
+                  createEndDateInput.value,
+                  createDurationInput
+                )
+              );
+
+            createCalendarForm.addEventListener("submit", (event) => {
+              event.preventDefault();
+              const programId =
+                document.getElementById("createProgramName").value;
+              const natureOfStaffId = document.getElementById(
+                "createNatureOfStaff"
+              ).value;
+              const venueId = document.getElementById("createVenue").value;
+              const districtId =
+                document.getElementById("createDistrict").value;
+              const topicId = document.getElementById("createTopic").value;
+              const target = document.getElementById("createTarget").value;
+              const startDate =
+                document.getElementById("createStartDate").value;
+              const endDate = document.getElementById("createEndDate").value;
+              const duration = document.getElementById("createDuration").value;
+
+              if (
+                !programId ||
+                !natureOfStaffId ||
+                !venueId ||
+                !districtId ||
+                !startDate ||
+                !endDate
+              ) {
+                alert(
+                  "Please fill out all required fields (Programme, Nature, District, Venue, Start Date, End Date)."
+                );
+                return;
+              }
+              if (new Date(endDate) < new Date(startDate)) {
+                alert("End date cannot be before the start date.");
+                return;
+              }
+
+              const jsonData = {
+                programId: Number(programId),
+                natureOfStaffId: Number(natureOfStaffId),
+                venueId: Number(venueId),
+                districtId: Number(districtId),
+                topicId: topicId ? Number(topicId) : null,
+                target: target ? Number(target) : null,
+                startDate: startDate,
+                endDate: endDate,
+                duration: duration ? Number(duration) : null,
+              };
+              console.log(
+                "Submitting Create Data:",
+                JSON.stringify(jsonData, null, 2)
+              );
+
+              fetch("/api/calendar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(jsonData),
+              })
+                .then((response) => {
+                  if (response.ok) {
+                    return response
+                      .text()
+                      .then((text) => (text ? JSON.parse(text) : {}));
+                  } else {
+                    return response.text().then((text) => {
+                      throw new Error(
+                        `Create failed: ${response.status} - ${
+                          text || "Server provided no details"
+                        }`
+                      );
+                    });
+                  }
+                })
+                .then((createdData) => {
+                  console.log("Create successful:", createdData);
+                  alert("Calendar event added successfully!");
+                  closeModal(createModal);
+                  fetchCalendars();
+                })
+                .catch((error) => {
+                  console.error("Error creating calendar:", error);
+                  alert(`Error creating calendar: ${error.message}`);
+                });
+            });
+          }
+
+          if (updateModal && updateCalendarForm) {
+            window.editCalendar = function (
+              calendarId,
+              topicId,
+              programId,
+              programName,
+              natureOfStaffId,
+              venueId,
+              target,
+              startDate,
+              endDate,
+              duration,
+              topicName,
+              districtId,
+              districtName
+            ) {
+              console.log("Populating Update Modal with:", {
+                calendarId,
+                topicId,
+                programId,
+                programName,
+                natureOfStaffId,
+                venueId,
+                target,
+                startDate,
+                endDate,
+                duration,
+                topicName,
+                districtId,
+                districtName,
+              });
+              updateCalendarForm.reset();
+
+              document.getElementById("updateCalendarId").value = calendarId;
+              document.getElementById("updateProgramNameDisplay").textContent =
+                programName ?? "N/A";
+              document.getElementById("updateTopicDisplay").textContent =
+                topicName ?? "N/A";
+              document.getElementById("updateDistrictDisplay").textContent =
+                districtName ?? "N/A";
+              document.getElementById("updateProgramName").value =
+                programId ?? "";
+              document.getElementById("updateTopic").value = topicId ?? "";
+              document.getElementById("updateDistrict").value =
+                districtId ?? "";
+              document.getElementById("updateTarget").value = target ?? "";
+              document.getElementById("updateStartDate").value =
+                startDate ?? "";
+              document.getElementById("updateEndDate").value = endDate ?? "";
+              document.getElementById("updateDuration").value = duration ?? "";
+
+              populateSelect(
+                "updateNatureOfStaff",
+                "/api/natureofstaff/getall",
+                "-- Select Nature of Staff --",
+                "natureOfStaffId",
+                "natureOfStaffName",
+                natureOfStaffId
+              );
+
+              if (districtId) {
+                fetchVenuesForDistrict(districtId, "updateVenue", venueId);
+              } else {
+                const updateVenueSelect =
+                  document.getElementById("updateVenue");
+                if (updateVenueSelect) {
+                  updateVenueSelect.innerHTML = `<option value="">-- District not specified --</option>`;
+                  updateVenueSelect.disabled = true;
+                }
+              }
+
+              openModal(updateModal);
+            };
+
+            if (closeUpdateModalBtn)
+              closeUpdateModalBtn.addEventListener("click", () =>
+                closeModal(updateModal)
+              );
+            if (cancelUpdateModalBtn)
+              cancelUpdateModalBtn.addEventListener("click", () =>
+                closeModal(updateModal)
+              );
+
+            if (updateStartDateInput)
+              updateStartDateInput.addEventListener("change", () =>
+                calculateDuration(
+                  updateStartDateInput.value,
+                  updateEndDateInput.value,
+                  updateDurationInput
+                )
+              );
+            if (updateEndDateInput)
+              updateEndDateInput.addEventListener("change", () =>
+                calculateDuration(
+                  updateStartDateInput.value,
+                  updateEndDateInput.value,
+                  updateDurationInput
+                )
+              );
+
+            updateCalendarForm.addEventListener("submit", (event) => {
+              event.preventDefault();
+              const calendarId =
+                document.getElementById("updateCalendarId").value;
+              const programId =
+                document.getElementById("updateProgramName").value;
+              const topicId = document.getElementById("updateTopic").value;
+              const districtId =
+                document.getElementById("updateDistrict").value;
+              const natureOfStaffId = document.getElementById(
+                "updateNatureOfStaff"
+              ).value;
+              const venueId = document.getElementById("updateVenue").value;
+              const target = document.getElementById("updateTarget").value;
+              const startDate =
+                document.getElementById("updateStartDate").value;
+              const endDate = document.getElementById("updateEndDate").value;
+              const duration = document.getElementById("updateDuration").value;
+
+              if (!natureOfStaffId || !venueId || !startDate || !endDate) {
+                alert(
+                  "Please fill out all required fields (Nature, Venue, Start Date, End Date)."
+                );
+                return;
+              }
+              if (new Date(endDate) < new Date(startDate)) {
+                alert("End date cannot be before the start date.");
+                return;
+              }
+
+              const jsonData = {
+                calendarId: Number(calendarId),
+                programId: programId ? Number(programId) : null,
+                topicId: topicId ? Number(topicId) : null,
+                districtId: districtId ? Number(districtId) : null,
+                natureOfStaffId: Number(natureOfStaffId),
+                venueId: Number(venueId),
+                target: target ? Number(target) : null,
+                startDate: startDate,
+                endDate: endDate,
+                duration: duration ? Number(duration) : null,
+              };
+              console.log(
+                "Submitting Update Data:",
+                JSON.stringify(jsonData, null, 2)
+              );
+
+              fetch("/api/calendar/update", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(jsonData),
+              })
+                .then((response) => {
+                  if (response.ok) {
+                    return response
+                      .text()
+                      .then((text) => (text ? JSON.parse(text) : {}));
+                  } else {
+                    return response.text().then((text) => {
+                      throw new Error(
+                        `Update failed: ${response.status} - ${
+                          text || "Server provided no details"
+                        }`
+                      );
+                    });
+                  }
+                })
+                .then((updatedData) => {
+                  console.log("Update successful:", updatedData);
+                  alert("Calendar updated successfully!");
+                  closeModal(updateModal);
+                  fetchCalendars();
+                })
+                .catch((error) => {
+                  console.error("Error updating calendar:", error);
+                  alert(`Error updating calendar: ${error.message}`);
+                });
+            });
+          }
+
+          fetchCalendars();
+        });
+
+        function calculateCreateDuration() {
+          const startInput = document.getElementById("createStartDate");
+          const endInput = document.getElementById("createEndDate");
+          const durationInput = document.getElementById("createDuration");
+          if (startInput && endInput && durationInput) {
+            calculateDuration(startInput.value, endInput.value, durationInput);
+          }
+        }
+
+        function calculateUpdateDuration() {
+          const startInput = document.getElementById("updateStartDate");
+          const endInput = document.getElementById("updateEndDate");
+          const durationInput = document.getElementById("updateDuration");
+          if (startInput && endInput && durationInput) {
+            calculateDuration(startInput.value, endInput.value, durationInput);
+          }
+        }
+
+        function calculateDuration(startDateStr, endDateStr, durationInputEl) {
+          if (!startDateStr || !endDateStr || !durationInputEl) {
+            if (durationInputEl) durationInputEl.value = "";
+            return;
+          }
+          const start = new Date(startDateStr);
+          const end = new Date(endDateStr);
+
+          if (
+            !isNaN(start.getTime()) &&
+            !isNaN(end.getTime()) &&
+            end >= start
+          ) {
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            durationInputEl.value = diffDays;
+          } else {
+            durationInputEl.value = "";
+          }
+        }
+
+        function downloadExcel() {
+          const tableBody = document.getElementById("calendarList");
+          if (
+            !tableBody ||
+            !tableBody.rows ||
+            tableBody.rows.length === 0 ||
+            tableBody.rows[0].cells.length < 10
+          ) {
+            alert("No calendar data available in the table to download.");
+            return;
+          }
+          const rows = Array.from(tableBody.rows);
+          const headers = [
+            "Sl. No",
+            "Program",
+            "Topic",
+            "District",
+            "Venue",
+            "Nature",
+            "Target",
+            "Start Date",
+            "End Date",
+            "Duration (days)",
+          ];
+          const data = [headers];
+
+          rows.forEach((row) => {
+            const cells = row.querySelectorAll("td");
+
+            if (cells.length >= 10) {
+              const rowData = Array.from(cells)
+                .slice(0, 10)
+                .map((cell) => cell.textContent.trim());
+              data.push(rowData);
+            } else {
+              console.warn("Skipping row with insufficient cells:", row);
+            }
+          });
+
+          if (data.length <= 1) {
+            alert("No data rows found to download.");
+            return;
+          }
+
+          try {
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const columnWidths = headers.map((_, colIndex) => {
+              const maxLength = data.reduce((max, row) => {
+                const cellContent =
+                  row && row[colIndex] != null ? String(row[colIndex]) : "";
+                return Math.max(max, cellContent.length);
+              }, 10);
+              return { wch: maxLength + 2 };
+            });
+            worksheet["!cols"] = columnWidths;
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Calendar Data");
+            XLSX.writeFile(workbook, "Calendar_Management_Data.xlsx");
+          } catch (error) {
+            console.error("Error generating Excel file:", error);
+            alert(
+              "An error occurred while generating the Excel file. Please check the console for details."
+            );
+          }
+        }
+      </script>
+
+      <button
+        onclick="downloadExcel()"
+        class="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 shadow-lg z-20"
+      >
+        Download as Excel
+      </button>
+    </main>
+  </body>
+</html>

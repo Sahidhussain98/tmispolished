@@ -1,11 +1,12 @@
-package com.tmisehrms.user.service;
+package com.ehrms.tmis.user.service;
 
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.tmisehrms.database.msSql.sqlEntity.MUserMaster;
-import com.tmisehrms.database.msSql.sqlRepository.MUserMasterRepository;
+
+import com.ehrms.tmis.database.msSql.sqlEntity.MUserMaster;
+import com.ehrms.tmis.database.msSql.sqlRepository.MUserMasterRepository;
 
 @Service
 public class UserLoginService {

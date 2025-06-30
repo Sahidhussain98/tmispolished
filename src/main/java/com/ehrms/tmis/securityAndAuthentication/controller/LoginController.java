@@ -6,20 +6,33 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_UserRoleMapping;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Role;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserRoleMappingRepository;
 import com.ehrms.tmis.securityAndAuthentication.jwt.JwtHelper;
 import com.ehrms.tmis.securityAndAuthentication.service.CustomUserDetailsService;
 import com.ehrms.tmis.securityAndAuthentication.service.MUserMasterService;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,62 +40,96 @@ import org.slf4j.LoggerFactory;
 @RequestMapping("/user")
 public class LoginController {
 
-    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+        private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
-    @Autowired
-    private MUserMasterService mUserMasterService;
+        @Autowired
+        private MUserMasterService mUserMasterService;
 
-    @Autowired
-    private JwtHelper jwtHelper;
-    // Endpoint to get all MUserMaster records
+        @Autowired
+        private JwtHelper jwtHelper;
+        // Endpoint to get all MUserMaster records
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+        @Autowired
+        private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+        @Autowired
+        private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+        @Autowired
+        private CustomUserDetailsService customUserDetailsService;
 
-    @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticateAndGenerateToken(
-            @RequestBody Map<String, String> requestBody) {
-        String username = requestBody.get("username");
-        log.info("POST /user/login start → username='{}'", username);
+        @Autowired
+        private M_RoleRepository roleRepo;
 
-        try {
-            // Load user details
-            log.debug("  calling loadUserByUsername");
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-            log.info("  loadUserByUsername returned userDetails=[{}]", userDetails.getUsername());
+        @Autowired
+        private T_UserRoleMappingRepository mappingRepo;
 
-            // Authenticate credentials
-            log.debug("  attempting authentication for '{}'", username);
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, requestBody.get("password")));
-            log.info("  authentication successful: {}", authentication.isAuthenticated());
+        @PostMapping("/login")
+        public ResponseEntity<Map<String, String>> login(
+                        @RequestBody Map<String, String> creds,
+                        HttpServletResponse response) throws Exception {
 
-            // Generate JWT with embedded roles
-            log.debug("  generating JWT");
-            String token = jwtHelper.generateToken(authentication);
-            log.info("  generated JWT for '{}', length={}", username, token.length());
+                String username = creds.get("username");
+                String password = creds.get("password");
 
-            Map<String, String> response = new HashMap<>();
-            response.put("status", "success");
-            response.put("redirect", "/hello");
-            response.put("token", token);
+                // 1️⃣ Authenticate credentials
+                Authentication auth = authenticationManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(username, password));
 
-            log.info("POST /user/login end → returning 200");
-            return ResponseEntity.ok(response);
+                // 2️⃣ Generate JWT
+                String token = jwtHelper.generateToken(auth);
 
-        } catch (Exception e) {
-            log.warn("POST /user/login failed for '{}': {}", username, e.getMessage());
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("status", "error");
-            errorResponse.put("message", "Invalid credentials");
-            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body(errorResponse);
+                // 3️⃣ Set JWT as HttpOnly cookie
+                Cookie cookie = new Cookie("JWT", token);
+                cookie.setHttpOnly(true);
+                cookie.setSecure(true);
+                cookie.setPath("/"); // sent on every request
+                cookie.setMaxAge(60 * 60 * 24); // e.g. 1 day
+                response.addCookie(cookie);
+
+                // 4️⃣ Compute redirect URL exactly as before
+                List<T_UserRoleMapping> mappings = mappingRepo.findByEmpCd(username);
+                List<Long> roleIds = mappings.stream()
+                                .flatMap(m -> Arrays.stream(m.getRoleIds()))
+                                .distinct().toList();
+                Long primaryRoleId = roleIds.stream().min(Long::compare).orElseThrow();
+                M_Role primaryRole = roleRepo.findById(primaryRoleId)
+                                .orElseThrow();
+                String redirectUrl = String.format(
+                                "/Users/%s/%s",
+                                primaryRole.getTemplatePackage(),
+                                primaryRole.getLandingPage());
+
+                T_UserRoleMapping firstMapping = mappings.get(0);
+                String districtName = firstMapping.getDistrictId() != null
+                                ? firstMapping.getDistrictId().getDistrictName()
+                                : "Unknown";
+                String safeDistrictName = URLEncoder.encode(districtName, StandardCharsets.UTF_8);
+                Long districtId = firstMapping.getDistrictId() != null
+                                ? firstMapping.getDistrictId().getDistrictId()
+                                : -1L;
+
+                // 6️⃣ Optionally set district info in additional cookies (NOT HttpOnly)
+                Cookie districtIdCookie = new Cookie("districtId", districtId.toString());
+                districtIdCookie.setSecure(true);
+                districtIdCookie.setPath("/");
+                districtIdCookie.setMaxAge(60 * 60 * 24);
+                response.addCookie(districtIdCookie);
+
+                Cookie districtNameCookie = new Cookie("districtName", safeDistrictName);
+                districtNameCookie.setSecure(true);
+                districtNameCookie.setPath("/");
+                districtNameCookie.setMaxAge(60 * 60 * 24);
+                response.addCookie(districtNameCookie);
+
+                // 5️⃣ Return JSON (your front‑end JS should then do `window.location =
+                // resp.redirect`)
+                Map<String, String> respBody = new HashMap<>();
+                respBody.put("status", "success");
+                respBody.put("token", token);
+                respBody.put("redirect", redirectUrl);
+                respBody.put("districtId", districtId.toString());
+                respBody.put("districtName", districtName);
+                return ResponseEntity.ok(respBody);
         }
-    }
-
 }

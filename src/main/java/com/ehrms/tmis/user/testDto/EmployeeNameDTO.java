@@ -1,4 +1,4 @@
-package com.tmisehrms.user.testDto;
+package com.ehrms.tmis.user.testDto;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -52,22 +52,6 @@ public class JwtHelper {
         return expiration.before(new Date());
     }
 
-    // public String generateToken(String id) {
-    // Map<String, Object> claims = new HashMap<>();
-    // return doGenerateToken(claims, id);
-    // }
-
-    // private String doGenerateToken(Map<String, Object> claims, String subject) {
-    // return Jwts.builder()
-    // .setClaims(claims)
-    // .setSubject(subject)
-    // .setIssuedAt(new Date(System.currentTimeMillis()))
-    // .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY *
-    // 1000))
-    // .signWith(secretKey, SignatureAlgorithm.HS512)
-    // .compact();
-    // }
-
     // in JwtHelper.java
     public String generateToken(Authentication auth) {
         UserDetails user = (UserDetails) auth.getPrincipal();
@@ -93,9 +77,6 @@ public class JwtHelper {
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
-        // System.out.println("helper 1");
-        // System.out.println(userDetails.getUsername());
-        // System.out.println(userDetails.);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 

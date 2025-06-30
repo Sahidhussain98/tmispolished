@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <header
+      th:fragment="header-navbar"
+      class="bg-indigo-600 text-white flex items-center justify-between px-6 py-4 shadow-lg"
+    >
+      <div class="flex items-center space-x-4">
+        <h1 class="text-lg font-semibold whitespace-nowrap">
+          EHRMS Training Manager
+        </h1>
+        <a th:href="${landingPage}" class="flex items-center hover:underline">
+          <svg
+            class="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7m-9 2v8m-4-4h8"
+            />
+          </svg>
+          Home
+        </a>
+      </div>
+
+      <button
+        onclick="document.cookie='JWT=; Max-Age=0; path=/'; window.location.href='/'"
+        class="flex items-center hover:text-red-300 focus:outline-none"
+      >
+        <svg
+          class="w-5 h-5 mr-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7"
+          />
+        </svg>
+        Logout
+      </button>
+    </header>
+  </body>
+</html>

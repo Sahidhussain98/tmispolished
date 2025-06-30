@@ -1,23 +1,24 @@
-package com.tmisehrms.user.service;
+package com.ehrms.tmis.user.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_UserRoleMapping;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_District;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_TmisUser;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_DistrictRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_TmisUserRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserRoleMappingRepository;
+import com.ehrms.tmis.user.testDto.DistrictDTO;
+import com.ehrms.tmis.user.testDto.RoleDTO;
+import com.ehrms.tmis.user.testDto.UserRoleMappingDTO;
+
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.Transactional.T_UserRoleMapping;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_District;
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_TmisUser;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_DistrictRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_RoleRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_TmisUserRepository;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserRoleMappingRepository;
-import com.tmisehrms.user.testDto.DistrictDTO;
-import com.tmisehrms.user.testDto.RoleDTO;
-import com.tmisehrms.user.testDto.UserRoleMappingDTO;
 
 import jakarta.transaction.Transactional;
 

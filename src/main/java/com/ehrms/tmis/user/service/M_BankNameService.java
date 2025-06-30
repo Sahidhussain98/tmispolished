@@ -1,10 +1,10 @@
-package com.tmisehrms.user.service;
+package com.ehrms.tmis.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_BankName;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_BankNameRepository;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_BankName;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_BankNameRepository;
 
 import java.util.List;
 

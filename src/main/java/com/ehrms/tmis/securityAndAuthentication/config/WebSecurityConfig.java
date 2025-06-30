@@ -60,29 +60,34 @@ public class WebSecurityConfig {
                 http
                                 .cors(AbstractHttpConfigurer::disable)
                                 .csrf(AbstractHttpConfigurer::disable)
-                                .authorizeHttpRequests(authz -> {
-                                        // 1️⃣ Public endpoints
-                                        authz
-                                                        .requestMatchers("/", "/login.html", "/user/login").permitAll();
+                                .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
+                                // .authorizeHttpRequests(authz -> {
+                                // // 1️⃣ Public endpoints
+                                // authz
+                                // .requestMatchers("/**", "/login.html",
+                                // "/user/login",
+                                // "/Users/**")
+                                // .permitAll();
 
-                                        // 2️⃣ Dynamic role-based restrictions from DB
-                                        List<M_Process> allProcesses = processRepo.findAll();
-                                        for (M_Process proc : allProcesses) {
-                                                String pattern = proc.getPageURL().endsWith("/**") ? proc.getPageURL()
-                                                                : proc.getPageURL() + "/**";
-                                                String[] roles = proc.getRoles().stream()
-                                                                .map(r -> r.getRoleName().toUpperCase()
-                                                                                .replaceAll("\\s+", "_"))
-                                                                .toArray(String[]::new);
+                                // // 2️⃣ Dynamic role-based restrictions from DB
+                                // List<M_Process> allProcesses = processRepo.findAll();
+                                // for (M_Process proc : allProcesses) {
+                                // String pattern = proc.getPageURL().endsWith("/**") ? proc.getPageURL()
+                                // : proc.getPageURL() + "/**";
+                                // String[] roles = proc.getRoles().stream()
+                                // .map(r -> r.getRoleName().toUpperCase()
+                                // .replaceAll("\\s+", "_"))
+                                // .toArray(String[]::new);
 
-                                                if (roles.length > 0) {
-                                                        authz.requestMatchers(pattern).hasAnyRole(roles);
-                                                }
-                                        }
+                                // if (roles.length > 0) {
+                                // authz.requestMatchers(pattern).hasAnyRole(roles);
+                                // }
+                                // }
 
-                                        // 3️⃣ Fallback
-                                        authz.anyRequest().authenticated();
-                                })
+                                // // 3️⃣ Fallback
+                                // // authz.anyRequest().authenticated();
+                                // authz.anyRequest().permitAll();
+                                // })
                                 .exceptionHandling(
                                                 httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
                                                                 .authenticationEntryPoint(unauthorizedHandler))

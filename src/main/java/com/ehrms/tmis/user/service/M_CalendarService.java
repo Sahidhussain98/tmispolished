@@ -1,12 +1,12 @@
-package com.tmisehrms.user.service;
-
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_Calendar;
-import com.tmisehrms.database.postgreSql.postgreSqlRepository.MasterRepos.M_CalendarRepository;
+package com.ehrms.tmis.user.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Calendar;
+import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_CalendarRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -66,22 +66,6 @@ public class M_CalendarService {
 
     public List<M_Calendar> getAllMcalendarWithDetails() {
         return mcalendarRepository.findAll(); // Replace with eager fetch method if needed
-    }
-
-    public List<M_Calendar> getAllMcalendarWithDetails(M_Calendar filter) {
-        // 0 = no filter, 1 = filter by district
-        int mode = (filter != null && filter.getDistrictId() != null) ? 1 : 0;
-
-        switch (mode) {
-            case 1:
-                // filter by district
-                return mcalendarRepository.findByDistrictDistrictId(filter.getDistrictId());
-
-            case 0:
-            default:
-                // no filter → fetch all
-                return mcalendarRepository.findAll();
-        }
     }
 
     public Optional<M_Calendar> getMcalendarByIdWithDetails(Long calendarId) {

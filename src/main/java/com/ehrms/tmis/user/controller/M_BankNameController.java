@@ -1,4 +1,4 @@
-package com.tmisehrms.user.controller;
+package com.ehrms.tmis.user.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import com.tmisehrms.database.postgreSql.postgreSqlEntity.master.M_BankName;
-import com.tmisehrms.user.service.M_BankNameService;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_BankName;
+import com.ehrms.tmis.user.service.M_BankNameService;
 
 import java.util.List;
 

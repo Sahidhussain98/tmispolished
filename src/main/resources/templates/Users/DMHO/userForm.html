@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create User</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Custom header shadow (same as in your dashboard) */
+      header {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      /* Dropdown menu styles (if needed elsewhere) */
+      .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+      .dropdown-menu {
+        display: none;
+      }
+      /* Role button selected state */
+      .role-button.selected {
+        background-color: #4caf50; /* green background */
+        color: white;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Header fragment -->
+    <main layout:fragment="content">
+
+    <!-- Form Container -->
+    <div class="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
+      <h1 class="text-2xl font-bold mb-6 text-center">Create User</h1>
+
+      <!-- Success and Error Messages -->
+      <div
+        id="success-message"
+        class="mb-4 p-4 bg-green-100 text-green-800 rounded"
+        style="display: none"
+      ></div>
+      <div
+        id="error-message"
+        class="mb-4 p-4 bg-red-100 text-red-800 rounded"
+        style="display: none"
+      ></div>
+
+      <!-- User Form -->
+      <form id="userForm">
+        <!-- User Name -->
+        <div class="mb-4">
+          <label
+            for="userName"
+            class="block text-gray-700 text-sm font-bold mb-2"
+          >
+            User Name:
+          </label>
+          <input
+            type="text"
+            id="userName"
+            name="userName"
+            required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+
+        <!-- User Description -->
+        <div class="mb-4">
+          <label
+            for="userDescription"
+            class="block text-gray-700 text-sm font-bold mb-2"
+          >
+            User Description:
+          </label>
+          <input
+            type="text"
+            id="userDescription"
+            name="userDescription"
+            required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+
+        <!-- Account Number -->
+        <div class="mb-4">
+          <label
+            for="accountNumber"
+            class="block text-gray-700 text-sm font-bold mb-2"
+          >
+            Account Number:
+          </label>
+          <input
+            type="text"
+            id="accountNumber"
+            name="accountNumber"
+            required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+
+        <!-- Re-enter Account Number -->
+        <div class="mb-4">
+          <label
+            for="reAccountNumber"
+            class="block text-gray-700 text-sm font-bold mb-2"
+          >
+            Re-enter Account Number:
+          </label>
+          <input
+            type="text"
+            id="reAccountNumber"
+            name="reAccountNumber"
+            required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+
+        <!-- IFSC Code -->
+        <div class="mb-4">
+          <label
+            for="ifscCode"
+            class="block text-gray-700 text-sm font-bold mb-2"
+          >
+            IFSC Code:
+          </label>
+          <input
+            type="text"
+            id="ifscCode"
+            name="ifscCode"
+            required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+
+        <!-- Bank Dropdown -->
+        <div class="mb-4">
+          <label for="bank" class="block text-gray-700 text-sm font-bold mb-2">
+            Select Bank:
+          </label>
+          <select
+            id="bank"
+            name="bankId"
+            required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          >
+            <!-- Options for banks will be populated here -->
+          </select>
+        </div>
+
+        <!-- Role Selection Button -->
+        <div class="mb-4">
+          <button
+            type="button"
+            id="roleButton"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Select Roles
+          </button>
+        </div>
+
+        <!-- Role Buttons -->
+        <div id="roleFields" class="mb-4 flex space-x-2" style="display: none">
+          <button
+            type="button"
+            id="roleTrainee"
+            class="role-button bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded"
+          >
+            Trainee
+          </button>
+          <button
+            type="button"
+            id="roleResourcePerson"
+            class="role-button bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded"
+          >
+            Resource Person
+          </button>
+        </div>
+
+        <!-- Selected Roles Display -->
+        <div
+          id="preferences"
+          class="mb-4 p-4 border rounded"
+          style="display: none"
+        >
+          <h3 class="text-lg font-bold mb-2">Selected Roles</h3>
+          <div id="traineePreference" class="mb-1"></div>
+          <div id="resourcePersonPreference"></div>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button
+            type="submit"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // Fetch banks and populate the bank dropdown
+      fetch("/api/banks")
+        .then((response) => response.json())
+        .then((banks) => {
+          const bankSelect = document.getElementById("bank");
+          banks.forEach((bank) => {
+            const option = document.createElement("option");
+            option.value = bank.bankId;
+            option.textContent = bank.bankName;
+            bankSelect.appendChild(option);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching banks:", error);
+          const bankSelect = document.getElementById("bank");
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Failed to load banks";
+          bankSelect.appendChild(option);
+        });
+
+      // Toggle the role fields when the "Select Roles" button is clicked
+      document
+        .getElementById("roleButton")
+        .addEventListener("click", function () {
+          const roleFields = document.getElementById("roleFields");
+          if (roleFields.style.display === "block") {
+            roleFields.style.display = "none";
+          } else {
+            roleFields.style.display = "block";
+          }
+        });
+
+      // Function to toggle role selection and update preferences
+      function toggleRole(buttonId) {
+        const button = document.getElementById(buttonId);
+        button.classList.toggle("selected");
+        updatePreferences();
+      }
+
+      // Attach event listeners for role buttons
+      document
+        .getElementById("roleTrainee")
+        .addEventListener("click", function () {
+          toggleRole("roleTrainee");
+        });
+
+      document
+        .getElementById("roleResourcePerson")
+        .addEventListener("click", function () {
+          toggleRole("roleResourcePerson");
+        });
+
+      // Function to update the preferences section with selected roles
+      function updatePreferences() {
+        const traineeButton = document.getElementById("roleTrainee");
+        const resourcePersonButton =
+          document.getElementById("roleResourcePerson");
+        const preferences = document.getElementById("preferences");
+        const traineePreference = document.getElementById("traineePreference");
+        const resourcePersonPreference = document.getElementById(
+          "resourcePersonPreference"
+        );
+
+        // Show the preferences section if any role is selected
+        if (
+          traineeButton.classList.contains("selected") ||
+          resourcePersonButton.classList.contains("selected")
+        ) {
+          preferences.style.display = "block";
+        } else {
+          preferences.style.display = "none";
+        }
+
+        // Update trainee preference
+        if (traineeButton.classList.contains("selected")) {
+          traineePreference.innerHTML = "Trainee";
+        } else {
+          traineePreference.innerHTML = "";
+        }
+
+        // Update resource person preference
+        if (resourcePersonButton.classList.contains("selected")) {
+          resourcePersonPreference.innerHTML = "Resource Person";
+        } else {
+          resourcePersonPreference.innerHTML = "";
+        }
+      }
+
+      // Handle form submission
+      document
+        .getElementById("userForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          // Collect form data
+          const userName = document.getElementById("userName").value;
+          const userDescription =
+            document.getElementById("userDescription").value;
+          const accountNumber = document.getElementById("accountNumber").value;
+          const reAccountNumber =
+            document.getElementById("reAccountNumber").value;
+          const ifscCode = document.getElementById("ifscCode").value;
+          const bankId = document.getElementById("bank").value;
+
+          // Check if account numbers match
+          if (accountNumber !== reAccountNumber) {
+            showError("Account numbers do not match!");
+            return;
+          }
+
+          // Get selected roles
+          const selectedRoles = [];
+          if (
+            document
+              .getElementById("roleTrainee")
+              .classList.contains("selected")
+          ) {
+            selectedRoles.push({ roleId: 1 });
+          }
+          if (
+            document
+              .getElementById("roleResourcePerson")
+              .classList.contains("selected")
+          ) {
+            selectedRoles.push({ roleId: 2 });
+          }
+
+          if (selectedRoles.length === 0) {
+            showError("Please select at least one role.");
+            return;
+          }
+
+          // Prepare request data
+          const requestData = {
+            userName: userName,
+            userDescription: userDescription,
+            accountNumber: accountNumber,
+            ifscCode: ifscCode,
+            bankId: parseInt(bankId),
+            roles: selectedRoles,
+          };
+
+          // Send POST request to create the user
+          fetch("/api/users", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              showSuccess("User created successfully!");
+            })
+            .catch((error) => {
+              console.error(error);
+              showError("An error occurred while creating the user.");
+            });
+        });
+
+      // Show success message
+      function showSuccess(message) {
+        const successMessage = document.getElementById("success-message");
+        successMessage.innerText = message;
+        successMessage.style.display = "block";
+        document.getElementById("error-message").style.display = "none";
+      }
+
+      // Show error message
+      function showError(message) {
+        const errorMessage = document.getElementById("error-message");
+        errorMessage.innerText = message;
+        errorMessage.style.display = "block";
+        document.getElementById("success-message").style.display = "none";
+      }
+    </script>
+    </main>
+  </body>
+</html>

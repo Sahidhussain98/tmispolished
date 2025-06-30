@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Program Management</title>
+    <!-- Include Tailwind CSS -->
+    <!-- <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    /> -->
+    <link rel="stylesheet" th:href="@{/css/tailwind2.min.css}" />
+  </head>
+
+  <body class="bg-gray-100">
+    <main layout:fragment="content">
+      <!-- Main Page: Program List -->
+      <div class="container mx-auto p-6">
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+          <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Program Management</h1>
+            <button
+              id="openCreateModalBtn"
+              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              Create New Program
+            </button>
+          </div>
+          <div id="programListContainer">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+              All Programs
+            </h3>
+            <!-- Program list will be injected here as a table -->
+            <div id="programList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Program Modal -->
+      <div
+        id="createModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden"
+        style="overflow: auto"
+      >
+        <!-- The modal container is fixed at 70% x 70% of the viewport -->
+        <div
+          class="bg-white p-6 rounded-lg shadow-lg relative"
+          style="width: 70vw; height: 70vh; overflow: auto"
+        >
+          <!-- Close Button -->
+          <button
+            id="closeCreateModal"
+            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl"
+          >
+            &times;
+          </button>
+          <!-- Create Program Form -->
+          <form id="createProgramForm">
+            <div class="grid grid-cols-3 gap-4">
+              <!-- Column 1: Program Details -->
+              <div class="col-span-1 border-r pr-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                  Program Details
+                </h2>
+                <div class="mb-4">
+                  <label
+                    for="programNameModal"
+                    class="block text-gray-700 font-semibold mb-2"
+                    >Program Name</label
+                  >
+                  <input
+                    type="text"
+                    id="programNameModal"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    required
+                  />
+                </div>
+                <div class="mb-4">
+                  <label
+                    for="programFmrCodeModal"
+                    class="block text-gray-700 font-semibold mb-2"
+                    >Fmr Code</label
+                  >
+                  <input
+                    type="text"
+                    id="programFmrCodeModal"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    required
+                  />
+                </div>
+                <button
+                  type="button"
+                  id="showTopicsSection"
+                  class="mt-4 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+                >
+                  Add Topic
+                </button>
+              </div>
+              <!-- Columns 2 & 3: Topics & Sessions (initially hidden) -->
+              <div id="topicsSection" class="col-span-2 hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                  Topics & Sessions
+                </h2>
+                <!-- Container for dynamically added topic rows -->
+                <div id="topicsContainer"></div>
+                <button
+                  type="button"
+                  id="addTopicRowBtn"
+                  class="mt-4 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+                >
+                  Add Another Topic
+                </button>
+              </div>
+            </div>
+            <button
+              type="submit"
+              id="createProgramSubmit"
+              class="mt-6 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition"
+            >
+              Save Program
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Update Program Modal (similar to before) -->
+      <div
+        id="updateModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden"
+        style="overflow: auto"
+      >
+        <div
+          class="bg-white p-6 rounded-lg shadow-lg relative"
+          style="width: 70vw; max-width: 500px; overflow: auto"
+        >
+          <!-- Close Button -->
+          <button
+            id="closeUpdateModal"
+            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl"
+          >
+            &times;
+          </button>
+          <h3 class="text-xl font-semibold text-gray-700 mb-3">
+            Update Program
+          </h3>
+          <input type="hidden" id="updateProgramId" />
+          <div class="mb-3">
+            <label class="block text-gray-700 font-semibold mb-2">
+              Program Name
+            </label>
+            <input
+              type="text"
+              id="updateProgramName"
+              placeholder="New Program Name"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="block text-gray-700 font-semibold mb-2">
+              Fmr Code
+            </label>
+            <input
+              type="text"
+              id="updateProgramFmrCode"
+              placeholder="Fmr Code"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div class="flex space-x-3">
+            <button
+              id="updateProgramBtn"
+              class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+            >
+              Update
+            </button>
+            <button
+              id="cancelUpdateFormBtn"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          // Helper functions for scroll lock
+          function lockBodyScroll() {
+            document.body.classList.add("overflow-hidden");
+          }
+          function unlockBodyScroll() {
+            document.body.classList.remove("overflow-hidden");
+          }
+
+          const programList = document.getElementById("programList");
+          const updateModal = document.getElementById("updateModal");
+
+          function fetchPrograms() {
+            fetch("/api/programs/getall", { method: "GET" })
+              .then((response) => response.json())
+              .then((data) => {
+                data.sort((a, b) => a.programName.localeCompare(b.programName));
+                const table = document.createElement("table");
+                table.classList.add(
+                  "min-w-full",
+                  "divide-y",
+                  "divide-gray-200",
+                  "shadow",
+                  "rounded-lg"
+                );
+                table.innerHTML = `
+                <thead class="bg-gray-200">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sl. No</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fmr Code</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200"></tbody>
+              `;
+                const tbody = table.querySelector("tbody");
+                data.forEach((program, index) => {
+                  const tr = document.createElement("tr");
+                  tr.innerHTML = `
+                  <td class="px-6 py-4 whitespace-nowrap">${index + 1}</td>
+                  <td class="px-6 py-4 whitespace-nowrap"><strong>${
+                    program.programName
+                  }</strong></td>
+                  <td class="px-6 py-4 whitespace-nowrap">${
+                    program.fmrcode ? program.fmrcode : "not provided"
+                  }</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition mr-2" onclick="openUpdateModal(${
+                      program.programId
+                    }, '${program.programName}', '${
+                    program.fmrcode ? program.fmrcode : ""
+                  }')">Update</button>
+                   
+                  </td>
+                `;
+                  tbody.appendChild(tr);
+                });
+                // <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deleteProgram(${
+                //         program.programId
+                //       })">Delete</button>
+                programList.innerHTML = "";
+                programList.appendChild(table);
+              })
+              .catch((error) => {
+                console.error("Error fetching programs:", error);
+              });
+          }
+
+          window.openUpdateModal = function (programId, programName, fmrcode) {
+            document.getElementById("updateProgramId").value = programId;
+            document.getElementById("updateProgramName").value = programName;
+            document.getElementById("updateProgramFmrCode").value = fmrcode;
+            updateModal.classList.remove("hidden");
+            lockBodyScroll();
+          };
+
+          document
+            .getElementById("updateProgramBtn")
+            .addEventListener("click", () => {
+              const programId =
+                document.getElementById("updateProgramId").value;
+              const programName =
+                document.getElementById("updateProgramName").value;
+              const fmrcode = document.getElementById(
+                "updateProgramFmrCode"
+              ).value;
+              fetch("/api/programs/update", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ programId, programName, fmrcode }),
+              })
+                .then((response) => response.json())
+                .then(() => {
+                  alert("Program updated successfully!");
+                  fetchPrograms();
+                  updateModal.classList.add("hidden");
+                  unlockBodyScroll();
+                })
+                .catch((error) => {
+                  console.error("Error updating program:", error);
+                });
+            });
+
+          window.deleteProgram = function (programId) {
+            fetch("/api/programs/delete", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: programId }),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  alert("Program deleted successfully!");
+                  fetchPrograms();
+                } else {
+                  alert("Failed to delete program.");
+                }
+              })
+              .catch((error) => {
+                console.error("Error deleting program:", error);
+              });
+          };
+
+          document
+            .getElementById("cancelUpdateFormBtn")
+            .addEventListener("click", () => {
+              document.getElementById("updateProgramName").value = "";
+              document.getElementById("updateProgramFmrCode").value = "";
+              updateModal.classList.add("hidden");
+              unlockBodyScroll();
+            });
+          document
+            .getElementById("closeUpdateModal")
+            .addEventListener("click", () => {
+              document.getElementById("updateProgramName").value = "";
+              document.getElementById("updateProgramFmrCode").value = "";
+              updateModal.classList.add("hidden");
+              unlockBodyScroll();
+            });
+
+          const createModal = document.getElementById("createModal");
+          const openCreateModalBtn =
+            document.getElementById("openCreateModalBtn");
+          const closeCreateModal = document.getElementById("closeCreateModal");
+          const createProgramForm =
+            document.getElementById("createProgramForm");
+          const topicsSection = document.getElementById("topicsSection");
+          const topicsContainer = document.getElementById("topicsContainer");
+          const showTopicsSection =
+            document.getElementById("showTopicsSection");
+          const addTopicRowBtn = document.getElementById("addTopicRowBtn");
+
+          openCreateModalBtn.addEventListener("click", () => {
+            createModal.classList.remove("hidden");
+            lockBodyScroll();
+          });
+          closeCreateModal.addEventListener("click", () => {
+            createModal.classList.add("hidden");
+            unlockBodyScroll();
+          });
+
+          showTopicsSection.addEventListener("click", () => {
+            topicsSection.classList.remove("hidden");
+            addTopicRow();
+          });
+
+          addTopicRowBtn.addEventListener("click", () => {
+            addTopicRow();
+          });
+
+          let topicCount = 0;
+          function addTopicRow() {
+            const topicRow = document.createElement("div");
+            topicRow.classList.add(
+              "topic-row",
+              "flex",
+              "gap-4",
+              "mb-4",
+              "border",
+              "p-4",
+              "rounded"
+            );
+            topicRow.setAttribute("data-index", topicCount);
+            topicRow.innerHTML = `
+            <div class="topic-details w-1/2">
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                Topic ${topicCount + 1}
+              </h3>
+              <label class="block text-gray-700">Topic Name</label>
+              <input type="text" name="topics[${topicCount}][topicName]" required class="w-full p-2 border border-gray-300 rounded mb-2">
+              <label class="block text-gray-700">Fmr Code</label>
+              <input type="text" name="topics[${topicCount}][fmrCode]" required class="w-full p-2 border border-gray-300 rounded mb-2">
+              <label class="block text-gray-700">Description</label>
+              <input type="text" name="topics[${topicCount}][topicDescription]" required class="w-full p-2 border border-gray-300 rounded mb-2">
+              <button type="button" class="remove-topic-btn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
+                Remove Topic
+              </button>
+            </div>
+            <div class="session-container w-1/2 flex flex-col gap-2">
+              <div class="sessions-inner flex flex-wrap gap-2"></div>
+              <button type="button" class="addSessionBtn bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition">
+                + Add Session
+              </button>
+            </div>
+          `;
+            topicsContainer.appendChild(topicRow);
+
+            // Remove topic handler
+            topicRow
+              .querySelector(".remove-topic-btn")
+              .addEventListener("click", () => {
+                topicRow.remove();
+              });
+
+            const addSessionBtn = topicRow.querySelector(".addSessionBtn");
+            addSessionBtn.addEventListener("click", () => {
+              addSession(topicRow);
+            });
+
+            topicCount++;
+          }
+
+          function addSession(topicRow) {
+            const topicIndex = topicRow.getAttribute("data-index");
+            const sessionsInner = topicRow.querySelector(".sessions-inner");
+            const sessionDiv = document.createElement("div");
+            sessionDiv.classList.add(
+              "session-item",
+              "flex",
+              "items-center",
+              "gap-2"
+            );
+            sessionDiv.innerHTML = `
+            <input type="text" name="topics[${topicIndex}][sessions][]" required class="p-2 border border-gray-300 rounded">
+            <button type="button" class="remove-session-btn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
+              Remove
+            </button>
+          `;
+            sessionsInner.appendChild(sessionDiv);
+            sessionDiv
+              .querySelector(".remove-session-btn")
+              .addEventListener("click", () => {
+                sessionDiv.remove();
+              });
+          }
+
+          // Form submission for creating a new program
+          createProgramForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const payload = {
+              programName: document.getElementById("programNameModal").value,
+              fmrcode: document.getElementById("programFmrCodeModal").value,
+              topics: [],
+            };
+            document.querySelectorAll(".topic-row").forEach((topicRow) => {
+              const topicIndex = topicRow.getAttribute("data-index");
+              const topic = {
+                topicName: topicRow.querySelector(
+                  `input[name="topics[${topicIndex}][topicName]"]`
+                ).value,
+                fmrCode: topicRow.querySelector(
+                  `input[name="topics[${topicIndex}][fmrCode]"]`
+                ).value,
+                topicDescription: topicRow.querySelector(
+                  `input[name="topics[${topicIndex}][topicDescription]"]`
+                ).value,
+                sessions: [],
+              };
+              topicRow
+                .querySelectorAll(
+                  `input[name="topics[${topicIndex}][sessions][]"]`
+                )
+                .forEach((sessionInput) => {
+                  topic.sessions.push({ sessionName: sessionInput.value });
+                });
+              payload.topics.push(topic);
+            });
+            fetch("/api/programs/saveProgramWithTopicsAndSessions", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            })
+              .then((response) => response.json())
+              .then(() => {
+                alert("Program, Topics, and Sessions saved successfully!");
+                createModal.classList.add("hidden");
+                unlockBodyScroll();
+                createProgramForm.reset();
+                topicsContainer.innerHTML = "";
+                topicCount = 0;
+                topicsSection.classList.add("hidden");
+                fetchPrograms();
+              })
+              .catch((error) => {
+                console.error("Error saving data:", error);
+                alert("Error saving data!");
+              });
+          });
+
+          // Initial fetch of programs
+          fetchPrograms();
+        });
+      </script>
+    </main>
+  </body>
+</html>

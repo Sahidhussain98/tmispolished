@@ -1,11 +1,11 @@
-package com.tmisehrms.user.service;
+package com.ehrms.tmis.user.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Service;
 
-import com.tmisehrms.user.testDto.EmployeeNameDTO;
+import com.ehrms.tmis.user.testDto.EmployeeNameDTO;
 
 import java.util.ArrayList;
 import java.util.List;
