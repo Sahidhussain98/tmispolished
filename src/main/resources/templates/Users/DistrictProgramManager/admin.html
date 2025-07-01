@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +21,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
     />
-    <style>
+    <!-- <style>
       :root {
         --primary-color: #16c435;
         --secondary-color: #968d85;
@@ -172,11 +176,11 @@
       .role-pill-remove:hover {
         opacity: 1;
       }
-    </style>
+    </style> -->
   </head>
 
   <body>
-    <div class="container py-4">
+    <main layout:fragment="content">
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
           <h3 class="mb-0">
@@ -911,5 +915,6 @@
         fetchAndRenderAllEmployees();
       }
     </script>
-  </body>
+    </main>
+    </body>
 </html>

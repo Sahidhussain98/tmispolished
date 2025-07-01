@@ -27,8 +27,10 @@ public class SqlServerConfig {
         return DataSourceBuilder.create()
                 .driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
                 .url("jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=ehrms")
+                // .username("sa")
+                // .password("H12aT34e")
                 .username("sa")
-                .password("H12aT34e")
+                .password("ehrms")
                 .build();
     }
 
