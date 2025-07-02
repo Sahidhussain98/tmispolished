@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore a specific file (relative to root)
+src\main\java\com\ehrms\tmis\database\msSql\SqlServerConfig.java
+src\main\java\com\ehrms\tmis\database\postgreSql\PostgreSQLConfig.java
