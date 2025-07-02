@@ -5,108 +5,213 @@
   layout:decorate="~{layouts/default}"
 >
   <head>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dashboard</title>
   </head>
-  <body class="bg-gray-100">
+  <body>
     <main layout:fragment="content">
-    	<div class="main-panel">
-				<div class="content">
-					<div class="container-fluid">
-      <div class="min-h-screen flex flex-col">
-        <h2 class="text-2xl font-semibold mb-8">Dashboard Overview</h2>
+      <!-- <div layout:fragment="content"> -->
+      <div class="p-6">
+        <h4 class="page-title">Dashboard</h4>
 
-        <!-- Dashboard Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <!-- Total Users Card -->
-          <div
-            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          >
-            <h3 class="text-xl font-semibold mb-2">Total programs</h3>
-            <p class="text-3xl font-bold text-blue-600" th:text="${totalUsers}">
-              500
-            </p>
+        <!-- ✅ FIRST ROW OF METRICS -->
+        <div class="row">
+          <!-- Total Programs -->
+          <div class="col-md-3">
+            <div class="card card-stats card-primary">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-5 text-center">
+                    <i class="la la-th-list text-primary icon-big"></i>
+                  </div>
+                  <div class="col-7 d-flex align-items-center">
+                    <div class="numbers">
+                      <p class="card-category">Total Programs</p>
+                      <h4 class="card-title">18</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Active Courses Card -->
-          <div
-            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          >
-            <h3 class="text-xl font-semibold mb-2">Total venues</h3>
-            <p
-              class="text-3xl font-bold text-green-600"
-              th:text="${activeCourses}"
-            >
-              10
-            </p>
+          <!-- Total Venues -->
+          <div class="col-md-3">
+            <div class="card card-stats card-success">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-5 text-center">
+                    <i class="la la-building text-success icon-big"></i>
+                  </div>
+                  <div class="col-7 d-flex align-items-center">
+                    <div class="numbers">
+                      <p class="card-category">Total Venues</p>
+                      <h4 class="card-title">235</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Completion Rate Card -->
-          <div
-            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          >
-            <h3 class="text-xl font-semibold mb-2">
-              Avg. Completion Rate of calender events
-            </h3>
-            <p class="text-3xl font-bold text-yellow-600">75%</p>
+          <!-- Avg Completion -->
+          <div class="col-md-3">
+            <div class="card card-stats card-warning">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-5 text-center">
+                    <i class="la la-line-chart text-warning icon-big"></i>
+                  </div>
+                  <div class="col-7 d-flex align-items-center">
+                    <div class="numbers">
+                      <p class="card-category">Avg Completion</p>
+                      <h4 class="card-title">75%</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Pending Approvals Card -->
-          <div
-            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          >
-            <h3 class="text-xl font-semibold mb-2">Pending events</h3>
-            <p class="text-3xl font-bold text-red-600">12</p>
+          <!-- Pending Events -->
+          <div class="col-md-3">
+            <div class="card card-stats card-danger">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-5 text-center">
+                    <i class="la la-clock-o text-danger icon-big"></i>
+                  </div>
+                  <div class="col-7 d-flex align-items-center">
+                    <div class="numbers">
+                      <p class="card-category">Pending Events</p>
+                      <h4 class="card-title">12</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- New Registrations Card -->
-          <div
-            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          >
-            <h3 class="text-xl font-semibold mb-2">New events</h3>
-            <p class="text-3xl font-bold text-purple-600">37</p>
+          <!-- New Events -->
+          <div class="col-md-3">
+            <div class="card card-stats card-info">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-5 text-center">
+                    <i class="la la-calendar-plus-o text-info icon-big"></i>
+                  </div>
+                  <div class="col-7 d-flex align-items-center">
+                    <div class="numbers">
+                      <p class="card-category">New Events</p>
+                      <h4 class="card-title">37</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Active Sessions Card -->
-          <div
-            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          >
-            <h3 class="text-xl font-semibold mb-2">conducted events</h3>
-            <p class="text-3xl font-bold text-indigo-600">27</p>
+          <!-- Conducted Events -->
+          <div class="col-md-3">
+            <div class="card card-stats card-secondary">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-5 text-center">
+                    <i class="la la-check-circle text-secondary icon-big"></i>
+                  </div>
+                  <div class="col-7 d-flex align-items-center">
+                    <div class="numbers">
+                      <p class="card-category">Conducted Events</p>
+                      <h4 class="card-title">27</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- User Progress Chart (spanning 2 columns on md and above) -->
-          <div
-            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow col-span-full md:col-span-2"
-          >
-            <h3 class="text-xl font-semibold mb-4">Tentaive Programs</h3>
-            <canvas id="userProgressChart"></canvas>
+          <!-- Total Trainees -->
+          <div class="col-md-3">
+            <div class="card card-stats card-warning">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-5 text-center">
+                    <i class="la la-users text-warning icon-big"></i>
+                  </div>
+                  <div class="col-7 d-flex align-items-center">
+                    <div class="numbers">
+                      <p class="card-category">Total Trainees</p>
+                      <h4 class="card-title">340</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Recent Activities -->
-          <div
-            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow col-span-full md:col-span-1"
-          >
-            <h3 class="text-xl font-semibold mb-4">Recent events</h3>
-            <ul class="space-y-3">
-              <li
-                th:each="activity : ${recentActivities}"
-                class="flex justify-between items-center border-b pb-2"
-              >
-                <span th:text="${activity.description}"
-                  >User completed Course X</span
-                >
-                <span
-                  th:text="${#temporals.format(activity.timestamp, 'dd-MM-yyyy HH:mm')}"
-                  class="text-sm text-gray-500"
-                  >01-01-2023 14:30</span
-                >
-              </li>
-            </ul>
+          <!-- Total Resource Persons -->
+          <div class="col-md-3">
+            <div class="card card-stats card-info">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-5 text-center">
+                    <i class="la la-user-circle text-info icon-big"></i>
+                  </div>
+                  <div class="col-7 d-flex align-items-center">
+                    <div class="numbers">
+                      <p class="card-category">Resource Persons</p>
+                      <h4 class="card-title">28</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ SECOND ROW: Tentative Programs & Recent Events -->
+        <div class="row mt-4">
+          <!-- Tentative Programs -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">Tentative Programs</h4>
+              </div>
+              <div class="card-body">
+                <canvas id="userProgressChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Events -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">Recent Events</h4>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                  <li
+                    th:each="activity : ${recentActivities}"
+                    class="d-flex justify-content-between py-2 border-bottom"
+                  >
+                    <span th:text="${activity.description}"
+                      >User completed Course X</span
+                    >
+                    <span
+                      class="text-muted small"
+                      th:text="${#temporals.format(activity.timestamp, 'dd-MM-yyyy HH:mm')}"
+                    >
+                      01-01-2023 14:30
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- </div> -->
     </main>
-  </div>
-  </div>
   </body>
 </html>
