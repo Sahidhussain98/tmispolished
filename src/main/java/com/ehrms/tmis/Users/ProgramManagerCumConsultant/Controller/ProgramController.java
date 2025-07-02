@@ -62,9 +62,6 @@ public class ProgramController {
 			return ResponseEntity.badRequest().body(Collections.emptyList());
 		}
 		List<M_Topic> topics = programService.getTopicsByProgramId(programId);
-		if (topics == null) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
-		}
-		return ResponseEntity.ok(topics);
+    		return ResponseEntity.ok(topics);
 	}
 }
