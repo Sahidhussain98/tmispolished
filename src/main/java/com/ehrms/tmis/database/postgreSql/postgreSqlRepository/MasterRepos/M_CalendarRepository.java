@@ -7,11 +7,16 @@ import org.springframework.stereotype.Repository;
 
 import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Calendar;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional; // Added for Optional return type
 
 @Repository
 public interface M_CalendarRepository extends JpaRepository<M_Calendar, Long> {
+
+    long countByStartDateAfter(LocalDate date);
+    long countByStartDateEquals(LocalDate date);
+    long countByEndDateAfter(LocalDate date);
 
     List<M_Calendar> findByDistrictDistrictId(Long districtId);
 

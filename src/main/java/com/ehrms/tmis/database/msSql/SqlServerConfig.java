@@ -28,13 +28,10 @@ public class SqlServerConfig {
                 .driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
                 .url("jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=ehrms")
                 // .username("sa")
-                // .password("H12aT34e")
+                // .password("H12aT34e)
                 .username("sa")
-<<<<<<< HEAD
                 .password("rhfwtc")
-=======
-                .password("ehrms")
->>>>>>> 4c14b9da0612f8c731bea4e503b37723c7770d45
+
                 .build();
     }
 

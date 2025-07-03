@@ -9,7 +9,6 @@
   </head>
   <body>
     <main layout:fragment="content">
-      <!-- <div layout:fragment="content"> -->
       <div class="p-6">
         <h4 class="page-title">Dashboard</h4>
 
@@ -26,7 +25,7 @@
                   <div class="col-7 d-flex align-items-center">
                     <div class="numbers">
                       <p class="card-category">Total Programs</p>
-                      <h4 class="card-title">18</h4>
+                      <h4 class="card-title" id="totalProgramsValue">--</h4>
                     </div>
                   </div>
                 </div>
@@ -45,7 +44,7 @@
                   <div class="col-7 d-flex align-items-center">
                     <div class="numbers">
                       <p class="card-category">Total Venues</p>
-                      <h4 class="card-title">235</h4>
+                      <h4 class="card-title" id="totalVenuesValue">--</h4>
                     </div>
                   </div>
                 </div>
@@ -64,7 +63,7 @@
                   <div class="col-7 d-flex align-items-center">
                     <div class="numbers">
                       <p class="card-category">Avg Completion</p>
-                      <h4 class="card-title">75%</h4>
+                      <h4 class="card-title" id="avgCompletionValue">--</h4>
                     </div>
                   </div>
                 </div>
@@ -82,8 +81,8 @@
                   </div>
                   <div class="col-7 d-flex align-items-center">
                     <div class="numbers">
-                      <p class="card-category">Pending Events</p>
-                      <h4 class="card-title">12</h4>
+                      <p class="card-category">Upcoming Events</p>
+                      <h4 class="card-title" id="pendingEventsValue">--</h4>
                     </div>
                   </div>
                 </div>
@@ -102,7 +101,7 @@
                   <div class="col-7 d-flex align-items-center">
                     <div class="numbers">
                       <p class="card-category">New Events</p>
-                      <h4 class="card-title">37</h4>
+                      <h4 class="card-title" id="newEventsValue">--</h4>
                     </div>
                   </div>
                 </div>
@@ -121,7 +120,7 @@
                   <div class="col-7 d-flex align-items-center">
                     <div class="numbers">
                       <p class="card-category">Conducted Events</p>
-                      <h4 class="card-title">27</h4>
+                      <h4 class="card-title" id="conductedEventsValue">--</h4>
                     </div>
                   </div>
                 </div>
@@ -174,7 +173,7 @@
           <div class="col-md-6">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title">Tentative Programs</h4>
+                <h4 class="card-title">Upcoming Programs</h4>
               </div>
               <div class="card-body">
                 <canvas id="userProgressChart"></canvas>
@@ -194,9 +193,7 @@
                     th:each="activity : ${recentActivities}"
                     class="d-flex justify-content-between py-2 border-bottom"
                   >
-                    <span th:text="${activity.description}"
-                      >User completed Course X</span
-                    >
+                    <span th:text="${activity.description}">User completed Course X</span>
                     <span
                       class="text-muted small"
                       th:text="${#temporals.format(activity.timestamp, 'dd-MM-yyyy HH:mm')}"
@@ -211,7 +208,24 @@
         </div>
       </div>
 
-      <!-- </div> -->
+      <!-- ✅ JavaScript to fetch and populate dashboard data -->
+      <script>
+        window.onload = function () {
+          fetch("/Sadmin/DashboardData")
+            .then((response) => response.json())
+            .then((data) => {
+              console.log("Dashboard data:", data);
+
+              document.getElementById("totalProgramsValue").innerText = data.totalPrograms;
+              document.getElementById("totalVenuesValue").innerText = data.totalVenues;
+              document.getElementById("avgCompletionValue").innerText = data.avgCompletion + "%";
+              document.getElementById("pendingEventsValue").innerText = data.pendingEvents;
+              document.getElementById("newEventsValue").innerText = data.newEvents;
+              document.getElementById("conductedEventsValue").innerText = data.conductedEvents;
+            })
+            .catch((error) => console.error("Fetch failed:", error));
+        };
+      </script>
     </main>
   </body>
 </html>
