@@ -3,6 +3,7 @@ package com.ehrms.tmis.user.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class MUserMasterrService {
                 List<T_UserRoleMapping> mappings = userRoleMappingRepository
                                 .findByEmpCdIn(keptEmpCds);
 
-                System.out.print("Role ID  Map: " + mappings);
+                // System.out.print("Role ID Map: " + mappings);
 
                 // 5) collect every distinct roleId
                 Set<Long> allRoleIds = mappings.stream()
@@ -76,7 +77,7 @@ public class MUserMasterrService {
                                                 M_Role::getRoleId,
                                                 M_Role::getRoleName));
 
-                System.out.print("Role Name Map: " + roleIdToName);
+                // System.out.print("Role Name Map: " + roleIdToName);
 
                 // 7) build empCd → List<roleName>
                 // 7) build empCd → List<roleName> with trimmed keys
@@ -92,7 +93,7 @@ public class MUserMasterrService {
                                                                 ),
                                                                 ArrayList::new // convert Set back to List
                                                 )));
-
+                System.out.println("Role Names Map: " + empCdToRoleNames);
                 Map<String, DistrictDTO> empCdToDistrict = mappings.stream()
                                 .filter(m -> m.getDistrictId() != null)
                                 .collect(Collectors.toMap(
@@ -107,19 +108,24 @@ public class MUserMasterrService {
                 return users.stream()
                                 .filter(u -> {
                                         String cd = u.getId().getEmpCd().trim();
-                                        return fullNameMap.containsKey(cd);
+                                        return fullNameMap.containsKey(cd) && u.getId().getStateId() != 37;
                                 })
                                 .map(u -> {
                                         String cd = u.getId().getEmpCd().trim();
                                         MUserMasterDTO dto = new MUserMasterDTO(u);
                                         dto.setFullName(fullNameMap.get(cd));
-                                        dto.setRoles(empCdToRoleNames
-                                                        .getOrDefault(cd, Collections.emptyList()));
+                                        dto.setRoles(empCdToRoleNames.getOrDefault(cd, Collections.emptyList()));
                                         dto.setDistrict(empCdToDistrict.get(cd));
                                         return dto;
-
                                 })
+                                .sorted(
+                                                Comparator
+                                                                .comparing((MUserMasterDTO dto) -> dto.getRoles()
+                                                                                .isEmpty())
+                                                                .thenComparing(dto -> Integer.parseInt(
+                                                                                dto.getId().getEmpCd().trim())))
                                 .collect(Collectors.toList());
+
         }
 
         @PersistenceContext(unitName = "sqlServer")
