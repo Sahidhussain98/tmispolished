@@ -273,234 +273,236 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Modal for Assign Role -->
-    <div
-      class="modal fade"
-      id="assignRoleModal"
-      tabindex="-1"
-      aria-labelledby="assignRoleModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title" id="assignRoleModalLabel">
-              <i class="bi bi-person-gear me-2"></i>Manage Employee Assignments
-            </h5>
+      <!-- Modal for Assign Role -->
+      <div
+        class="modal fade"
+        id="assignRoleModal"
+        tabindex="-1"
+        aria-labelledby="assignRoleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="assignRoleModalLabel">
+                <i class="bi bi-person-gear me-2"></i>Manage Employee
+                Assignments
+              </h5>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <!-- Modal Loading State -->
+              <div id="modalLoader" class="text-center py-5 d-none">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Loading employee details...</p>
+              </div>
+              <!-- Modal Form -->
+              <form id="assignRoleForm" class="">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Employee Code</label
+                    ><input
+                      type="text"
+                      id="modalEmpCd"
+                      class="form-control"
+                      readonly
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Employee Name</label
+                    ><input
+                      type="text"
+                      id="modalEmpName"
+                      class="form-control"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <!-- District Assignment -->
+                <div class="mb-4">
+                  <label
+                    for="modalDistrictSelect"
+                    class="form-label fw-semibold"
+                    >Assigned District</label
+                  >
+                  <select id="modalDistrictSelect" class="form-select"></select>
+                </div>
+
+                <!-- Role Assignment -->
+                <div class="mb-4">
+                  <label class="form-label fw-semibold">Available Roles</label>
+                  <div class="input-group mb-2 shadow-sm">
+                    <span class="input-group-text bg-white"
+                      ><i class="bi bi-search text-secondary"></i
+                    ></span>
+                    <input
+                      type="text"
+                      id="roleSearchInput"
+                      class="form-control"
+                      placeholder="Search roles..."
+                      oninput="filterRoles()"
+                    />
+                  </div>
+                  <div class="roles-container shadow-sm">
+                    <div id="rolesList"></div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label fw-semibold">Selected Roles</label>
+                  <div id="selectedRolesContainer" class="shadow-sm">
+                    <div id="selectedRolesPlaceholder" class="text-muted">
+                      No roles selected yet
+                    </div>
+                    <div id="selectedRolesList" class="d-flex flex-wrap"></div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end pt-3 border-top">
+                  <button
+                    type="button"
+                    class="btn btn-secondary shadow-sm me-2"
+                    data-bs-dismiss="modal"
+                  >
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                  </button>
+                  <button type="submit" class="btn btn-primary shadow-sm">
+                    <span id="assignRolesBtnText"
+                      ><i class="bi bi-save me-1"></i> Save Changes</span
+                    >
+                    <span
+                      id="assignRolesSpinner"
+                      class="spinner-border spinner-border-sm d-none"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+        <div
+          id="liveToast"
+          class="toast hide align-items-center text-white border-0"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div class="d-flex">
+            <div class="toast-body"></div>
             <button
               type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
+              class="btn-close btn-close-white me-2 m-auto"
+              data-bs-dismiss="toast"
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">
-            <!-- Modal Loading State -->
-            <div id="modalLoader" class="text-center py-5 d-none">
-              <div class="spinner-border text-primary" role="status"></div>
-              <p class="mt-2 text-muted">Loading employee details...</p>
-            </div>
-            <!-- Modal Form -->
-            <form id="assignRoleForm" class="">
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Employee Code</label
-                  ><input
-                    type="text"
-                    id="modalEmpCd"
-                    class="form-control"
-                    readonly
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Employee Name</label
-                  ><input
-                    type="text"
-                    id="modalEmpName"
-                    class="form-control"
-                    readonly
-                  />
-                </div>
-              </div>
-
-              <!-- District Assignment -->
-              <div class="mb-4">
-                <label for="modalDistrictSelect" class="form-label fw-semibold"
-                  >Assigned District</label
-                >
-                <select id="modalDistrictSelect" class="form-select"></select>
-              </div>
-
-              <!-- Role Assignment -->
-              <div class="mb-4">
-                <label class="form-label fw-semibold">Available Roles</label>
-                <div class="input-group mb-2 shadow-sm">
-                  <span class="input-group-text bg-white"
-                    ><i class="bi bi-search text-secondary"></i
-                  ></span>
-                  <input
-                    type="text"
-                    id="roleSearchInput"
-                    class="form-control"
-                    placeholder="Search roles..."
-                    oninput="filterRoles()"
-                  />
-                </div>
-                <div class="roles-container shadow-sm">
-                  <div id="rolesList"></div>
-                </div>
-              </div>
-
-              <div class="mb-4">
-                <label class="form-label fw-semibold">Selected Roles</label>
-                <div id="selectedRolesContainer" class="shadow-sm">
-                  <div id="selectedRolesPlaceholder" class="text-muted">
-                    No roles selected yet
-                  </div>
-                  <div id="selectedRolesList" class="d-flex flex-wrap"></div>
-                </div>
-              </div>
-
-              <div class="d-flex justify-content-end pt-3 border-top">
-                <button
-                  type="button"
-                  class="btn btn-secondary shadow-sm me-2"
-                  data-bs-dismiss="modal"
-                >
-                  <i class="bi bi-x-circle me-1"></i> Cancel
-                </button>
-                <button type="submit" class="btn btn-primary shadow-sm">
-                  <span id="assignRolesBtnText"
-                    ><i class="bi bi-save me-1"></i> Save Changes</span
-                  >
-                  <span
-                    id="assignRolesSpinner"
-                    class="spinner-border spinner-border-sm d-none"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Toast Notification -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-      <div
-        id="liveToast"
-        class="toast hide align-items-center text-white border-0"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        <div class="d-flex">
-          <div class="toast-body"></div>
-          <button
-            type="button"
-            class="btn-close btn-close-white me-2 m-auto"
-            data-bs-dismiss="toast"
-            aria-label="Close"
-          ></button>
-        </div>
-      </div>
-    </div>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      <script>
+        // Global variables
+        let traineeData = [];
+        let allEmployeeData = []; // Stores the full data for ALL employees
+        let filteredEmployees = []; // Stores the data after search/filter
+        let currentPage = 1;
+        let entriesPerPage = 10;
+        let allAvailableRoles = []; // Stores the list of all possible roles from the system
+        let selectedEmp = {}; // The employee currently being edited in the modal
+        let selectedRoleIds = []; // The role IDs selected in the modal
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      // Global variables
-      let traineeData = [];
-      let allEmployeeData = []; // Stores the full data for ALL employees
-      let filteredEmployees = []; // Stores the data after search/filter
-      let currentPage = 1;
-      let entriesPerPage = 10;
-      let allAvailableRoles = []; // Stores the list of all possible roles from the system
-      let selectedEmp = {}; // The employee currently being edited in the modal
-      let selectedRoleIds = []; // The role IDs selected in the modal
+        // Initialize when DOM is loaded
+        document.addEventListener("DOMContentLoaded", function () {
+          fetchAndRenderAllEmployees();
+          setupFormSubmit();
+        });
 
-      // Initialize when DOM is loaded
-      document.addEventListener("DOMContentLoaded", function () {
-        fetchAndRenderAllEmployees();
-        setupFormSubmit();
-      });
+        // --- MAJOR CHANGE 1: Fetch ALL employee data including roles for the main table ---
+        async function fetchAndRenderAllEmployees() {
+          showTableLoadingState();
+          try {
+            // This endpoint should return a list of all employees with their assigned roles
+            const response = await fetch("/api/assignRolesAndDistricts/all");
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            const rawData = Array.isArray(data)
+              ? data
+              : data.data || data.result || [];
 
-      // --- MAJOR CHANGE 1: Fetch ALL employee data including roles for the main table ---
-      async function fetchAndRenderAllEmployees() {
-        showTableLoadingState();
-        try {
-          // This endpoint should return a list of all employees with their assigned roles
-          const response = await fetch("/api/assignRolesAndDistricts/all");
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Store the full data
+            allEmployeeData = rawData.map((item) => ({
+              empCd: item.empCd || item.id?.empCd,
+              fullName:
+                item.fullName ||
+                `${item.firstName || ""} ${item.lastName || ""}`.trim(),
+              roles: Array.isArray(item.roles) ? item.roles : [],
+              district: item.district?.districtName || "N/A", // Correct way to get name
+              districtId: item.district?.districtId || null, // Use this for setting form value
+            }));
+
+            filteredEmployees = [...allEmployeeData];
+            currentPage = 1;
+            updatePagination();
+            renderTrainees();
+          } catch (error) {
+            console.error("Failed to fetch employee list:", error);
+            showTableErrorState(error);
           }
-          const data = await response.json();
-          const rawData = Array.isArray(data)
-            ? data
-            : data.data || data.result || [];
-
-          // Store the full data
-          allEmployeeData = rawData.map((item) => ({
-            empCd: item.empCd || item.id?.empCd,
-            fullName:
-              item.fullName ||
-              `${item.firstName || ""} ${item.lastName || ""}`.trim(),
-            roles: Array.isArray(item.roles) ? item.roles : [],
-            district: item.district?.districtName || "N/A", // Correct way to get name
-            districtId: item.district?.districtId || null, // Use this for setting form value
-          }));
-
-          filteredEmployees = [...allEmployeeData];
-          currentPage = 1;
-          updatePagination();
-          renderTrainees();
-        } catch (error) {
-          console.error("Failed to fetch employee list:", error);
-          showTableErrorState(error);
         }
-      }
 
-      // --- MAJOR CHANGE 2: Render the table using the new `filteredEmployees` data ---
-      function renderTrainees() {
-        const tableBody = document.getElementById("traineeTableBody");
+        // --- MAJOR CHANGE 2: Render the table using the new `filteredEmployees` data ---
+        function renderTrainees() {
+          const tableBody = document.getElementById("traineeTableBody");
 
-        // Use the filteredEmployees array now
-        if (!filteredEmployees.length) {
-          tableBody.innerHTML = `
+          // Use the filteredEmployees array now
+          if (!filteredEmployees.length) {
+            tableBody.innerHTML = `
             <tr>
               <td colspan="5" class="text-center py-4 text-muted">
                 <i class="bi bi-emoji-frown me-2"></i>No employees found
               </td>
             </tr>`;
-          updatePaginationInfo();
-          updatePaginationButtons();
-          return;
-        }
+            updatePaginationInfo();
+            updatePaginationButtons();
+            return;
+          }
 
-        const paginatedEmployees = filteredEmployees.slice(
-          (currentPage - 1) * entriesPerPage,
-          currentPage * entriesPerPage
-        );
+          const paginatedEmployees = filteredEmployees.slice(
+            (currentPage - 1) * entriesPerPage,
+            currentPage * entriesPerPage
+          );
 
-        tableBody.innerHTML = paginatedEmployees
-          .map((employee) => {
-            const rolesBadges =
-              employee.roles.length > 0
-                ? employee.roles
-                    .map(
-                      (roleName) =>
-                        `<span class="badge badge-primary me-1 mb-1">${roleName}</span>`
-                    )
-                    .join("")
-                : `<span class="badge badge-secondary">No roles assigned</span>`;
+          tableBody.innerHTML = paginatedEmployees
+            .map((employee) => {
+              const rolesBadges =
+                employee.roles.length > 0
+                  ? employee.roles
+                      .map(
+                        (roleName) =>
+                          `<span class="badge badge-primary me-1 mb-1">${roleName}</span>`
+                      )
+                      .join("")
+                  : `<span class="badge badge-secondary">No roles assigned</span>`;
 
-            // Escape single quotes in the name to prevent breaking the onclick attribute
-            const safeFullName = employee.fullName.replace(/'/g, "\\'");
+              // Escape single quotes in the name to prevent breaking the onclick attribute
+              const safeFullName = employee.fullName.replace(/'/g, "\\'");
 
-            return `
+              return `
             <tr>
               <td class="fw-semibold">${employee.empCd || "N/A"}</td>
               <td>${employee.fullName || "N/A"}</td>
@@ -514,136 +516,138 @@
                 </button>
               </td>
             </tr>`;
-          })
-          .join("");
+            })
+            .join("");
 
-        updatePaginationInfo();
-        updatePaginationButtons();
-      }
-
-      // --- MAJOR CHANGE 3: Streamlined modal opening logic ---
-      async function openAssignRoleModal(empCd, fullName) {
-        const modalEl = document.getElementById("assignRoleModal");
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        const loader = document.getElementById("modalLoader");
-        const form = document.getElementById("assignRoleForm");
-
-        // 1) show loader
-        loader.classList.remove("d-none");
-        form.classList.add("d-none");
-        modal.show();
-
-        try {
-          // 2) fetch this employee’s data (names in .roles)
-          const res = await fetch(`/api/assignRolesAndDistricts/${empCd}`);
-          if (!res.ok) throw new Error("Failed to fetch details");
-          const employee = await res.json();
-
-          // 3) fill in code + name
-          selectedEmp = {
-            empCd: employee.id.empCd.trim(),
-            fullName: employee.fullName,
-          };
-          document.getElementById("modalEmpCd").value = selectedEmp.empCd;
-          document.getElementById("modalEmpName").value = selectedEmp.fullName;
-
-          // 4) ensure you have the master list of roles loaded
-          await loadAllAvailableRoles();
-          // at this point, allAvailableRoles = [ {roleId,roleName}, … ]
-          await populateDistrictDropdown();
-          // employee.districtId should be a number, e.g. 4
-          if (
-            employee.district != null &&
-            employee.district.districtId != null
-          ) {
-            document.getElementById("modalDistrictSelect").value =
-              employee.district.districtId;
-          }
-
-          // 5) map the fetched names to IDs
-          selectedRoleIds = allAvailableRoles
-            .filter((r) => employee.roles.includes(r.roleName))
-            .map((r) => r.roleId);
-
-          // 6) render the checkboxes (uses selectedRoleIds internally)
-          renderRolesList(allAvailableRoles);
-
-          // 7) render the pills
-          updateSelectedRolesUI();
-
-          // 8) show form
-          loader.classList.add("d-none");
-          form.classList.remove("d-none");
-        } catch (err) {
-          console.error(err);
-          showToast("Could not load user roles", "danger");
-          modal.hide();
+          updatePaginationInfo();
+          updatePaginationButtons();
         }
-      }
 
-      async function populateDistrictDropdown() {
-        try {
-          const response = await fetch("/api/district/getall");
-          if (!response.ok) {
-            throw new Error(`Failed to fetch districts: ${response.status}`);
+        // --- MAJOR CHANGE 3: Streamlined modal opening logic ---
+        async function openAssignRoleModal(empCd, fullName) {
+          const modalEl = document.getElementById("assignRoleModal");
+          const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+          const loader = document.getElementById("modalLoader");
+          const form = document.getElementById("assignRoleForm");
+
+          // 1) show loader
+          loader.classList.remove("d-none");
+          form.classList.add("d-none");
+          modal.show();
+
+          try {
+            // 2) fetch this employee’s data (names in .roles)
+            const res = await fetch(`/api/assignRolesAndDistricts/${empCd}`);
+            if (!res.ok) throw new Error("Failed to fetch details");
+            const employee = await res.json();
+
+            // 3) fill in code + name
+            selectedEmp = {
+              empCd: employee.id.empCd.trim(),
+              fullName: employee.fullName,
+            };
+            document.getElementById("modalEmpCd").value = selectedEmp.empCd;
+            document.getElementById("modalEmpName").value =
+              selectedEmp.fullName;
+
+            // 4) ensure you have the master list of roles loaded
+            await loadAllAvailableRoles();
+            // at this point, allAvailableRoles = [ {roleId,roleName}, … ]
+            await populateDistrictDropdown();
+            // employee.districtId should be a number, e.g. 4
+            if (
+              employee.district != null &&
+              employee.district.districtId != null
+            ) {
+              document.getElementById("modalDistrictSelect").value =
+                employee.district.districtId;
+            }
+
+            // 5) map the fetched names to IDs
+            selectedRoleIds = allAvailableRoles
+              .filter((r) => employee.roles.includes(r.roleName))
+              .map((r) => r.roleId);
+
+            // 6) render the checkboxes (uses selectedRoleIds internally)
+            renderRolesList(allAvailableRoles);
+
+            // 7) render the pills
+            updateSelectedRolesUI();
+
+            // 8) show form
+            loader.classList.add("d-none");
+            form.classList.remove("d-none");
+          } catch (err) {
+            console.error(err);
+            showToast("Could not load user roles", "danger");
+            modal.hide();
           }
+        }
 
-          const data = await response.json();
-          const districts = Array.isArray(data)
-            ? data
-            : data.data || data.result || [];
+        async function populateDistrictDropdown() {
+          try {
+            const response = await fetch("/api/district/getall");
+            if (!response.ok) {
+              throw new Error(`Failed to fetch districts: ${response.status}`);
+            }
 
-          const select = document.getElementById("modalDistrictSelect");
-          select.innerHTML = '<option value="">-- Select District --</option>'; // default option
+            const data = await response.json();
+            const districts = Array.isArray(data)
+              ? data
+              : data.data || data.result || [];
 
-          districts.forEach((district) => {
-            const option = document.createElement("option");
-            option.value = district.districtId; // ✅ use the numeric ID
-            option.textContent = district.districtName; // ✅ show the name
-            select.appendChild(option);
-          });
-        } catch (error) {
-          console.error("Error loading district list:", error);
-          const select = document.getElementById("modalDistrictSelect");
-          if (select) {
+            const select = document.getElementById("modalDistrictSelect");
             select.innerHTML =
-              '<option value="">Failed to load districts</option>';
+              '<option value="">-- Select District --</option>'; // default option
+
+            districts.forEach((district) => {
+              const option = document.createElement("option");
+              option.value = district.districtId; // ✅ use the numeric ID
+              option.textContent = district.districtName; // ✅ show the name
+              select.appendChild(option);
+            });
+          } catch (error) {
+            console.error("Error loading district list:", error);
+            const select = document.getElementById("modalDistrictSelect");
+            if (select) {
+              select.innerHTML =
+                '<option value="">Failed to load districts</option>';
+            }
           }
         }
-      }
-      async function handleEditRolesClick(empCd, fullName) {
-        try {
-          populateDistrictDropdown();
+        async function handleEditRolesClick(empCd, fullName) {
+          try {
+            populateDistrictDropdown();
 
-          // (Optional) Preselect district if you have district info from API
-        } catch (error) {
-          console.error("Error in Edit Roles click handler:", error);
-        }
-      }
-
-      // Fetches the master list of all possible roles in the system
-      async function loadAllAvailableRoles() {
-        if (allAvailableRoles.length === 0) {
-          const response = await fetch("/userRPM/role/getall");
-          const data = await response.json();
-          allAvailableRoles = Array.isArray(data) ? data : data.data || [];
-        }
-        // ALWAYS re‑draw the checkbox list based on the current `selectedRoleIds`
-        renderRolesList(allAvailableRoles);
-      }
-
-      function renderRolesList(rolesToRender) {
-        const rolesListContainer = document.getElementById("rolesList");
-        if (!rolesToRender.length) {
-          rolesListContainer.innerHTML = `<div class="p-3 text-muted">No roles found.</div>`;
-          return;
+            // (Optional) Preselect district if you have district info from API
+          } catch (error) {
+            console.error("Error in Edit Roles click handler:", error);
+          }
         }
 
-        rolesListContainer.innerHTML = rolesToRender
-          .map((role) => {
-            const safeRoleName = role.roleName.replace(/'/g, "\\'");
-            const isChecked = selectedRoleIds.includes(role.roleId);
-            return `
+        // Fetches the master list of all possible roles in the system
+        async function loadAllAvailableRoles() {
+          if (allAvailableRoles.length === 0) {
+            const response = await fetch("/userRPM/role/getall");
+            const data = await response.json();
+            allAvailableRoles = Array.isArray(data) ? data : data.data || [];
+          }
+          // ALWAYS re‑draw the checkbox list based on the current `selectedRoleIds`
+          renderRolesList(allAvailableRoles);
+        }
+
+        function renderRolesList(rolesToRender) {
+          const rolesListContainer = document.getElementById("rolesList");
+          if (!rolesToRender.length) {
+            rolesListContainer.innerHTML = `<div class="p-3 text-muted">No roles found.</div>`;
+            return;
+          }
+
+          rolesListContainer.innerHTML = rolesToRender
+            .map((role) => {
+              const safeRoleName = role.roleName.replace(/'/g, "\\'");
+              const isChecked = selectedRoleIds.includes(role.roleId);
+              return `
             <div class="role-item">
               <input type="checkbox" class="role-checkbox form-check-input" 
                     id="role-${role.roleId}" 
@@ -653,58 +657,61 @@
                       role.roleId
                     }, '${safeRoleName}')">
               <label for="role-${role.roleId}" class="form-check-label w-100">${
-              role.roleName
-            }</label>
+                role.roleName
+              }</label>
             </div>`;
-          })
-          .join("");
-      }
-
-      function filterRoles() {
-        const searchTerm = document
-          .getElementById("roleSearchInput")
-          .value.toLowerCase();
-        const filtered = allAvailableRoles.filter((role) =>
-          role.roleName.toLowerCase().includes(searchTerm)
-        );
-        renderRolesList(filtered);
-      }
-
-      function toggleRoleSelection(roleId) {
-        roleId = Number(roleId); // 🔑 force number
-        const index = selectedRoleIds.indexOf(roleId);
-        if (index > -1) {
-          selectedRoleIds.splice(index, 1);
-        } else {
-          selectedRoleIds.push(roleId);
+            })
+            .join("");
         }
-        updateSelectedRolesUI();
-      }
 
-      function removeSelectedRole(roleId) {
-        roleId = Number(roleId); // 🔑 force number
-        selectedRoleIds = selectedRoleIds.filter((id) => id !== roleId);
-        const checkbox = document.getElementById(`role-${roleId}`);
-        if (checkbox) checkbox.checked = false;
-        updateSelectedRolesUI();
-      }
+        function filterRoles() {
+          const searchTerm = document
+            .getElementById("roleSearchInput")
+            .value.toLowerCase();
+          const filtered = allAvailableRoles.filter((role) =>
+            role.roleName.toLowerCase().includes(searchTerm)
+          );
+          renderRolesList(filtered);
+        }
 
-      function updateSelectedRolesUI() {
-        const selectedRolesList = document.getElementById("selectedRolesList");
-        const placeholder = document.getElementById("selectedRolesPlaceholder");
+        function toggleRoleSelection(roleId) {
+          roleId = Number(roleId); // 🔑 force number
+          const index = selectedRoleIds.indexOf(roleId);
+          if (index > -1) {
+            selectedRoleIds.splice(index, 1);
+          } else {
+            selectedRoleIds.push(roleId);
+          }
+          updateSelectedRolesUI();
+        }
 
-        const selectedRoles = allAvailableRoles.filter((role) =>
-          selectedRoleIds.includes(role.roleId)
-        );
+        function removeSelectedRole(roleId) {
+          roleId = Number(roleId); // 🔑 force number
+          selectedRoleIds = selectedRoleIds.filter((id) => id !== roleId);
+          const checkbox = document.getElementById(`role-${roleId}`);
+          if (checkbox) checkbox.checked = false;
+          updateSelectedRolesUI();
+        }
 
-        if (selectedRoles.length === 0) {
-          placeholder.style.display = "block";
-          selectedRolesList.innerHTML = "";
-        } else {
-          placeholder.style.display = "none";
-          selectedRolesList.innerHTML = selectedRoles
-            .map(
-              (role) => `
+        function updateSelectedRolesUI() {
+          const selectedRolesList =
+            document.getElementById("selectedRolesList");
+          const placeholder = document.getElementById(
+            "selectedRolesPlaceholder"
+          );
+
+          const selectedRoles = allAvailableRoles.filter((role) =>
+            selectedRoleIds.includes(role.roleId)
+          );
+
+          if (selectedRoles.length === 0) {
+            placeholder.style.display = "block";
+            selectedRolesList.innerHTML = "";
+          } else {
+            placeholder.style.display = "none";
+            selectedRolesList.innerHTML = selectedRoles
+              .map(
+                (role) => `
                 <div class="role-pill">
                     ${role.roleName}
                     <span class="role-pill-remove" onclick="removeSelectedRole(${role.roleId})">
@@ -712,209 +719,214 @@
                     </span>
                 </div>
             `
-            )
-            .join("");
+              )
+              .join("");
+          }
         }
-      }
 
-      function setupFormSubmit() {
-        document
-          .getElementById("assignRoleForm")
-          .addEventListener("submit", async function (e) {
-            e.preventDefault();
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const btnText = document.getElementById("assignRolesBtnText");
-            const spinner = document.getElementById("assignRolesSpinner");
+        function setupFormSubmit() {
+          document
+            .getElementById("assignRoleForm")
+            .addEventListener("submit", async function (e) {
+              e.preventDefault();
+              const submitBtn = e.target.querySelector('button[type="submit"]');
+              const btnText = document.getElementById("assignRolesBtnText");
+              const spinner = document.getElementById("assignRolesSpinner");
 
-            submitBtn.disabled = true;
-            btnText.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Saving...`;
-            spinner.classList.remove("d-none");
+              submitBtn.disabled = true;
+              btnText.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Saving...`;
+              spinner.classList.remove("d-none");
 
-            try {
-              const selectedDistrictId = document.getElementById(
-                "modalDistrictSelect"
-              ).value;
+              try {
+                const selectedDistrictId = document.getElementById(
+                  "modalDistrictSelect"
+                ).value;
 
-              const response = await fetch("/api/assignRoles", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
+                const response = await fetch("/api/assignRoles", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    empCd: selectedEmp.empCd,
+                    roleIds: selectedRoleIds,
+                    districtId: selectedDistrictId
+                      ? parseInt(selectedDistrictId)
+                      : null,
+                  }),
+                });
+
+                console.log("Sending to backend:", {
                   empCd: selectedEmp.empCd,
                   roleIds: selectedRoleIds,
-                  districtId: selectedDistrictId
-                    ? parseInt(selectedDistrictId)
-                    : null,
-                }),
-              });
+                  districtId: selectedDistrictId,
+                });
 
-              console.log("Sending to backend:", {
-                empCd: selectedEmp.empCd,
-                roleIds: selectedRoleIds,
-                districtId: selectedDistrictId,
-              });
+                if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(
+                    errorData.message || "Failed to assign roles"
+                  );
+                }
 
-              if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to assign roles");
+                const responseData = await response.json();
+                const rawUpdated = responseData.assignedRoles || [];
+                const updatedRoles = rawUpdated.map(
+                  (r) => r.roleName ?? String(r)
+                );
+                // Find the user in traineeData and update their roles
+                const userIndex = traineeData.findIndex(
+                  (u) => u.empCd === selectedEmp.empCd
+                );
+                if (userIndex !== -1) {
+                  traineeData[userIndex].roles = updatedRoles;
+                }
+
+                // Also update in filteredTrainees if present
+                const filteredIndex = filteredEmployees.findIndex(
+                  (u) => u.empCd === selectedEmp.empCd
+                );
+                if (filteredIndex !== -1) {
+                  filteredEmployees[filteredIndex].roles = updatedRoles;
+                }
+
+                showToast("Roles & Districts updated successfully!", "success");
+
+                // Close modal and refresh the table
+                const modal = bootstrap.Modal.getInstance(
+                  document.getElementById("assignRoleModal")
+                );
+                modal.hide();
+                await fetchAndRenderAllEmployees();
+              } catch (error) {
+                console.error("Assignment error:", error);
+                showToast(
+                  error.message || "Failed to update roles. Please try again.",
+                  "error"
+                );
+              } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.innerHTML =
+                  '<i class="bi bi-save me-1"></i> Save Changes';
+                spinner.classList.add("d-none");
               }
-
-              const responseData = await response.json();
-              const rawUpdated = responseData.assignedRoles || [];
-              const updatedRoles = rawUpdated.map(
-                (r) => r.roleName ?? String(r)
-              );
-              // Find the user in traineeData and update their roles
-              const userIndex = traineeData.findIndex(
-                (u) => u.empCd === selectedEmp.empCd
-              );
-              if (userIndex !== -1) {
-                traineeData[userIndex].roles = updatedRoles;
-              }
-
-              // Also update in filteredTrainees if present
-              const filteredIndex = filteredEmployees.findIndex(
-                (u) => u.empCd === selectedEmp.empCd
-              );
-              if (filteredIndex !== -1) {
-                filteredEmployees[filteredIndex].roles = updatedRoles;
-              }
-
-              showToast("Roles & Districts updated successfully!", "success");
-
-              // Close modal and refresh the table
-              const modal = bootstrap.Modal.getInstance(
-                document.getElementById("assignRoleModal")
-              );
-              modal.hide();
-              await fetchAndRenderAllEmployees();
-            } catch (error) {
-              console.error("Assignment error:", error);
-              showToast(
-                error.message || "Failed to update roles. Please try again.",
-                "error"
-              );
-            } finally {
-              // Reset button state
-              submitBtn.disabled = false;
-              btnText.innerHTML =
-                '<i class="bi bi-save me-1"></i> Save Changes';
-              spinner.classList.add("d-none");
-            }
-          });
-      }
-
-      function showToast(message, type = "info") {
-        const toastEl = document.getElementById("liveToast");
-        const toastBody = toastEl.querySelector(".toast-body");
-
-        toastEl.classList.remove(
-          "bg-success",
-          "bg-danger",
-          "bg-warning",
-          "bg-primary"
-        );
-        let iconHtml = "";
-        switch (type) {
-          case "success":
-            toastEl.classList.add("bg-success");
-            iconHtml = `<i class="bi bi-check-circle-fill me-2"></i>`;
-            break;
-          case "danger":
-            toastEl.classList.add("bg-danger");
-            iconHtml = `<i class="bi bi-exclamation-triangle-fill me-2"></i>`;
-            break;
-          case "warning":
-            toastEl.classList.add("bg-warning", "text-dark"); // Dark text for yellow bg
-            iconHtml = `<i class="bi bi-exclamation-triangle-fill me-2"></i>`;
-            break;
-          default:
-            toastEl.classList.add("bg-primary");
-            iconHtml = `<i class="bi bi-info-circle-fill me-2"></i>`;
+            });
         }
-        toastBody.innerHTML = iconHtml + message;
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-      }
 
-      // --- Pagination and Search Functions ---
-      function searchTrainees() {
-        const searchValue = document
-          .getElementById("searchInput")
-          .value.toLowerCase();
-        filteredEmployees = allEmployeeData.filter(
-          (user) =>
-            (user.empCd || "").toLowerCase().includes(searchValue) ||
-            (user.fullName || "").toLowerCase().includes(searchValue)
-        );
-        currentPage = 1;
-        updatePagination();
-        renderTrainees();
-      }
+        function showToast(message, type = "info") {
+          const toastEl = document.getElementById("liveToast");
+          const toastBody = toastEl.querySelector(".toast-body");
 
-      function filterEntries() {
-        entriesPerPage = parseInt(
-          document.getElementById("entriesSelect").value
-        );
-        currentPage = 1;
-        updatePagination();
-        renderTrainees();
-      }
+          toastEl.classList.remove(
+            "bg-success",
+            "bg-danger",
+            "bg-warning",
+            "bg-primary"
+          );
+          let iconHtml = "";
+          switch (type) {
+            case "success":
+              toastEl.classList.add("bg-success");
+              iconHtml = `<i class="bi bi-check-circle-fill me-2"></i>`;
+              break;
+            case "danger":
+              toastEl.classList.add("bg-danger");
+              iconHtml = `<i class="bi bi-exclamation-triangle-fill me-2"></i>`;
+              break;
+            case "warning":
+              toastEl.classList.add("bg-warning", "text-dark"); // Dark text for yellow bg
+              iconHtml = `<i class="bi bi-exclamation-triangle-fill me-2"></i>`;
+              break;
+            default:
+              toastEl.classList.add("bg-primary");
+              iconHtml = `<i class="bi bi-info-circle-fill me-2"></i>`;
+          }
+          toastBody.innerHTML = iconHtml + message;
+          const toast = new bootstrap.Toast(toastEl);
+          toast.show();
+        }
 
-      function updatePagination() {
-        totalPages = Math.ceil(filteredEmployees.length / entriesPerPage) || 1;
-        if (currentPage > totalPages) currentPage = totalPages;
-      }
-
-      function updatePaginationInfo() {
-        const total = filteredEmployees.length;
-        const start = total === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1;
-        const end = Math.min(currentPage * entriesPerPage, total);
-        document.getElementById(
-          "entriesInfo"
-        ).textContent = `Showing ${start} to ${end} of ${total} entries`;
-      }
-
-      function updatePaginationButtons() {
-        totalPages = Math.ceil(filteredEmployees.length / entriesPerPage);
-        document.getElementById("prevBtn").disabled = currentPage <= 1;
-        document.getElementById("nextBtn").disabled = currentPage >= totalPages;
-      }
-
-      function nextPage() {
-        if (currentPage < totalPages) {
-          currentPage++;
+        // --- Pagination and Search Functions ---
+        function searchTrainees() {
+          const searchValue = document
+            .getElementById("searchInput")
+            .value.toLowerCase();
+          filteredEmployees = allEmployeeData.filter(
+            (user) =>
+              (user.empCd || "").toLowerCase().includes(searchValue) ||
+              (user.fullName || "").toLowerCase().includes(searchValue)
+          );
+          currentPage = 1;
+          updatePagination();
           renderTrainees();
         }
-      }
 
-      function previousPage() {
-        if (currentPage > 1) {
-          currentPage--;
+        function filterEntries() {
+          entriesPerPage = parseInt(
+            document.getElementById("entriesSelect").value
+          );
+          currentPage = 1;
+          updatePagination();
           renderTrainees();
         }
-      }
 
-      function showTableLoadingState() {
-        document.getElementById("traineeTableBody").innerHTML = ` 
+        function updatePagination() {
+          totalPages =
+            Math.ceil(filteredEmployees.length / entriesPerPage) || 1;
+          if (currentPage > totalPages) currentPage = totalPages;
+        }
+
+        function updatePaginationInfo() {
+          const total = filteredEmployees.length;
+          const start =
+            total === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1;
+          const end = Math.min(currentPage * entriesPerPage, total);
+          document.getElementById(
+            "entriesInfo"
+          ).textContent = `Showing ${start} to ${end} of ${total} entries`;
+        }
+
+        function updatePaginationButtons() {
+          totalPages = Math.ceil(filteredEmployees.length / entriesPerPage);
+          document.getElementById("prevBtn").disabled = currentPage <= 1;
+          document.getElementById("nextBtn").disabled =
+            currentPage >= totalPages;
+        }
+
+        function nextPage() {
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderTrainees();
+          }
+        }
+
+        function previousPage() {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTrainees();
+          }
+        }
+
+        function showTableLoadingState() {
+          document.getElementById("traineeTableBody").innerHTML = ` 
             <tr><td colspan="5" class="text-center py-4">
                 <div class="spinner-border text-primary" role="status"></div>
                 <span class="ms-2">Loading employees...</span>
             </td></tr>`;
-      }
+        }
 
-      function showTableErrorState(error) {
-        document.getElementById("traineeTableBody").innerHTML = `
+        function showTableErrorState(error) {
+          document.getElementById("traineeTableBody").innerHTML = `
             <tr><td colspan="5" class="text-center py-4 text-danger">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 Error: ${error.message || "Could not load data."}
             </td></tr>`;
-      }
+        }
 
-      function refreshData() {
-        document.getElementById("searchInput").value = "";
-        fetchAndRenderAllEmployees();
-      }
-    </script>
+        function refreshData() {
+          document.getElementById("searchInput").value = "";
+          fetchAndRenderAllEmployees();
+        }
+      </script>
     </main>
-    </body>
+  </body>
 </html>

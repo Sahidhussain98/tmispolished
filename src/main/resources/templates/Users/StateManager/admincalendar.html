@@ -8,2207 +8,2035 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calendar Management</title>
-    <link rel="stylesheet" th:href="@{/css/tailwind.min.css}" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
-    />
-    <style>
-      input[readonly] {
-        background-color: #f3f4f6;
-        cursor: not-allowed;
-      }
-      .modal-container {
-        max-height: 90vh;
-        overflow-y: auto;
-      }
-      body.overflow-hidden {
-        overflow: hidden;
-      }
-      #createModal .grid,
-      #updateModal .grid {
-        padding-bottom: 1rem;
-      }
-      .flex label {
-        flex-shrink: 0;
-      }
-      .choices__list--multiple .choices__item {
-        background-color: #4a90e2;
-        border: 1px solid #357abd;
-        color: white;
-        border-radius: 0.25rem;
-        margin-bottom: 0.25rem;
-        margin-right: 0.375rem;
-      }
-      .is-focused .choices__inner,
-      .is-open .choices__inner {
-        border-color: #a0aec0;
-      }
-      .choices__inner {
-        min-height: 38px;
-        padding: 0.25rem 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.25rem;
-      }
-      .readonly-display {
-        background-color: #f3f4f6;
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        font-weight: normal;
-        color: #374151;
-        min-height: 38px;
-        display: flex;
-        align-items: center;
-        border: 1px solid #d1d5db;
-        white-space: normal;
-        word-break: break-word;
-      }
-      #createModal .modal-container,
-      #updateModal .modal-container {
-        width: 95vw;
-        max-width: 1000px;
-      }
-      input[type="hidden"] {
-        display: none;
-      }
-    </style>
   </head>
 
-  <body class="bg-gray-100">
+  <body class="bg-light">
     <main layout:fragment="content">
-      <div class="container mx-auto max-w-screen-2xl p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h1 class="text-3xl font-bold text-gray-800">Calendar Management</h1>
-          <button
-            id="openCreateModalBtn"
-            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Create New Calendar
-          </button>
-        </div>
-
-            <div
-      id="calendarListContainer"
-      class="bg-white p-6 rounded-lg shadow mb-6"
-    >
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-2xl font-semibold text-gray-800">
-          Calendar Events
-        </h3>
-        <div>
-          <label for="calendarFilter" class="sr-only"
-            >Filter by Training Level</label
-          >
-          <select
-            id="calendarFilter"
-            class="p-2 border border-gray-300 rounded text-sm"
-          >
-            <option value="all">All Events</option>
-            <option value="state">State Level</option>
-            <option value="district">District Level</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-          <thead class="bg-gray-50">
-            <tr>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
-              >
-                Sl. No
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
-              >
-                Program
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
-              >
-                Topic
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
-              >
-                District(s)
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
-              >
-                Venue
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
-              >
-                Nature of staff
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
-              >
-                Target
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
-              >
-                Start Date
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
-              >
-                End Date
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
-              >
-                Duration
-              </th>
-              <th
-                class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody id="calendarList" class="divide-y divide-gray-100"></tbody>
-        </table>
-      </div>
-      <!-- Download button at the bottom of the table -->
-      <div class="flex justify-end">
-        <button
-          onclick="downloadExcel()"
-          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-        >
-          Download Excel
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div
-    id="createModal"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-40 p-4"
-  >
-    <div
-      class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl"
-    >
-      <button
-        id="closeCreateModal"
-        class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
-      >
-        ×
-      </button>
-      <h3 class="text-2xl font-bold text-gray-800 mb-4">Create Calendar</h3>
-      <div class="mb-4">
-        <label for="formMode" class="block text-gray-700 font-semibold mb-2"
-          >Select Training level:</label
-        >
-        <select id="formMode" class="p-2 border border-gray-300 rounded">
-          <option value="state">State Level</option>
-          <option value="district">District Level</option>
-        </select>
-      </div>
-      <form id="stateLevelForm">
-        <!-- This form is now primarily for State Level -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label
-              for="createProgramName"
-              class="block text-gray-700 font-semibold mb-2"
-              >Programme:</label
-            >
-            <select
-              id="createProgramName"
-              name="programId"
-              required
-              class="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">-- Select Programme --</option>
-            </select>
-
-            <label
-              for="createNatureOfStaff"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Nature of Staff:</label
-            >
-            <select
-              id="createNatureOfStaff"
-              name="natureOfStaff"
-              multiple
-              required
-              class="w-full p-2 border border-gray-300 rounded choices-multiple"
-            ></select>
-
-            <!-- District handling for State Level form -->
-            <label
-              for="createDistrict"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >District:</label
-            >
-            <div id="createDistrictDisplayState" class="readonly-display">
-              All Districts
-            </div>
-            <select
-              id="createDistrict"
-              multiple
-              class="w-full p-2 border border-gray-300 rounded choices-multiple hidden"
-            >
-              <!-- This select is hidden and its 'name' attribute will be managed by JS -->
-            </select>
-
-            <label
-              for="createVenue"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Venue:</label
-            >
-            <select
-              id="createVenue"
-              name="venueId"
-              required
-              class="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">-- Loading all venues --</option>
-            </select>
+      <div class="container-fluid">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h1 class="h3 mb-0 text-gray-800">Calendar Management</h1>
           </div>
-          <div>
-            <label
-              for="createTopic"
-              class="block text-gray-700 font-semibold mb-2"
-              >Topic:</label
-            >
-            <select
-              id="createTopic"
-              name="topicId"
-              required
-              class="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">-- Select Programme First --</option>
-            </select>
-
-            <label
-              for="createTarget"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Target:</label
-            >
-            <input
-              type="number"
-              id="createTarget"
-              name="target"
-              placeholder="Target (Optional)"
-              min="1"
-              class="w-full p-2 border border-gray-300 rounded"
-            />
-
-            <div class="flex items-center space-x-2 mt-4">
-              <label
-                for="createStartDate"
-                class="block text-gray-700 font-semibold whitespace-nowrap"
-                >Start Date:</label
-              >
-              <input
-                type="date"
-                id="createStartDate"
-                name="startDate"
-                required
-                class="w-full p-2 border border-gray-300 rounded"
-                onchange="calculateCreateDuration()"
-              />
-            </div>
-            <div class="flex items-center space-x-2 mt-4">
-              <label
-                for="createEndDate"
-                class="block text-gray-700 font-semibold whitespace-nowrap"
-                >End Date:</label
-              >
-              <input
-                type="date"
-                id="createEndDate"
-                name="endDate"
-                required
-                class="w-full p-2 border border-gray-300 rounded"
-                onchange="calculateCreateDuration()"
-              />
-            </div>
-
-            <label
-              for="createDuration"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Duration (days):</label
-            >
-            <input
-              type="number"
-              id="createDuration"
-              name="duration"
-              placeholder="Auto-calculated"
-              class="w-full p-2 border border-gray-300 rounded"
-              readonly
-            />
+          <div class="col-md-6 text-right">
+            <button id="openCreateModalBtn" class="btn btn-primary">
+              Create New Calendar
+            </button>
           </div>
         </div>
-        <div class="flex justify-end mt-6 space-x-4">
-          <button
-            type="submit"
-            id="createStateCalendarBtn"
-            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+
+        <div class="card shadow mb-4">
+          <div
+            class="card-header py-3 d-flex justify-content-between align-items-center"
           >
-            Create
-          </button>
-          <button
-            type="button"
-            id="cancelCreateModalBtn"
-            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-
-      <form id="districtLevelForm" class="hidden">
-        <!-- This form is for District Level -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label
-              for="dist_createProgramName"
-              class="block text-gray-700 font-semibold mb-2"
-              >Programme:</label
-            >
-            <select
-              id="dist_createProgramName"
-              name="programId"
-              required
-              class="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">-- Select Programme --</option>
-            </select>
-
-            <label
-              for="dist_createNatureOfStaff"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Nature of Staff:</label
-            >
-            <select
-              id="dist_createNatureOfStaff"
-              name="natureOfStaff"
-              multiple
-              required
-              class="w-full p-2 border border-gray-300 rounded choices-multiple"
-            ></select>
-
-            <label
-              for="dist_createDistrict"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >District(s):</label
-            >
-            <select
-              id="dist_createDistrict"
-              name="district"
-              multiple
-              required
-              class="w-full p-2 border border-gray-300 rounded choices-multiple"
-            ></select>
-
-            <label
-              for="dist_createVenueContainer"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Venue(s):</label
-            >
-            <div id="dist_createVenueContainer" class="mt-1 space-y-1">
-              <p class="text-sm text-gray-500 py-2">
-                Select district(s) to choose venues.
-              </p>
-            </div>
-          </div>
-          <div>
-            <label
-              for="dist_createTopic"
-              class="block text-gray-700 font-semibold mb-2"
-              >Topic:</label
-            >
-            <select
-              id="dist_createTopic"
-              name="topicId"
-              required
-              class="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">-- Select Programme First --</option>
-            </select>
-
-            <label
-              for="dist_createTarget"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Target:</label
-            >
-            <input
-              type="number"
-              id="dist_createTarget"
-              name="target"
-              placeholder="Target (Optional)"
-              min="1"
-              class="w-full p-2 border border-gray-300 rounded"
-            />
-
-            <div class="flex items-center space-x-2 mt-4">
-              <label
-                for="dist_createStartDate"
-                class="block text-gray-700 font-semibold whitespace-nowrap"
-                >Start Date:</label
-              >
-
-              <input
-                type="date"
-                id="dist_createStartDate"
-                name="startDate"
-                required
-                class="w-full p-2 border border-gray-300 rounded"
-                onchange="calculateDistCreateDuration()"
-              />
-            </div>
-            <div class="flex items-center space-x-2 mt-4">
-              <label
-                for="dist_createEndDate"
-                class="block text-gray-700 font-semibold whitespace-nowrap"
-                >End Date:</label
-              >
-              <input
-                type="date"
-                id="dist_createEndDate"
-                name="endDate"
-                required
-                class="w-full p-2 border border-gray-300 rounded"
-                onchange="calculateDistCreateDuration()"
-              />
-            </div>
-
-            <label
-              for="dist_createDuration"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Duration (days):</label
-            >
-            <input
-              type="number"
-              id="dist_createDuration"
-              name="duration"
-              placeholder="Auto-calculated"
-              class="w-full p-2 border border-gray-300 rounded"
-              readonly
-            />
-          </div>
-        </div>
-        <div class="flex justify-end mt-6 space-x-4">
-          <button
-            type="submit"
-            id="dist_createCalendarBtn"
-            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-          >
-            Create
-          </button>
-          <button
-            type="button"
-            id="cancelCreateModalBtnDistrict"
-            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div
-    id="updateModal"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 p-4"
-  >
-    <div
-      class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl"
-    >
-      <button
-        id="closeUpdateModal"
-        class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
-      >
-        ×
-      </button>
-      <h3 class="text-2xl font-bold text-gray-800 mb-4">Update Calendar</h3>
-      <form id="updateCalendarForm">
-        <input type="hidden" id="updateCalendarId" name="calendarId" />
-        <input
-          type="hidden"
-          id="updateTrainingLevel"
-          name="trainingLevel"
-        />
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label
-              for="updateProgramName"
-              class="block text-gray-700 font-semibold mb-2"
-              >Programme:</label
-            >
-            <select
-              id="updateProgramName"
-              name="programId"
-              required
-              class="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">-- Select Programme --</option>
-            </select>
-
-            <!-- District handling for Update Form -->
-            <label
-              for="updateDistrict"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >District(s):</label
-            >
-            <div
-              id="updateDistrictDisplayState"
-              class="readonly-display hidden"
-            >
-              All Districts
-            </div>
-            <select
-              id="updateDistrict"
-              multiple
-              class="w-full p-2 border border-gray-300 rounded choices-multiple"
-            >
-              <!-- This select is hidden for state level, its 'name' attribute will be managed by JS -->
-            </select>
-
-            <label
-              for="updateNatureOfStaff"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Nature of Staff:</label
-            >
-            <select
-              id="updateNatureOfStaff"
-              name="natureOfStaff"
-              multiple
-              required
-              class="w-full p-2 border border-gray-300 rounded choices-multiple"
-            ></select>
-
-            <!-- Venue section: conditional display based on training level -->
-            <div id="updateVenueStateSection">
-              <label
-                for="updateVenueState"
-                class="block text-gray-700 font-semibold mt-4 mb-2"
-                >Venue (State Level):</label
-              >
-              <select
-                id="updateVenueState"
-                name="venueId"
-                class="w-full p-2 border border-gray-300 rounded"
-              >
-                <option value="">-- Loading all venues --</option>
+            <h6 class="m-0 font-weight-bold text-primary">Calendar Events</h6>
+            <div class="form-group mb-0">
+              <select id="calendarFilter" class="form-control form-control-sm">
+                <option value="all">All Events</option>
+                <option value="state">State Level</option>
+                <option value="district">District Level</option>
               </select>
             </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                  <tr>
+                    <th>Sl. No</th>
+                    <th>Program</th>
+                    <th>Topic</th>
+                    <th>District(s)</th>
+                    <th>Venue</th>
+                    <th>Nature of staff</th>
+                    <th class="text-center">Target</th>
+                    <th class="text-center">Start Date</th>
+                    <th class="text-center">End Date</th>
+                    <th class="text-center">Duration</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="calendarList"></tbody>
+              </table>
+            </div>
+            <div class="text-right mt-3">
+              <button onclick="downloadExcel()" class="btn btn-success">
+                Download Excel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            <div id="updateVenueDistrictContainerWrapper" class="hidden">
-              <label class="block text-gray-700 font-semibold mt-4 mb-2"
-                >Venue(s) (District Level):</label
+      <!-- Create Modal -->
+      <div
+        id="createModal"
+        class="modal fade"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Create Calendar</h5>
+              <button
+                id="closeCreateModal"
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
               >
-              <div id="updateVenueDistrictContainer" class="mt-1 space-y-1">
-                <p class="text-sm text-gray-500 py-2">
-                  Select district(s) to choose venues.
-                </p>
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="formMode">Select Training level:</label>
+                <select id="formMode" class="form-control">
+                  <option value="state">State Level</option>
+                  <option value="district">District Level</option>
+                </select>
               </div>
+
+              <form id="stateLevelForm">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="createProgramName">Programme:</label>
+                      <select
+                        id="createProgramName"
+                        name="programId"
+                        required
+                        class="form-control"
+                      >
+                        <option value="">-- Select Programme --</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="createNatureOfStaff">Nature of Staff:</label>
+                      <select
+                        id="createNatureOfStaff"
+                        name="natureOfStaff"
+                        multiple
+                        required
+                        class="form-control choices-multiple"
+                      ></select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="createDistrict">District:</label>
+                      <div
+                        id="createDistrictDisplayState"
+                        class="form-control-plaintext"
+                      >
+                        All Districts
+                      </div>
+                      <select
+                        id="createDistrict"
+                        multiple
+                        class="form-control choices-multiple d-none"
+                      ></select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="createVenue">Venue:</label>
+                      <select
+                        id="createVenue"
+                        name="venueId"
+                        required
+                        class="form-control"
+                      >
+                        <option value="">-- Loading all venues --</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="createTopic">Topic:</label>
+                      <select
+                        id="createTopic"
+                        name="topicId"
+                        required
+                        class="form-control"
+                      >
+                        <option value="">-- Select Programme First --</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="createTarget">Target:</label>
+                      <input
+                        type="number"
+                        id="createTarget"
+                        name="target"
+                        placeholder="Target (Optional)"
+                        min="1"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="createStartDate">Start Date:</label>
+                      <input
+                        type="date"
+                        id="createStartDate"
+                        name="startDate"
+                        required
+                        class="form-control"
+                        onchange="calculateCreateDuration()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="createEndDate">End Date:</label>
+                      <input
+                        type="date"
+                        id="createEndDate"
+                        name="endDate"
+                        required
+                        class="form-control"
+                        onchange="calculateCreateDuration()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="createDuration">Duration (days):</label>
+                      <input
+                        type="number"
+                        id="createDuration"
+                        name="duration"
+                        placeholder="Auto-calculated"
+                        class="form-control"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="submit"
+                    id="createStateCalendarBtn"
+                    class="btn btn-success"
+                  >
+                    Create
+                  </button>
+                  <button
+                    type="button"
+                    id="cancelCreateModalBtn"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+
+              <form id="districtLevelForm" class="d-none">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="dist_createProgramName">Programme:</label>
+                      <select
+                        id="dist_createProgramName"
+                        name="programId"
+                        required
+                        class="form-control"
+                      >
+                        <option value="">-- Select Programme --</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="dist_createNatureOfStaff"
+                        >Nature of Staff:</label
+                      >
+                      <select
+                        id="dist_createNatureOfStaff"
+                        name="natureOfStaff"
+                        multiple
+                        required
+                        class="form-control choices-multiple"
+                      ></select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="dist_createDistrict">District(s):</label>
+                      <select
+                        id="dist_createDistrict"
+                        name="district"
+                        multiple
+                        required
+                        class="form-control choices-multiple"
+                      ></select>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Venue(s):</label>
+                      <div id="dist_createVenueContainer" class="mt-1">
+                        <p class="text-muted small py-2">
+                          Select district(s) to choose venues.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="dist_createTopic">Topic:</label>
+                      <select
+                        id="dist_createTopic"
+                        name="topicId"
+                        required
+                        class="form-control"
+                      >
+                        <option value="">-- Select Programme First --</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="dist_createTarget">Target:</label>
+                      <input
+                        type="number"
+                        id="dist_createTarget"
+                        name="target"
+                        placeholder="Target (Optional)"
+                        min="1"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="dist_createStartDate">Start Date:</label>
+                      <input
+                        type="date"
+                        id="dist_createStartDate"
+                        name="startDate"
+                        required
+                        class="form-control"
+                        onchange="calculateDistCreateDuration()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="dist_createEndDate">End Date:</label>
+                      <input
+                        type="date"
+                        id="dist_createEndDate"
+                        name="endDate"
+                        required
+                        class="form-control"
+                        onchange="calculateDistCreateDuration()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="dist_createDuration">Duration (days):</label>
+                      <input
+                        type="number"
+                        id="dist_createDuration"
+                        name="duration"
+                        placeholder="Auto-calculated"
+                        class="form-control"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="submit"
+                    id="dist_createCalendarBtn"
+                    class="btn btn-success"
+                  >
+                    Create
+                  </button>
+                  <button
+                    type="button"
+                    id="cancelCreateModalBtnDistrict"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-          <div>
-            <label
-              for="updateTopic"
-              class="block text-gray-700 font-semibold mb-2"
-              >Topic:</label
-            >
-            <select
-              id="updateTopic"
-              name="topicId"
-              required
-              class="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">-- Select Programme First --</option>
-            </select>
+        </div>
+      </div>
 
-            <label
-              for="updateTarget"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Target:</label
-            >
-            <input
-              type="number"
-              id="updateTarget"
-              name="target"
-              placeholder="Target (optional)"
-              min="1"
-              class="w-full p-2 border border-gray-300 rounded"
-            />
-
-            <div class="flex items-center space-x-2 mt-4">
-              <label
-                for="updateStartDate"
-                class="block text-gray-700 font-semibold whitespace-nowrap"
-                >Start Date:</label
+      <!-- Update Modal -->
+      <div
+        id="updateModal"
+        class="modal fade"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Update Calendar</h5>
+              <button
+                id="closeUpdateModal"
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
               >
-              <input
-                type="date"
-                id="updateStartDate"
-                name="startDate"
-                required
-                class="w-full p-2 border border-gray-300 rounded"
-                onchange="calculateUpdateDuration()"
-              />
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-            <div class="flex items-center space-x-2 mt-4">
-              <label
-                for="updateEndDate"
-                class="block text-gray-700 font-semibold whitespace-nowrap"
-                >End Date:</label
-              >
-              <input
-                type="date"
-                id="updateEndDate"
-                name="endDate"
-                required
-                class="w-full p-2 border border-gray-300 rounded"
-                onchange="calculateUpdateDuration()"
-              />
-            </div>
+            <div class="modal-body">
+              <form id="updateCalendarForm">
+                <input type="hidden" id="updateCalendarId" name="calendarId" />
+                <input
+                  type="hidden"
+                  id="updateTrainingLevel"
+                  name="trainingLevel"
+                />
 
-            <label
-              for="updateDuration"
-              class="block text-gray-700 font-semibold mt-4 mb-2"
-              >Duration (days):</label
-            >
-            <input
-              type="number"
-              id="updateDuration"
-              name="duration"
-              placeholder="Auto-calculated"
-              class="w-full p-2 border border-gray-300 rounded"
-              readonly
-            />
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="updateProgramName">Programme:</label>
+                      <select
+                        id="updateProgramName"
+                        name="programId"
+                        required
+                        class="form-control"
+                      >
+                        <option value="">-- Select Programme --</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="updateDistrict">District(s):</label>
+                      <div
+                        id="updateDistrictDisplayState"
+                        class="form-control-plaintext d-none"
+                      >
+                        All Districts
+                      </div>
+                      <select
+                        id="updateDistrict"
+                        multiple
+                        class="form-control choices-multiple"
+                      ></select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="updateNatureOfStaff">Nature of Staff:</label>
+                      <select
+                        id="updateNatureOfStaff"
+                        name="natureOfStaff"
+                        multiple
+                        required
+                        class="form-control choices-multiple"
+                      ></select>
+                    </div>
+
+                    <div id="updateVenueStateSection">
+                      <div class="form-group">
+                        <label for="updateVenueState"
+                          >Venue (State Level):</label
+                        >
+                        <select
+                          id="updateVenueState"
+                          name="venueId"
+                          class="form-control"
+                        >
+                          <option value="">-- Loading all venues --</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div
+                      id="updateVenueDistrictContainerWrapper"
+                      class="d-none"
+                    >
+                      <div class="form-group">
+                        <label>Venue(s) (District Level):</label>
+                        <div id="updateVenueDistrictContainer" class="mt-1">
+                          <p class="text-muted small py-2">
+                            Select district(s) to choose venues.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="updateTopic">Topic:</label>
+                      <select
+                        id="updateTopic"
+                        name="topicId"
+                        required
+                        class="form-control"
+                      >
+                        <option value="">-- Select Programme First --</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="updateTarget">Target:</label>
+                      <input
+                        type="number"
+                        id="updateTarget"
+                        name="target"
+                        placeholder="Target (optional)"
+                        min="1"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="updateStartDate">Start Date:</label>
+                      <input
+                        type="date"
+                        id="updateStartDate"
+                        name="startDate"
+                        required
+                        class="form-control"
+                        onchange="calculateUpdateDuration()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="updateEndDate">End Date:</label>
+                      <input
+                        type="date"
+                        id="updateEndDate"
+                        name="endDate"
+                        required
+                        class="form-control"
+                        onchange="calculateUpdateDuration()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="updateDuration">Duration (days):</label>
+                      <input
+                        type="number"
+                        id="updateDuration"
+                        name="duration"
+                        placeholder="Auto-calculated"
+                        class="form-control"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="submit"
+                    id="updateCalendarBtn"
+                    class="btn btn-warning"
+                  >
+                    Update
+                  </button>
+                  <button
+                    type="button"
+                    id="cancelUpdateModalBtn"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-        <div class="flex justify-end mt-6 space-x-4">
-          <button
-            type="submit"
-            id="updateCalendarBtn"
-            class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
-          >
-            Update
-          </button>
-          <button
-            type="button"
-            id="cancelUpdateModalBtn"
-            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+      </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+      <script src="/assets/js/core/jquery.3.2.1.min.js"></script>
+      <script src="/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+      <script src="/assets/js/core/popper.min.js"></script>
+      <script src="/assets/js/core/bootstrap.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+      <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
-  <script>
-    let choicesCreateNOS,
-      choicesCreateDistrict,
-      choicesUpdateNOS,
-      choicesUpdateDistrict;
-    let choicesDistCreateNOS, choicesDistCreateDistrict;
-    let allCalendarEvents = [];
-    let allDistrictData = []; // To store all districts {districtId, districtName}
+      <script>
+        let choicesCreateNOS,
+          choicesCreateDistrict,
+          choicesUpdateNOS,
+          choicesUpdateDistrict;
+        let choicesDistCreateNOS, choicesDistCreateDistrict;
+        let allCalendarEvents = [];
+        let allDistrictData = []; // To store all districts {districtId, districtName}
 
-    async function fetchAllDistricts() {
-      if (allDistrictData.length > 0) return allDistrictData;
-      try {
-        const response = await fetch("/api/district/getall");
-        if (!response.ok) throw new Error("Failed to fetch districts");
-        allDistrictData = await response.json();
-        return allDistrictData;
-      } catch (error) {
-        console.error("Error fetching all districts:", error);
-        allDistrictData = []; // Reset on error
-        return [];
-      }
-    }
-
-    function calculateDuration(startDateStr, endDateStr, durationInputEl) {
-      if (!startDateStr || !endDateStr || !durationInputEl) {
-        if (durationInputEl) durationInputEl.value = "";
-        return;
-      }
-      const start = new Date(startDateStr);
-      const end = new Date(endDateStr);
-      if (
-        !isNaN(start.getTime()) &&
-        !isNaN(end.getTime()) &&
-        end >= start
-      ) {
-        const diffTime = end - start;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        durationInputEl.value = diffDays;
-      } else {
-        durationInputEl.value = "";
-      }
-    }
-
-    function handleDistrictChangeForVenues() {
-      // For districtLevelForm's venue container
-      const distCreateVenueContainer = document.getElementById(
-        "dist_createVenueContainer"
-      );
-      if (!distCreateVenueContainer || !choicesDistCreateDistrict) {
-        if (distCreateVenueContainer)
-          distCreateVenueContainer.innerHTML =
-            '<p class="text-sm text-gray-500 py-2">District selector not ready.</p>';
-        return;
-      }
-
-      distCreateVenueContainer.innerHTML = "";
-      const selectedDistricts = choicesDistCreateDistrict.getValue();
-
-      if (!selectedDistricts || selectedDistricts.length === 0) {
-        distCreateVenueContainer.innerHTML =
-          '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
-        return;
-      }
-
-      selectedDistricts.forEach((district) => {
-        const districtId = district.value;
-        const districtName = district.label;
-
-        const districtVenueDiv = document.createElement("div");
-        districtVenueDiv.className = "mb-2";
-
-        const label = document.createElement("label");
-        label.className = "block text-gray-700 font-semibold mb-1 text-sm";
-        label.htmlFor = `venue_for_district_${districtId}`;
-        label.textContent = `Venue for ${districtName}:`;
-
-        const venueSelect = document.createElement("select");
-        venueSelect.id = `venue_for_district_${districtId}`;
-        venueSelect.className =
-          "w-full p-2 border border-gray-300 rounded text-sm";
-        venueSelect.name = "venueId";
-        venueSelect.required = true;
-        venueSelect.innerHTML =
-          '<option value="">-- Loading venues --</option>';
-        venueSelect.disabled = true;
-
-        districtVenueDiv.appendChild(label);
-        districtVenueDiv.appendChild(venueSelect);
-        distCreateVenueContainer.appendChild(districtVenueDiv);
-
-        fetch(`/api/venues/by-districts`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify([String(districtId)]),
-        })
-          .then((response) => {
-            if (!response.ok)
-              throw new Error(
-                `HTTP error! Status: ${response.status} fetching venues for ${districtName}`
-              );
-            return response.json();
-          })
-          .then((data) => {
-            const venues = Array.isArray(data) ? data : [];
-            venueSelect.innerHTML =
-              '<option value="">-- Select Venue --</option>';
-            if (venues.length === 0) {
-              venueSelect.innerHTML =
-                '<option value="">-- No venues available --</option>';
-            } else {
-              venues.forEach((venue) => {
-                const option = document.createElement("option");
-                option.value = String(venue.venueId ?? "");
-                option.textContent = venue.venueName ?? "Unnamed Venue";
-                venueSelect.appendChild(option);
-              });
-            }
-            venueSelect.disabled = false;
-          })
-          .catch((error) => {
-            console.error(
-              `Error fetching venues for ${districtName}:`,
-              error
-            );
-            venueSelect.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
-          });
-      });
-    }
-
-    function createVenueSelectForDistrictUpdate(
-      districtId,
-      districtName,
-      container,
-      selectedVenueId
-    ) {
-      const districtVenueDiv = document.createElement("div");
-      districtVenueDiv.className = "mb-2";
-
-      const label = document.createElement("label");
-      label.className = "block text-gray-700 font-semibold mb-1 text-sm";
-      label.htmlFor = `update_venue_for_district_${districtId}`;
-      label.textContent = `Venue for ${districtName}:`;
-
-      const venueSelect = document.createElement("select");
-      venueSelect.id = `update_venue_for_district_${districtId}`;
-      venueSelect.className =
-        "w-full p-2 border border-gray-300 rounded text-sm";
-      venueSelect.name = "venueId";
-      venueSelect.setAttribute("data-district-id", districtId);
-      venueSelect.required = true;
-      venueSelect.innerHTML =
-        '<option value="">-- Loading venues --</option>';
-      venueSelect.disabled = true;
-
-      districtVenueDiv.appendChild(label);
-      districtVenueDiv.appendChild(venueSelect);
-      container.appendChild(districtVenueDiv);
-
-      fetch(`/api/venues/by-districts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([String(districtId)]),
-      })
-        .then((response) => {
-          if (!response.ok)
-            throw new Error(
-              `HTTP error! Status: ${response.status} fetching venues for ${districtName}`
-            );
-          return response.json();
-        })
-        .then((data) => {
-          const venues = Array.isArray(data) ? data : [];
-          venueSelect.innerHTML =
-            '<option value="">-- Select Venue --</option>';
-          if (venues.length === 0) {
-            venueSelect.innerHTML =
-              '<option value="">-- No venues available --</option>';
-          } else {
-            venues.forEach((venue) => {
-              const option = document.createElement("option");
-              option.value = String(venue.venueId ?? "");
-              option.textContent = venue.venueName ?? "Unnamed Venue";
-              if (
-                selectedVenueId &&
-                String(venue.venueId) === selectedVenueId
-              ) {
-                option.selected = true;
-              }
-              venueSelect.appendChild(option);
-            });
-          }
-          venueSelect.disabled = false;
-        })
-        .catch((error) => {
-          console.error(
-            `Error fetching venues for ${districtName} in update form:`,
-            error
-          );
-          venueSelect.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
-        });
-    }
-
-    function handleUpdateDistrictChangeForVenues() {
-      // For update form when trainingLevel is 'district'
-      const trainingLevel = document.getElementById(
-        "updateTrainingLevel"
-      ).value;
-      const updateVenueStateEl =
-        document.getElementById("updateVenueState");
-      const updateVenueDistrictContainer = document.getElementById(
-        "updateVenueDistrictContainer"
-      );
-
-      if (trainingLevel === "district") {
-        const selectedDistrictChoices = choicesUpdateDistrict
-          ? choicesUpdateDistrict.getValue()
-          : [];
-        if (!updateVenueDistrictContainer || !choicesUpdateDistrict) {
-          if (updateVenueDistrictContainer)
-            updateVenueDistrictContainer.innerHTML =
-              '<p class="text-sm text-gray-500 py-2">District selector not ready.</p>';
-          return;
-        }
-        updateVenueDistrictContainer.innerHTML = "";
-
-        if (
-          !selectedDistrictChoices ||
-          selectedDistrictChoices.length === 0
-        ) {
-          updateVenueDistrictContainer.innerHTML =
-            '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
-          return;
-        }
-        selectedDistrictChoices.forEach((districtChoice) => {
-          createVenueSelectForDistrictUpdate(
-            districtChoice.value,
-            districtChoice.label,
-            updateVenueDistrictContainer,
-            null
-          );
-        });
-      } else {
-        // State Level: districts are "All", so this listener doesn't repopulate venues based on district *selection* change.
-        // Venue (updateVenueStateEl) is populated once with all venues when form loads.
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      // Made async for initial district fetch
-      await fetchAllDistricts(); // Fetch all districts on page load
-
-      const formMode = document.getElementById("formMode");
-      const stateForm = document.getElementById("stateLevelForm");
-      const districtForm = document.getElementById("districtLevelForm");
-
-      const createDistrictSelectEl =
-        document.getElementById("createDistrict");
-      const createDistrictDisplayStateEl = document.getElementById(
-        "createDistrictDisplayState"
-      );
-      const createVenueSelectEl = document.getElementById("createVenue");
-
-      const distCreateDistrictSelect = document.getElementById(
-        "dist_createDistrict"
-      );
-      const distCreateVenueContainer = document.getElementById(
-        "dist_createVenueContainer"
-      );
-
-      // Helper to setup stateLevelForm for "State Level"
-      async function setupStateLevelCreateForm() {
-        stateForm.classList.remove("hidden");
-        districtForm.classList.add("hidden");
-
-        // District setup
-        if (choicesCreateDistrict) {
-          choicesCreateDistrict.destroy();
-          choicesCreateDistrict = null;
-        }
-        createDistrictSelectEl.classList.add("hidden");
-        createDistrictSelectEl.removeAttribute("name"); // VERY IMPORTANT
-        createDistrictSelectEl.removeAttribute("required");
-        createDistrictDisplayStateEl.classList.remove("hidden");
-
-        // Venue setup (all venues)
-        const allIds = allDistrictData.map((d) => d.districtId);
-        if (allIds.length > 0) {
-          fetchVenuesForDistrict(allIds, createVenueSelectEl);
-        } else {
-          createVenueSelectEl.innerHTML =
-            '<option value="">-- No Districts Available --</option>';
-          createVenueSelectEl.disabled = true;
-        }
-      }
-
-      // Helper to setup districtLevelForm for "District Level"
-      function setupDistrictLevelCreateForm() {
-        stateForm.classList.add("hidden");
-        districtForm.classList.remove("hidden");
-
-        // Initialize Choices for districtLevelForm if not already done
-        // (This is usually done in openCreateModalFunction, so ensure it's covered)
-        if (!choicesDistCreateDistrict && distCreateDistrictSelect) {
-          populateSelect(
-            distCreateDistrictSelect,
-            "/api/district/getall",
-            "-- Select District(s) --",
-            "districtId",
-            "districtName",
-            [],
-            true
-          ).then((instance) => {
-            choicesDistCreateDistrict = instance;
-            if (distCreateDistrictSelect) {
-              // Add listener if not present
-              distCreateDistrictSelect.removeEventListener(
-                "change",
-                handleDistrictChangeForVenues
-              );
-              distCreateDistrictSelect.addEventListener(
-                "change",
-                handleDistrictChangeForVenues
-              );
-            }
-          });
-        }
-        if (
-          !choicesDistCreateNOS &&
-          document.getElementById("dist_createNatureOfStaff")
-        ) {
-          populateSelect(
-            document.getElementById("dist_createNatureOfStaff"),
-            "/api/natureofstaff/getall",
-            "-- Select Nature of Staff --",
-            "natureOfStaffId",
-            "natureOfStaffName",
-            [],
-            true
-          ).then((i) => (choicesDistCreateNOS = i));
-        }
-        if (document.getElementById("dist_createProgramName")) {
-          populateSelect(
-            document.getElementById("dist_createProgramName"),
-            "/api/programs/getall",
-            "-- Select Programme --",
-            "programId",
-            "programName",
-            [],
-            false
-          );
-        }
-      }
-
-      if (formMode) {
-        formMode.addEventListener("change", () => {
-          if (formMode.value === "district") {
-            setupDistrictLevelCreateForm();
-          } else {
-            // state
-            setupStateLevelCreateForm();
-          }
-        });
-      }
-
-      const createModal = document.getElementById("createModal");
-      const openCreateModalBtn =
-        document.getElementById("openCreateModalBtn");
-      const closeCreateModalBtn =
-        document.getElementById("closeCreateModal");
-      const cancelCreateModalBtn = document.getElementById(
-        "cancelCreateModalBtn"
-      );
-      const cancelCreateModalBtnDistrict = document.getElementById(
-        "cancelCreateModalBtnDistrict"
-      );
-
-      const updateModal = document.getElementById("updateModal");
-      const closeUpdateModalBtn =
-        document.getElementById("closeUpdateModal");
-      const cancelUpdateModalBtn = document.getElementById(
-        "cancelUpdateModalBtn"
-      );
-
-      const updateStartDateInputEl =
-        document.getElementById("updateStartDate");
-      const updateEndDateInputEl = document.getElementById("updateEndDate");
-      const updateDurationInputEl =
-        document.getElementById("updateDuration");
-
-      const calendarListBody = document.getElementById("calendarList");
-      const calendarFilterSelect =
-        document.getElementById("calendarFilter");
-
-      function openModal(modalElement) {
-        if (modalElement) {
-          modalElement.classList.remove("hidden");
-          document.body.classList.add("overflow-hidden");
-        }
-      }
-
-      function closeModal(modalElement) {
-        if (modalElement) {
-          modalElement.classList.add("hidden");
-          document.body.classList.remove("overflow-hidden");
-          if (modalElement.id === "createModal") {
-            if (choicesCreateNOS?.destroy) choicesCreateNOS.destroy();
-            // choicesCreateDistrict is handled by setupStateLevelCreateForm/setupDistrictLevelCreateForm
-            choicesCreateNOS = null;
-            if (document.getElementById("stateLevelForm"))
-              document.getElementById("stateLevelForm").reset();
-
-            if (choicesDistCreateNOS?.destroy)
-              choicesDistCreateNOS.destroy();
-            if (choicesDistCreateDistrict?.destroy)
-              choicesDistCreateDistrict.destroy();
-            choicesDistCreateNOS = null;
-            choicesDistCreateDistrict = null;
-            if (document.getElementById("districtLevelForm")) {
-              document.getElementById("districtLevelForm").reset();
-              if (distCreateVenueContainer)
-                distCreateVenueContainer.innerHTML =
-                  '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
-            }
-            // Reset createDistrict related elements to default (hidden select, visible display)
-            if (createDistrictSelectEl) {
-              createDistrictSelectEl.classList.add("hidden");
-              createDistrictSelectEl.removeAttribute("name");
-              createDistrictSelectEl.removeAttribute("required");
-            }
-            if (createDistrictDisplayStateEl)
-              createDistrictDisplayStateEl.classList.remove("hidden");
-          } else if (modalElement.id === "updateModal") {
-            if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
-            if (choicesUpdateDistrict?.destroy)
-              choicesUpdateDistrict.destroy();
-            choicesUpdateNOS = null;
-            choicesUpdateDistrict = null;
-            if (document.getElementById("updateCalendarForm"))
-              document.getElementById("updateCalendarForm").reset();
-            const updateVenueDistrictContainer = document.getElementById(
-              "updateVenueDistrictContainer"
-            );
-            if (updateVenueDistrictContainer)
-              updateVenueDistrictContainer.innerHTML =
-                '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
-            const updateVenueStateEl =
-              document.getElementById("updateVenueState");
-            if (updateVenueStateEl)
-              updateVenueStateEl.innerHTML =
-                '<option value="">-- Select District(s) First --</option>';
-
-            // Reset updateDistrict related elements
-            const updateDistrictSelectEl =
-              document.getElementById("updateDistrict");
-            const updateDistrictDisplayStateEl = document.getElementById(
-              "updateDistrictDisplayState"
-            );
-            if (updateDistrictSelectEl) {
-              updateDistrictSelectEl.classList.add("hidden"); // Default to hidden for safety
-              updateDistrictSelectEl.removeAttribute("name");
-            }
-            if (updateDistrictDisplayStateEl)
-              updateDistrictDisplayStateEl.classList.add("hidden");
-          }
-        }
-      }
-
-      if (openCreateModalBtn)
-        openCreateModalBtn.addEventListener("click", () =>
-          openCreateModalFunction()
-        );
-      if (closeCreateModalBtn)
-        closeCreateModalBtn.addEventListener("click", () =>
-          closeModal(createModal)
-        );
-      if (cancelCreateModalBtn)
-        cancelCreateModalBtn.addEventListener("click", () =>
-          closeModal(createModal)
-        );
-      if (cancelCreateModalBtnDistrict)
-        cancelCreateModalBtnDistrict.addEventListener("click", () =>
-          closeModal(createModal)
-        );
-      if (closeUpdateModalBtn)
-        closeUpdateModalBtn.addEventListener("click", () =>
-          closeModal(updateModal)
-        );
-      if (cancelUpdateModalBtn)
-        cancelUpdateModalBtn.addEventListener("click", () =>
-          closeModal(updateModal)
-        );
-
-      // Form elements for stateLevelForm
-      const createProgramSelect =
-        document.getElementById("createProgramName");
-      const createTopicSelect = document.getElementById("createTopic");
-      // createDistrictSelectEl, createDistrictDisplayStateEl, createVenueSelectEl already defined
-      const createNOSSelect = document.getElementById(
-        "createNatureOfStaff"
-      );
-      const createDurationInput = document.getElementById("createDuration");
-
-      // Form elements for districtLevelForm
-      const distCreateProgramSelect = document.getElementById(
-        "dist_createProgramName"
-      );
-      const distCreateTopicSelect =
-        document.getElementById("dist_createTopic");
-      const distCreateNOSSelect = document.getElementById(
-        "dist_createNatureOfStaff"
-      );
-      const distCreateDurationInput = document.getElementById(
-        "dist_createDuration"
-      );
-
-      // Form elements for updateCalendarForm
-      const updateCalendarForm =
-        document.getElementById("updateCalendarForm");
-      const updateProgramSelect =
-        document.getElementById("updateProgramName");
-      const updateTopicSelect = document.getElementById("updateTopic");
-      const updateDistrictSelectEl =
-        document.getElementById("updateDistrict");
-      const updateDistrictDisplayStateEl = document.getElementById(
-        "updateDistrictDisplayState"
-      );
-      const updateNOSSelect = document.getElementById(
-        "updateNatureOfStaff"
-      );
-      const updateVenueStateEl =
-        document.getElementById("updateVenueState");
-      const updateVenueDistrictContainerWrapper = document.getElementById(
-        "updateVenueDistrictContainerWrapper"
-      );
-      const updateVenueDistrictContainer = document.getElementById(
-        "updateVenueDistrictContainer"
-      );
-
-      function populateSelect(
-        selectElement,
-        url,
-        defaultText,
-        valueField,
-        textField,
-        selectedIds = [],
-        isMultiple = false
-      ) {
-        if (!selectElement) {
-          console.error(
-            `Select element (ID: ${
-              selectElement ? selectElement.id : "N/A"
-            }) not found`
-          );
-          return Promise.reject("Select element not found");
-        }
-        if (selectElement.choicesInstance) {
-          selectElement.choicesInstance.destroy();
-          selectElement.choicesInstance = null;
-        }
-        selectElement.innerHTML = "";
-        selectElement.disabled = false;
-        return fetch(url, { method: "GET" })
-          .then((response) => {
-            if (!response.ok)
-              throw new Error(
-                `HTTP error! Status: ${response.status} for ${url}`
-              );
-            return response.json();
-          })
-          .then((data) => {
-            data = Array.isArray(data) ? data : [];
-            if (isMultiple) {
-              selectElement.innerHTML = "";
-              const choicesArray = data.map((item) => ({
-                value: String(item[valueField] ?? ""),
-                label: item[textField] ?? "Invalid Data",
-                selected: selectedIds.includes(
-                  String(item[valueField] ?? "")
-                ),
-                disabled: false,
-              }));
-              const choicesInstance = new Choices(selectElement, {
-                removeItemButton: true,
-                choices: choicesArray,
-                shouldSort: false,
-                placeholder: true,
-                placeholderValue: defaultText,
-                itemSelectText: "",
-              });
-              selectElement.choicesInstance = choicesInstance;
-              selectElement.disabled = false;
-              return choicesInstance;
-            } else {
-              selectElement.innerHTML = `<option value="">${defaultText}</option>`;
-              data.forEach((item) => {
-                const option = document.createElement("option");
-                option.value = String(item[valueField] ?? "");
-                option.textContent = item[textField] ?? "Invalid Data";
-                if (
-                  selectedIds?.length > 0 &&
-                  String(item[valueField] ?? "") === String(selectedIds[0])
-                ) {
-                  option.selected = true;
-                }
-                selectElement.appendChild(option);
-              });
-              selectElement.disabled = false;
-              return null;
-            }
-          })
-          .catch((error) => {
-            console.error(
-              `Error populating select ${selectElement.id}:`,
-              error
-            );
-            if (selectElement) {
-              selectElement.innerHTML = `<option value="">-- Error Loading --</option>`;
-              selectElement.disabled = true;
-            }
-            throw error;
-          });
-      }
-
-      function fetchTopicsForProgram(
-        programId,
-        topicSelectElement,
-        selectedTopicId = null
-      ) {
-        if (!topicSelectElement) return;
-        topicSelectElement.innerHTML = `<option value="">-- Loading Topics --</option>`;
-        topicSelectElement.disabled = true;
-        if (!programId) {
-          topicSelectElement.innerHTML = `<option value="">-- Select Programme First --</option>`;
-          topicSelectElement.disabled = false;
-          return;
-        }
-        const url = `/api/programs/topics/by-program/${programId}`;
-        const selectedIdsArray = selectedTopicId
-          ? [String(selectedTopicId)]
-          : [];
-        populateSelect(
-          topicSelectElement,
-          url,
-          "-- Select Topic --",
-          "topicId",
-          "topicName",
-          selectedIdsArray,
-          false
-        );
-      }
-
-      function fetchVenuesForDistrict(
-        districtIds,
-        venueSelectElement,
-        selectedVenueId = null
-      ) {
-        if (!venueSelectElement) {
-          console.error(`Venue select element not found`);
-          return;
-        }
-        venueSelectElement.innerHTML = `<option value="">-- Loading Venues --</option>`;
-        venueSelectElement.disabled = true;
-        districtIds = Array.isArray(districtIds)
-          ? districtIds
-          : districtIds
-          ? [districtIds]
-          : [];
-
-        // For state level, if districtIds is empty but we intend all districts, fetch them.
-        // However, the callers (setupStateLevelCreateForm, editCalendar for state) should now pass all district IDs.
-        if (districtIds.length === 0) {
-          // This might happen if allDistrictData hasn't loaded or for some other edge case
-          venueSelectElement.innerHTML = `<option value="">-- No Districts to Fetch Venues From --</option>`;
-          venueSelectElement.disabled = true;
-          return;
-        }
-
-        const url = `/api/venues/by-districts`;
-        fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(districtIds.map((id) => String(id))),
-        })
-          .then((response) => {
-            if (!response.ok)
-              throw new Error(
-                `HTTP error! Status: ${response.status} fetching venues`
-              );
-            return response.json();
-          })
-          .then((data) => {
-            data = Array.isArray(data) ? data : [];
-            venueSelectElement.innerHTML = `<option value="">-- Select Venue --</option>`;
-            if (data.length === 0) {
-              venueSelectElement.innerHTML = `<option value="">-- No Venues Available --</option>`;
-            } else {
-              data.forEach((venue) => {
-                const venueId = String(venue?.venueId ?? "");
-                const venueName = venue?.venueName ?? "Unnamed Venue";
-                const districtName =
-                  venue?.district?.districtName ??
-                  venue?.districtName ??
-                  "";
-                const displayText = districtName
-                  ? `${venueName} (${districtName})`
-                  : venueName;
-                const option = document.createElement("option");
-                option.value = venueId;
-                option.textContent = displayText;
-                if (
-                  selectedVenueId != null &&
-                  venueId === String(selectedVenueId)
-                ) {
-                  option.selected = true;
-                }
-                venueSelectElement.appendChild(option);
-              });
-            }
-            venueSelectElement.disabled = false;
-          })
-          .catch((error) => {
-            console.error("Error fetching or processing venues:", error);
-            venueSelectElement.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
-          });
-      }
-
-      function renderCalendarTable(eventsToRender) {
-        if (!calendarListBody) return;
-        calendarListBody.innerHTML = "";
-
-        if (!eventsToRender || eventsToRender.length === 0) {
-          calendarListBody.innerHTML =
-            '<tr><td colspan="11" class="text-center p-4">No calendar events.</td></tr>';
-          return;
-        }
-
-        const formatDate = (dateStr) => {
-          if (!dateStr) return "N/A";
+        async function fetchAllDistricts() {
+          if (allDistrictData.length > 0) return allDistrictData;
           try {
-            const d = new Date(dateStr);
-            return isNaN(d.getTime())
-              ? "Invalid Date"
-              : d.toLocaleDateString("en-GB");
-          } catch (e) {
-            return "Error";
+            const response = await fetch("/api/district/getall");
+            if (!response.ok) throw new Error("Failed to fetch districts");
+            allDistrictData = await response.json();
+            return allDistrictData;
+          } catch (error) {
+            console.error("Error fetching all districts:", error);
+            allDistrictData = []; // Reset on error
+            return [];
           }
-        };
-        const formatNameList = (items, nameField) =>
-          items && items.length
-            ? items.map((item) => item?.[nameField] ?? "Unknown").join(", ")
-            : "N/A";
+        }
 
-        eventsToRender.forEach((calendar, index) => {
-          const tr = document.createElement("tr");
-          tr.className = "hover:bg-gray-50";
-          const display = (val) =>
-            val != null && val !== "" ? val : "N/A";
-
-          let programNameDisplay =
-            calendar.programeName?.programName ?? "N/A";
+        function calculateDuration(startDateStr, endDateStr, durationInputEl) {
+          if (!startDateStr || !endDateStr || !durationInputEl) {
+            if (durationInputEl) durationInputEl.value = "";
+            return;
+          }
+          const start = new Date(startDateStr);
+          const end = new Date(endDateStr);
           if (
-            calendar.trainingLevel &&
-            calendar.trainingLevel.trim() !== ""
+            !isNaN(start.getTime()) &&
+            !isNaN(end.getTime()) &&
+            end >= start
           ) {
-            const levelDisplay =
-              calendar.trainingLevel.charAt(0).toUpperCase() +
-              calendar.trainingLevel.slice(1);
-            programNameDisplay +=
-              calendarFilterSelect.value == "all"
-                ? ` (${levelDisplay})`
-                : "";
+            const diffTime = end - start;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            durationInputEl.value = diffDays;
+          } else {
+            durationInputEl.value = "";
+          }
+        }
+
+        function handleDistrictChangeForVenues() {
+          // For districtLevelForm's venue container
+          const distCreateVenueContainer = document.getElementById(
+            "dist_createVenueContainer"
+          );
+          if (!distCreateVenueContainer || !choicesDistCreateDistrict) {
+            if (distCreateVenueContainer)
+              distCreateVenueContainer.innerHTML =
+                '<p class="text-muted small py-2">District selector not ready.</p>';
+            return;
           }
 
-          let venueDisplay = "N/A";
-          if (calendar.venueName) {
-            venueDisplay = calendar.venueName.venueName;
-          } else if (calendar.venues && calendar.venues.length > 0) {
-            venueDisplay = calendar.venues
-              .map((v) => {
-                let vn = v.venueName || "Unnamed Venue";
-                return vn;
+          distCreateVenueContainer.innerHTML = "";
+          const selectedDistricts = choicesDistCreateDistrict.getValue();
+
+          if (!selectedDistricts || selectedDistricts.length === 0) {
+            distCreateVenueContainer.innerHTML =
+              '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+            return;
+          }
+
+          selectedDistricts.forEach((district) => {
+            const districtId = district.value;
+            const districtName = district.label;
+
+            const districtVenueDiv = document.createElement("div");
+            districtVenueDiv.className = "mb-2";
+
+            const label = document.createElement("label");
+            label.className = "form-label small";
+            label.htmlFor = `venue_for_district_${districtId}`;
+            label.textContent = `Venue for ${districtName}:`;
+
+            const venueSelect = document.createElement("select");
+            venueSelect.id = `venue_for_district_${districtId}`;
+            venueSelect.className = "form-control form-control-sm";
+            venueSelect.name = "venueId";
+            venueSelect.required = true;
+            venueSelect.innerHTML =
+              '<option value="">-- Loading venues --</option>';
+            venueSelect.disabled = true;
+
+            districtVenueDiv.appendChild(label);
+            districtVenueDiv.appendChild(venueSelect);
+            distCreateVenueContainer.appendChild(districtVenueDiv);
+
+            fetch(`/api/venues/by-districts`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify([String(districtId)]),
+            })
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(
+                    `HTTP error! Status: ${response.status} fetching venues for ${districtName}`
+                  );
+                return response.json();
               })
-              .join(", ");
-          }
-
-          let districtDisplay = "N/A";
-          if (calendar.trainingLevel === "state") {
-            districtDisplay = "All Districts";
-          } else {
-            districtDisplay = formatNameList(
-              calendar.district,
-              "districtName"
-            );
-          }
-
-          let approveButtonHtml;
-          let updateButtonHtml;
-
-          if (calendar.status === "APPROVED") {
-            approveButtonHtml = `<button class="bg-green-500 text-white px-3 py-1 rounded cursor-not-allowed" disabled>Approved</button>`;
-            updateButtonHtml = `<button class="bg-gray-400 text-white px-3 py-1 rounded cursor-not-allowed mr-1" disabled>Update</button>`;
-          } else {
-            approveButtonHtml = `<button id="approveBtn_${calendar.calendarId}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition" onclick='approveCalendar(${calendar.calendarId}, this)'>Approve</button>`;
-            updateButtonHtml = `<button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition mr-1" onclick='editCalendar(${calendar.calendarId})'>Update</button>`;
-          }
-
-          tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${
-                      index + 1
-                    }</td>
-                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${programNameDisplay}</td>
-                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${
-                      calendar.topic?.topicName ?? "N/A"
-                    }</td>
-                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${districtDisplay}</td>
-                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${venueDisplay}</td>
-                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${formatNameList(
-                      calendar.natureOfStaffs,
-                      "natureOfStaffName"
-                    )}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${display(
-                      calendar.target
-                    )}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${formatDate(
-                      calendar.startDate
-                    )}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${formatDate(
-                      calendar.endDate
-                    )}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${
-                      calendar.duration
-                        ? `${calendar.duration} days`
-                        : "N/A"
-                    }</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">
-                        ${updateButtonHtml}
-                        ${approveButtonHtml} 
-                    </td>`;
-          calendarListBody.appendChild(tr);
-        });
-      }
-
-      function fetchCalendars() {
-        if (!calendarListBody) return;
-        calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading calendars...</td></tr>`;
-        fetch("/api/calendar/all")
-          .then((response) => {
-            if (!response.ok)
-              throw new Error(`HTTP error! Status: ${response.status}`);
-            return response.json();
-          })
-          .then((data) => {
-            allCalendarEvents = Array.isArray(data) ? data : [];
-            renderCalendarTable(allCalendarEvents);
-          })
-          .catch((error) => {
-            console.error("Error fetching calendars:", error);
-            allCalendarEvents = [];
-            renderCalendarTable([]);
-            calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500">Error loading. ${error.message}</td></tr>`;
-          });
-      }
-
-      function handleFilterChange() {
-        const filterValue = calendarFilterSelect.value;
-        let filteredEvents = [];
-
-        if (filterValue === "all") {
-          filteredEvents = allCalendarEvents;
-        } else {
-          filteredEvents = allCalendarEvents.filter(
-            (event) => event.trainingLevel === filterValue
-          );
-        }
-        renderCalendarTable(filteredEvents);
-      }
-
-      if (calendarFilterSelect) {
-        calendarFilterSelect.addEventListener("change", handleFilterChange);
-      }
-
-      async function openCreateModalFunction() {
-        if (stateLevelForm) stateLevelForm.reset();
-        if (districtLevelForm) districtLevelForm.reset();
-
-        if (createDurationInput) createDurationInput.value = "";
-        if (createTopicSelect) {
-          createTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
-          createTopicSelect.disabled = true;
-        }
-
-        if (distCreateDurationInput) distCreateDurationInput.value = "";
-        if (distCreateTopicSelect) {
-          distCreateTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
-          distCreateTopicSelect.disabled = true;
-        }
-        if (distCreateVenueContainer)
-          distCreateVenueContainer.innerHTML =
-            '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
-
-        if (choicesCreateNOS?.destroy) choicesCreateNOS.destroy();
-        choicesCreateNOS = null;
-        if (choicesCreateDistrict) {
-          choicesCreateDistrict.destroy();
-          choicesCreateDistrict = null;
-        } // Destroy if exists
-
-        if (choicesDistCreateNOS?.destroy) choicesDistCreateNOS.destroy();
-        choicesDistCreateNOS = null;
-        if (choicesDistCreateDistrict?.destroy)
-          choicesDistCreateDistrict.destroy();
-        choicesDistCreateDistrict = null;
-
-        openModal(createModal);
-        const emptySelectedIds = [];
-
-        // Common setup for stateLevelForm (program, NOS)
-        if (createProgramSelect)
-          populateSelect(
-            createProgramSelect,
-            "/api/programs/getall",
-            "-- Select Programme --",
-            "programId",
-            "programName",
-            emptySelectedIds,
-            false
-          );
-        if (createNOSSelect)
-          populateSelect(
-            createNOSSelect,
-            "/api/natureofstaff/getall",
-            "-- Select Nature of Staff --",
-            "natureOfStaffId",
-            "natureOfStaffName",
-            emptySelectedIds,
-            true
-          ).then((i) => (choicesCreateNOS = i));
-
-        // Initial form display based on formMode
-        if (formMode.value === "state") {
-          await setupStateLevelCreateForm();
-        } else {
-          // district
-          setupDistrictLevelCreateForm();
-        }
-      }
-
-      if (createProgramSelect)
-        createProgramSelect.addEventListener("change", function () {
-          fetchTopicsForProgram(this.value, createTopicSelect);
-        });
-      // No listener for createDistrictSelectEl needed for state level as it's "All Districts"
-
-      if (updateProgramSelect) {
-        updateProgramSelect.addEventListener("change", function () {
-          fetchTopicsForProgram(this.value, updateTopicSelect);
-        });
-      }
-
-      if (stateLevelForm) {
-        stateLevelForm.addEventListener("submit", (event) => {
-          event.preventDefault();
-          const createEndDateVal =
-            document.getElementById("createEndDate").value;
-          const createStartDateVal =
-            document.getElementById("createStartDate").value;
-          if (
-            createEndDateVal &&
-            createStartDateVal &&
-            new Date(createEndDateVal) < new Date(createStartDateVal)
-          ) {
-            alert("End date cannot be before start date.");
-            return;
-          }
-          const formData = new FormData(stateLevelForm);
-          if (choicesCreateNOS) {
-            formData.delete("natureOfStaff");
-            choicesCreateNOS
-              .getValue(true)
-              .forEach((val) => formData.append("natureOfStaff", val));
-          }
-
-          // Add all district IDs for state level
-          formData.delete("district"); // Remove any if 'name' was accidentally set on the hidden select
-          allDistrictData.forEach((d) =>
-            formData.append("district", d.districtId)
-          );
-
-          formData.append("trainingLevel", "state");
-
-          fetch("/api/calendar", { method: "POST", body: formData })
-            .then((r) =>
-              r.ok
-                ? r.json()
-                : r.text().then((t) => {
-                    throw new Error(`Create failed: ${r.status} - ${t}`);
-                  })
-            )
-            .then(() => {
-              alert("State Calendar added!");
-              closeModal(createModal);
-              fetchCalendars();
-            })
-            .catch((err) => {
-              console.error("Error state calendar:", err);
-              alert(`Error: ${err.message}`);
-            });
-        });
-      }
-
-      if (distCreateProgramSelect)
-        distCreateProgramSelect.addEventListener("change", function () {
-          fetchTopicsForProgram(this.value, distCreateTopicSelect);
-        });
-
-      if (districtLevelForm) {
-        districtLevelForm.addEventListener("submit", (event) => {
-          event.preventDefault();
-          const distCreateEndDateVal =
-            document.getElementById("dist_createEndDate").value;
-          const distCreateStartDateVal = document.getElementById(
-            "dist_createStartDate"
-          ).value;
-          if (
-            distCreateEndDateVal &&
-            distCreateStartDateVal &&
-            new Date(distCreateEndDateVal) <
-              new Date(distCreateStartDateVal)
-          ) {
-            alert("End date cannot be before start date.");
-            return;
-          }
-          const formData = new FormData(districtLevelForm);
-          if (choicesDistCreateNOS) {
-            formData.delete("natureOfStaff");
-            choicesDistCreateNOS
-              .getValue(true)
-              .forEach((val) => formData.append("natureOfStaff", val));
-          }
-          if (choicesDistCreateDistrict) {
-            formData.delete("district");
-            choicesDistCreateDistrict
-              .getValue(true)
-              .forEach((val) => formData.append("district", val));
-          }
-
-          formData.append("trainingLevel", "district");
-
-          fetch("/api/calendar", { method: "POST", body: formData })
-            .then((r) =>
-              r.ok
-                ? r.json()
-                : r.text().then((t) => {
-                    throw new Error(`Create failed: ${r.status} - ${t}`);
-                  })
-            )
-            .then(() => {
-              alert("District Calendar added!");
-              closeModal(createModal);
-              fetchCalendars();
-            })
-            .catch((err) => {
-              console.error("Error district calendar:", err);
-              alert(`Error: ${err.message}`);
-            });
-        });
-      }
-
-      window.editCalendar = async function (calendarId) {
-        if (updateCalendarForm) updateCalendarForm.reset();
-
-        if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
-        choicesUpdateNOS = null;
-        if (choicesUpdateDistrict?.destroy) choicesUpdateDistrict.destroy();
-        choicesUpdateDistrict = null;
-
-        if (updateTopicSelect) {
-          updateTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
-          updateTopicSelect.disabled = true;
-        }
-        if (updateVenueStateEl) {
-          updateVenueStateEl.innerHTML = `<option value="">-- Select District(s) First --</option>`;
-          updateVenueStateEl.disabled = true;
-        }
-        if (updateVenueDistrictContainer) {
-          updateVenueDistrictContainer.innerHTML =
-            '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
-        }
-
-        try {
-          const response = await fetch(
-            `/api/calendar/getCalendarById/${calendarId}`
-          );
-          if (!response.ok)
-            throw new Error(`Failed to fetch: ${response.status}`);
-          const calendar = await response.json();
-
-          if (calendar.status === "APPROVED") {
-            alert("Approved events cannot be updated.");
-            return;
-          }
-
-          const formatForDateInput = (dateStr) =>
-            dateStr ? new Date(dateStr).toISOString().split("T")[0] : "";
-
-          document.getElementById("updateCalendarId").value =
-            calendar.calendarId;
-          const trainingLevelInput = document.getElementById(
-            "updateTrainingLevel"
-          );
-          const currentTrainingLevel = calendar.trainingLevel || "state";
-          if (trainingLevelInput) {
-            trainingLevelInput.value = currentTrainingLevel;
-          }
-
-          document.getElementById("updateTarget").value =
-            calendar.target ?? "";
-          if (updateStartDateInputEl)
-            updateStartDateInputEl.value = formatForDateInput(
-              calendar.startDate
-            );
-          if (updateEndDateInputEl)
-            updateEndDateInputEl.value = formatForDateInput(
-              calendar.endDate
-            );
-          if (updateDurationInputEl)
-            updateDurationInputEl.value = calendar.duration ?? "";
-
-          const selectedProgramId = calendar.programeName?.programId
-            ? String(calendar.programeName.programId)
-            : null;
-          await populateSelect(
-            updateProgramSelect,
-            "/api/programs/getall",
-            "-- Select Programme --",
-            "programId",
-            "programName",
-            selectedProgramId ? [selectedProgramId] : [],
-            false
-          );
-
-          const selectedTopicId = calendar.topic?.topicId
-            ? String(calendar.topic.topicId)
-            : null;
-          if (selectedProgramId) {
-            await fetchTopicsForProgram(
-              selectedProgramId,
-              updateTopicSelect,
-              selectedTopicId
-            );
-          } else {
-            updateTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
-            updateTopicSelect.disabled = true;
-          }
-
-          const nosIds =
-            calendar.natureOfStaffs?.map((nos) =>
-              String(nos.natureOfStaffId)
-            ) || [];
-          choicesUpdateNOS = await populateSelect(
-            updateNOSSelect,
-            "/api/natureofstaff/getall",
-            "-- Select Nature of Staff --",
-            "natureOfStaffId",
-            "natureOfStaffName",
-            nosIds,
-            true
-          );
-
-          if (currentTrainingLevel === "state") {
-            // State Level Update
-            updateDistrictSelectEl.classList.add("hidden");
-            updateDistrictSelectEl.removeAttribute("name"); // VERY IMPORTANT
-            updateDistrictSelectEl.removeAttribute("required");
-            updateDistrictDisplayStateEl.classList.remove("hidden");
-            if (choicesUpdateDistrict) {
-              choicesUpdateDistrict.destroy();
-              choicesUpdateDistrict = null;
-            }
-
-            updateVenueStateSection.classList.remove("hidden");
-            updateVenueDistrictContainerWrapper.classList.add("hidden");
-            if (updateVenueStateEl) {
-              updateVenueStateEl.setAttribute("name", "venueId");
-              updateVenueStateEl.setAttribute("required", "required");
-            }
-
-            const allDistrictIdsForVenue = allDistrictData.map(
-              (d) => d.districtId
-            );
-            let venueIdToSelect =
-              calendar.venueName && calendar.venueName.venueId
-                ? String(calendar.venueName.venueId)
-                : calendar.venues &&
-                  calendar.venues.length > 0 &&
-                  calendar.venues[0].venueId
-                ? String(calendar.venues[0].venueId)
-                : null;
-            if (allDistrictIdsForVenue.length > 0) {
-              fetchVenuesForDistrict(
-                allDistrictIdsForVenue,
-                updateVenueStateEl,
-                venueIdToSelect
-              );
-            } else {
-              updateVenueStateEl.innerHTML =
-                '<option value="">-- No Districts Available --</option>';
-              updateVenueStateEl.disabled = true;
-            }
-            updateDistrictSelectEl.removeEventListener(
-              "change",
-              handleUpdateDistrictChangeForVenues
-            );
-          } else {
-            // District Level Update
-            updateDistrictSelectEl.classList.remove("hidden");
-            updateDistrictSelectEl.setAttribute("name", "district"); // Ensure name is present
-            updateDistrictSelectEl.setAttribute("required", "required");
-            updateDistrictDisplayStateEl.classList.add("hidden");
-
-            const selectedDistrictIds =
-              calendar.district?.map((d) => String(d.districtId)) || [];
-            choicesUpdateDistrict = await populateSelect(
-              updateDistrictSelectEl,
-              "/api/district/getall",
-              "-- Select District(s) --",
-              "districtId",
-              "districtName",
-              selectedDistrictIds,
-              true
-            );
-
-            updateVenueStateSection.classList.add("hidden");
-            if (updateVenueStateEl) {
-              updateVenueStateEl.removeAttribute("name");
-              updateVenueStateEl.removeAttribute("required");
-            }
-            updateVenueDistrictContainerWrapper.classList.remove("hidden");
-            updateVenueDistrictContainer.innerHTML = "";
-
-            const selectedVenuesByDistrict = {};
-            if (calendar.venues && Array.isArray(calendar.venues)) {
-              calendar.venues.forEach((venue) => {
-                let dId =
-                  venue.district && venue.district.districtId
-                    ? String(venue.district.districtId)
-                    : String(venue.districtId);
-                if (dId && venue.venueId)
-                  selectedVenuesByDistrict[dId] = String(venue.venueId);
-              });
-            }
-
-            const currentlySelectedDistricts = choicesUpdateDistrict
-              ? choicesUpdateDistrict.getValue()
-              : [];
-            if (currentlySelectedDistricts.length > 0) {
-              currentlySelectedDistricts.forEach((districtChoice) => {
-                createVenueSelectForDistrictUpdate(
-                  districtChoice.value,
-                  districtChoice.label,
-                  updateVenueDistrictContainer,
-                  selectedVenuesByDistrict[districtChoice.value]
+              .then((data) => {
+                const venues = Array.isArray(data) ? data : [];
+                venueSelect.innerHTML =
+                  '<option value="">-- Select Venue --</option>';
+                if (venues.length === 0) {
+                  venueSelect.innerHTML =
+                    '<option value="">-- No venues available --</option>';
+                } else {
+                  venues.forEach((venue) => {
+                    const option = document.createElement("option");
+                    option.value = String(venue.venueId ?? "");
+                    option.textContent = venue.venueName ?? "Unnamed Venue";
+                    venueSelect.appendChild(option);
+                  });
+                }
+                venueSelect.disabled = false;
+              })
+              .catch((error) => {
+                console.error(
+                  `Error fetching venues for ${districtName}:`,
+                  error
                 );
+                venueSelect.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
               });
-            } else {
-              updateVenueDistrictContainer.innerHTML =
-                '<p class="text-sm text-gray-500 py-2">No districts. Select to assign venues.</p>';
-            }
-            // Attach district change listener only for district level
-            if (updateDistrictSelectEl && choicesUpdateDistrict) {
-              updateDistrictSelectEl.removeEventListener(
-                "change",
-                handleUpdateDistrictChangeForVenues
-              );
-              updateDistrictSelectEl.addEventListener(
-                "change",
-                handleUpdateDistrictChangeForVenues
-              );
-            }
-          }
-
-          openModal(updateModal);
-        } catch (error) {
-          console.error("Error loading for update:", error);
-          alert(`Error loading details: ${error.message}`);
+          });
         }
-      };
 
-      if (updateCalendarForm) {
-        updateCalendarForm.addEventListener("submit", (event) => {
-          event.preventDefault();
-          if (
-            updateEndDateInputEl.value &&
-            updateStartDateInputEl.value &&
-            new Date(updateEndDateInputEl.value) <
-              new Date(updateStartDateInputEl.value)
-          ) {
-            alert("End date cannot be before start date.");
-            return;
-          }
-          const calendarId =
-            document.getElementById("updateCalendarId").value;
-          const formData = new FormData(updateCalendarForm);
+        function createVenueSelectForDistrictUpdate(
+          districtId,
+          districtName,
+          container,
+          selectedVenueId
+        ) {
+          const districtVenueDiv = document.createElement("div");
+          districtVenueDiv.className = "mb-2";
 
-          if (choicesUpdateNOS) {
-            formData.delete("natureOfStaff");
-            choicesUpdateNOS
-              .getValue(true)
-              .forEach((id) => formData.append("natureOfStaff", id));
-          }
+          const label = document.createElement("label");
+          label.className = "form-label small";
+          label.htmlFor = `update_venue_for_district_${districtId}`;
+          label.textContent = `Venue for ${districtName}:`;
 
+          const venueSelect = document.createElement("select");
+          venueSelect.id = `update_venue_for_district_${districtId}`;
+          venueSelect.className = "form-control form-control-sm";
+          venueSelect.name = "venueId";
+          venueSelect.setAttribute("data-district-id", districtId);
+          venueSelect.required = true;
+          venueSelect.innerHTML =
+            '<option value="">-- Loading venues --</option>';
+          venueSelect.disabled = true;
+
+          districtVenueDiv.appendChild(label);
+          districtVenueDiv.appendChild(venueSelect);
+          container.appendChild(districtVenueDiv);
+
+          fetch(`/api/venues/by-districts`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify([String(districtId)]),
+          })
+            .then((response) => {
+              if (!response.ok)
+                throw new Error(
+                  `HTTP error! Status: ${response.status} fetching venues for ${districtName}`
+                );
+              return response.json();
+            })
+            .then((data) => {
+              const venues = Array.isArray(data) ? data : [];
+              venueSelect.innerHTML =
+                '<option value="">-- Select Venue --</option>';
+              if (venues.length === 0) {
+                venueSelect.innerHTML =
+                  '<option value="">-- No venues available --</option>';
+              } else {
+                venues.forEach((venue) => {
+                  const option = document.createElement("option");
+                  option.value = String(venue.venueId ?? "");
+                  option.textContent = venue.venueName ?? "Unnamed Venue";
+                  if (
+                    selectedVenueId &&
+                    String(venue.venueId) === selectedVenueId
+                  ) {
+                    option.selected = true;
+                  }
+                  venueSelect.appendChild(option);
+                });
+              }
+              venueSelect.disabled = false;
+            })
+            .catch((error) => {
+              console.error(
+                `Error fetching venues for ${districtName} in update form:`,
+                error
+              );
+              venueSelect.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
+            });
+        }
+
+        function handleUpdateDistrictChangeForVenues() {
+          // For update form when trainingLevel is 'district'
           const trainingLevel = document.getElementById(
             "updateTrainingLevel"
           ).value;
-          if (trainingLevel === "state") {
-            formData.delete("district"); // Remove any from potentially named (but hidden) select
-            allDistrictData.forEach((d) =>
-              formData.append("district", d.districtId)
-            );
+          const updateVenueStateEl =
+            document.getElementById("updateVenueState");
+          const updateVenueDistrictContainer = document.getElementById(
+            "updateVenueDistrictContainer"
+          );
+
+          if (trainingLevel === "district") {
+            const selectedDistrictChoices = choicesUpdateDistrict
+              ? choicesUpdateDistrict.getValue()
+              : [];
+            if (!updateVenueDistrictContainer || !choicesUpdateDistrict) {
+              if (updateVenueDistrictContainer)
+                updateVenueDistrictContainer.innerHTML =
+                  '<p class="text-muted small py-2">District selector not ready.</p>';
+              return;
+            }
+            updateVenueDistrictContainer.innerHTML = "";
+
+            if (
+              !selectedDistrictChoices ||
+              selectedDistrictChoices.length === 0
+            ) {
+              updateVenueDistrictContainer.innerHTML =
+                '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+              return;
+            }
+            selectedDistrictChoices.forEach((districtChoice) => {
+              createVenueSelectForDistrictUpdate(
+                districtChoice.value,
+                districtChoice.label,
+                updateVenueDistrictContainer,
+                null
+              );
+            });
           } else {
-            // district level
-            if (choicesUpdateDistrict) {
-              formData.delete("district");
-              choicesUpdateDistrict
-                .getValue(true)
-                .forEach((id) => formData.append("district", id));
+            // State Level: districts are "All", so this listener doesn't repopulate venues based on district *selection* change.
+            // Venue (updateVenueStateEl) is populated once with all venues when form loads.
+          }
+        }
+
+        $(document).ready(async function () {
+          // Made async for initial district fetch
+          await fetchAllDistricts(); // Fetch all districts on page load
+
+          const formMode = document.getElementById("formMode");
+          const stateForm = document.getElementById("stateLevelForm");
+          const districtForm = document.getElementById("districtLevelForm");
+
+          const createDistrictSelectEl =
+            document.getElementById("createDistrict");
+          const createDistrictDisplayStateEl = document.getElementById(
+            "createDistrictDisplayState"
+          );
+          const createVenueSelectEl = document.getElementById("createVenue");
+
+          const distCreateDistrictSelect = document.getElementById(
+            "dist_createDistrict"
+          );
+          const distCreateVenueContainer = document.getElementById(
+            "dist_createVenueContainer"
+          );
+
+          // Helper to setup stateLevelForm for "State Level"
+          async function setupStateLevelCreateForm() {
+            stateForm.classList.remove("d-none");
+            districtForm.classList.add("d-none");
+
+            // District setup
+            if (choicesCreateDistrict) {
+              choicesCreateDistrict.destroy();
+              choicesCreateDistrict = null;
+            }
+            createDistrictSelectEl.classList.add("d-none");
+            createDistrictSelectEl.removeAttribute("name"); // VERY IMPORTANT
+            createDistrictSelectEl.removeAttribute("required");
+            createDistrictDisplayStateEl.classList.remove("d-none");
+
+            // Venue setup (all venues)
+            const allIds = allDistrictData.map((d) => d.districtId);
+            if (allIds.length > 0) {
+              fetchVenuesForDistrict(allIds, createVenueSelectEl);
+            } else {
+              createVenueSelectEl.innerHTML =
+                '<option value="">-- No Districts Available --</option>';
+              createVenueSelectEl.disabled = true;
             }
           }
 
-          fetch(`/api/calendar/update/${calendarId}`, {
-            method: "PUT",
-            body: formData,
-          })
-            .then((r) =>
-              r.ok
-                ? r.json()
-                : r.text().then((t) => {
-                    throw new Error(`Update failed: ${r.status} - ${t}`);
-                  })
-            )
-            .then(() => {
-              alert("Calendar updated!");
-              closeModal(updateModal);
-              fetchCalendars();
-            })
-            .catch((err) => {
-              console.error("Error updating:", err);
-              alert(`Error: ${err.message}`);
-            });
-        });
-      }
+          // Helper to setup districtLevelForm for "District Level"
+          function setupDistrictLevelCreateForm() {
+            stateForm.classList.add("d-none");
+            districtForm.classList.remove("d-none");
 
-      window.approveCalendar = function (calendarId, buttonElement) {
-        if (
-          !confirm(
-            `Are you sure you want to approve calendar event ID ${calendarId}? This will forward it for further processing.`
-          )
-        )
-          return;
-
-        if (buttonElement) {
-          buttonElement.disabled = true;
-          buttonElement.textContent = "Processing...";
-        }
-
-        fetch(`/api/calendar/approve/${calendarId}`, { method: "POST" })
-          .then((response) => {
-            if (!response.ok) {
-              if (buttonElement) {
-                buttonElement.disabled = false;
-                buttonElement.textContent = "Approve";
-              }
-              return response.text().then((text) => {
-                let errorDetail = text;
-                try {
-                  const jsonError = JSON.parse(text);
-                  errorDetail =
-                    jsonError.message || jsonError.error || text;
-                } catch (e) {
-                  /* Use raw text */
+            // Initialize Choices for districtLevelForm if not already done
+            // (This is usually done in openCreateModalFunction, so ensure it's covered)
+            if (!choicesDistCreateDistrict && distCreateDistrictSelect) {
+              populateSelect(
+                distCreateDistrictSelect,
+                "/api/district/getall",
+                "-- Select District(s) --",
+                "districtId",
+                "districtName",
+                [],
+                true
+              ).then((instance) => {
+                choicesDistCreateDistrict = instance;
+                if (distCreateDistrictSelect) {
+                  // Add listener if not present
+                  distCreateDistrictSelect.removeEventListener(
+                    "change",
+                    handleDistrictChangeForVenues
+                  );
+                  distCreateDistrictSelect.addEventListener(
+                    "change",
+                    handleDistrictChangeForVenues
+                  );
                 }
-                throw new Error(
-                  `Approval failed: ${response.status} - ${errorDetail}`
-                );
               });
             }
-            return response.json();
-          })
-          .then((data) => {
-            alert(`Calendar ID ${calendarId} approved successfully!`);
-            fetchCalendars();
-          })
-          .catch((error) => {
-            console.error("Error approving calendar:", error);
-            alert(`Error: ${error.message}`);
-            if (buttonElement) {
-              if (
-                error.message &&
-                !error.message.toLowerCase().includes("already approved")
-              ) {
-                buttonElement.disabled = false;
-                buttonElement.textContent = "Approve";
-              } else {
-                fetchCalendars();
-              }
+            if (
+              !choicesDistCreateNOS &&
+              document.getElementById("dist_createNatureOfStaff")
+            ) {
+              populateSelect(
+                document.getElementById("dist_createNatureOfStaff"),
+                "/api/natureofstaff/getall",
+                "-- Select Nature of Staff --",
+                "natureOfStaffId",
+                "natureOfStaffName",
+                [],
+                true
+              ).then((i) => (choicesDistCreateNOS = i));
             }
-          });
-      };
+            if (document.getElementById("dist_createProgramName")) {
+              populateSelect(
+                document.getElementById("dist_createProgramName"),
+                "/api/programs/getall",
+                "-- Select Programme --",
+                "programId",
+                "programName",
+                [],
+                false
+              );
+            }
+          }
 
-      fetchCalendars(); // Initial fetch of calendar events
-    });
-    window.calculateCreateDuration = function () {
-      const startInput = document.getElementById("createStartDate");
-      const endInput = document.getElementById("createEndDate");
-      const durationInput = document.getElementById("createDuration");
-      if (startInput && endInput && durationInput) {
-        calculateDuration(startInput.value, endInput.value, durationInput);
-      }
-    };
+          if (formMode) {
+            formMode.addEventListener("change", () => {
+              if (formMode.value === "district") {
+                setupDistrictLevelCreateForm();
+              } else {
+                // state
+                setupStateLevelCreateForm();
+              }
+            });
+          }
 
-    window.calculateDistCreateDuration = function () {
-      const startInput = document.getElementById("dist_createStartDate");
-      const endInput = document.getElementById("dist_createEndDate");
-      const durationInput = document.getElementById("dist_createDuration");
-      if (startInput && endInput && durationInput) {
-        calculateDuration(startInput.value, endInput.value, durationInput);
-      }
-    };
+          const createModal = $("#createModal");
+          const openCreateModalBtn =
+            document.getElementById("openCreateModalBtn");
+          const closeCreateModalBtn =
+            document.getElementById("closeCreateModal");
+          const cancelCreateModalBtn = document.getElementById(
+            "cancelCreateModalBtn"
+          );
+          const cancelCreateModalBtnDistrict = document.getElementById(
+            "cancelCreateModalBtnDistrict"
+          );
 
-    window.calculateUpdateDuration = function () {
-      const startInput = document.getElementById("updateStartDate");
-      const endInput = document.getElementById("updateEndDate");
-      const durationInput = document.getElementById("updateDuration");
-      if (startInput && endInput && durationInput) {
-        calculateDuration(startInput.value, endInput.value, durationInput);
-      }
-    };
+          const updateModal = $("#updateModal");
+          const closeUpdateModalBtn =
+            document.getElementById("closeUpdateModal");
+          const cancelUpdateModalBtn = document.getElementById(
+            "cancelUpdateModalBtn"
+          );
 
-    window.downloadExcel = function () {
-      const tableBody = document.getElementById("calendarList");
-      if (
-        !tableBody ||
-        !tableBody.rows ||
-        tableBody.rows.length === 0 ||
-        (tableBody.rows.length === 1 &&
-          tableBody.rows[0].cells[0].colSpan === 11 &&
-          tableBody.rows[0].textContent.includes("No calendar events"))
-      ) {
-        alert("No data to download.");
-        return;
-      }
-      const rows = Array.from(tableBody.rows);
-      const headers = [
-        "Sl. No",
-        "Program",
-        "Topic",
-        "District(s)",
-        "Venue",
-        "Nature of staff",
-        "Target",
-        "Start Date",
-        "End Date",
-        "Duration",
-      ];
-      const data = [
-        headers,
-        ...rows.map((row) =>
-          Array.from(row.querySelectorAll("td"))
-            .slice(0, 10)
-            .map((cell) => cell.textContent.trim())
-        ),
-      ];
-      if (data.length <= 1) {
-        alert("No data rows to download.");
-        return;
-      }
-      try {
-        const worksheet = XLSX.utils.aoa_to_sheet(data);
-        const columnWidths = headers.map((_, colIndex) => ({
-          wch:
-            data.reduce(
-              (max, row) =>
-                Math.max(
-                  max,
-                  String(row[colIndex] ?? "").length,
-                  headers[colIndex].length
-                ),
-              10
-            ) + 2,
-        }));
-        worksheet["!cols"] = columnWidths;
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Calendar Data");
-        XLSX.writeFile(workbook, "Calendar_Management_Data.xlsx");
-      } catch (error) {
-        console.error("Excel generation error:", error);
-        alert("Error generating Excel. Check console.");
-      }
-    };
-  </script>
-</main>
+          const updateStartDateInputEl =
+            document.getElementById("updateStartDate");
+          const updateEndDateInputEl = document.getElementById("updateEndDate");
+          const updateDurationInputEl =
+            document.getElementById("updateDuration");
+
+          const calendarListBody = document.getElementById("calendarList");
+          const calendarFilterSelect =
+            document.getElementById("calendarFilter");
+
+          function openModal(modalElement) {
+            modalElement.modal("show");
+          }
+
+          function closeModal(modalElement) {
+            modalElement.modal("hide");
+            if (modalElement.attr("id") === "createModal") {
+              if (choicesCreateNOS?.destroy) choicesCreateNOS.destroy();
+              // choicesCreateDistrict is handled by setupStateLevelCreateForm/setupDistrictLevelCreateForm
+              choicesCreateNOS = null;
+              if (document.getElementById("stateLevelForm"))
+                document.getElementById("stateLevelForm").reset();
+
+              if (choicesDistCreateNOS?.destroy) choicesDistCreateNOS.destroy();
+              if (choicesDistCreateDistrict?.destroy)
+                choicesDistCreateDistrict.destroy();
+              choicesDistCreateNOS = null;
+              choicesDistCreateDistrict = null;
+              if (document.getElementById("districtLevelForm")) {
+                document.getElementById("districtLevelForm").reset();
+                if (distCreateVenueContainer)
+                  distCreateVenueContainer.innerHTML =
+                    '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+              }
+              // Reset createDistrict related elements to default (hidden select, visible display)
+              if (createDistrictSelectEl) {
+                createDistrictSelectEl.classList.add("d-none");
+                createDistrictSelectEl.removeAttribute("name");
+                createDistrictSelectEl.removeAttribute("required");
+              }
+              if (createDistrictDisplayStateEl)
+                createDistrictDisplayStateEl.classList.remove("d-none");
+            } else if (modalElement.attr("id") === "updateModal") {
+              if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
+              if (choicesUpdateDistrict?.destroy)
+                choicesUpdateDistrict.destroy();
+              choicesUpdateNOS = null;
+              choicesUpdateDistrict = null;
+              if (document.getElementById("updateCalendarForm"))
+                document.getElementById("updateCalendarForm").reset();
+              const updateVenueDistrictContainer = document.getElementById(
+                "updateVenueDistrictContainer"
+              );
+              if (updateVenueDistrictContainer)
+                updateVenueDistrictContainer.innerHTML =
+                  '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+              const updateVenueStateEl =
+                document.getElementById("updateVenueState");
+              if (updateVenueStateEl)
+                updateVenueStateEl.innerHTML =
+                  '<option value="">-- Select District(s) First --</option>';
+
+              // Reset updateDistrict related elements
+              const updateDistrictSelectEl =
+                document.getElementById("updateDistrict");
+              const updateDistrictDisplayStateEl = document.getElementById(
+                "updateDistrictDisplayState"
+              );
+              if (updateDistrictSelectEl) {
+                updateDistrictSelectEl.classList.add("d-none"); // Default to hidden for safety
+                updateDistrictSelectEl.removeAttribute("name");
+              }
+              if (updateDistrictDisplayStateEl)
+                updateDistrictDisplayStateEl.classList.add("d-none");
+            }
+          }
+
+          if (openCreateModalBtn)
+            openCreateModalBtn.addEventListener("click", () =>
+              openCreateModalFunction()
+            );
+          if (closeCreateModalBtn)
+            closeCreateModalBtn.addEventListener("click", () =>
+              closeModal(createModal)
+            );
+          if (cancelCreateModalBtn)
+            cancelCreateModalBtn.addEventListener("click", () =>
+              closeModal(createModal)
+            );
+          if (cancelCreateModalBtnDistrict)
+            cancelCreateModalBtnDistrict.addEventListener("click", () =>
+              closeModal(createModal)
+            );
+          if (closeUpdateModalBtn)
+            closeUpdateModalBtn.addEventListener("click", () =>
+              closeModal(updateModal)
+            );
+          if (cancelUpdateModalBtn)
+            cancelUpdateModalBtn.addEventListener("click", () =>
+              closeModal(updateModal)
+            );
+
+          // Form elements for stateLevelForm
+          const createProgramSelect =
+            document.getElementById("createProgramName");
+          const createTopicSelect = document.getElementById("createTopic");
+          // createDistrictSelectEl, createDistrictDisplayStateEl, createVenueSelectEl already defined
+          const createNOSSelect = document.getElementById(
+            "createNatureOfStaff"
+          );
+          const createDurationInput = document.getElementById("createDuration");
+
+          // Form elements for districtLevelForm
+          const distCreateProgramSelect = document.getElementById(
+            "dist_createProgramName"
+          );
+          const distCreateTopicSelect =
+            document.getElementById("dist_createTopic");
+          const distCreateNOSSelect = document.getElementById(
+            "dist_createNatureOfStaff"
+          );
+          const distCreateDurationInput = document.getElementById(
+            "dist_createDuration"
+          );
+
+          // Form elements for updateCalendarForm
+          const updateCalendarForm =
+            document.getElementById("updateCalendarForm");
+          const updateProgramSelect =
+            document.getElementById("updateProgramName");
+          const updateTopicSelect = document.getElementById("updateTopic");
+          const updateDistrictSelectEl =
+            document.getElementById("updateDistrict");
+          const updateDistrictDisplayStateEl = document.getElementById(
+            "updateDistrictDisplayState"
+          );
+          const updateNOSSelect = document.getElementById(
+            "updateNatureOfStaff"
+          );
+          const updateVenueStateEl =
+            document.getElementById("updateVenueState");
+          const updateVenueDistrictContainerWrapper = document.getElementById(
+            "updateVenueDistrictContainerWrapper"
+          );
+          const updateVenueDistrictContainer = document.getElementById(
+            "updateVenueDistrictContainer"
+          );
+
+          function populateSelect(
+            selectElement,
+            url,
+            defaultText,
+            valueField,
+            textField,
+            selectedIds = [],
+            isMultiple = false
+          ) {
+            if (!selectElement) {
+              console.error(
+                `Select element (ID: ${
+                  selectElement ? selectElement.id : "N/A"
+                }) not found`
+              );
+              return Promise.reject("Select element not found");
+            }
+            if (selectElement.choicesInstance) {
+              selectElement.choicesInstance.destroy();
+              selectElement.choicesInstance = null;
+            }
+            selectElement.innerHTML = "";
+            selectElement.disabled = false;
+            return fetch(url, { method: "GET" })
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(
+                    `HTTP error! Status: ${response.status} for ${url}`
+                  );
+                return response.json();
+              })
+              .then((data) => {
+                data = Array.isArray(data) ? data : [];
+                if (isMultiple) {
+                  selectElement.innerHTML = "";
+                  const choicesArray = data.map((item) => ({
+                    value: String(item[valueField] ?? ""),
+                    label: item[textField] ?? "Invalid Data",
+                    selected: selectedIds.includes(
+                      String(item[valueField] ?? "")
+                    ),
+                    disabled: false,
+                  }));
+                  const choicesInstance = new Choices(selectElement, {
+                    removeItemButton: true,
+                    choices: choicesArray,
+                    shouldSort: false,
+                    placeholder: true,
+                    placeholderValue: defaultText,
+                    itemSelectText: "",
+                  });
+                  selectElement.choicesInstance = choicesInstance;
+                  selectElement.disabled = false;
+                  return choicesInstance;
+                } else {
+                  selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+                  data.forEach((item) => {
+                    const option = document.createElement("option");
+                    option.value = String(item[valueField] ?? "");
+                    option.textContent = item[textField] ?? "Invalid Data";
+                    if (
+                      selectedIds?.length > 0 &&
+                      String(item[valueField] ?? "") === String(selectedIds[0])
+                    ) {
+                      option.selected = true;
+                    }
+                    selectElement.appendChild(option);
+                  });
+                  selectElement.disabled = false;
+                  return null;
+                }
+              })
+              .catch((error) => {
+                console.error(
+                  `Error populating select ${selectElement.id}:`,
+                  error
+                );
+                if (selectElement) {
+                  selectElement.innerHTML = `<option value="">-- Error Loading --</option>`;
+                  selectElement.disabled = true;
+                }
+                throw error;
+              });
+          }
+
+          function fetchTopicsForProgram(
+            programId,
+            topicSelectElement,
+            selectedTopicId = null
+          ) {
+            if (!topicSelectElement) return;
+            topicSelectElement.innerHTML = `<option value="">-- Loading Topics --</option>`;
+            topicSelectElement.disabled = true;
+            if (!programId) {
+              topicSelectElement.innerHTML = `<option value="">-- Select Programme First --</option>`;
+              topicSelectElement.disabled = false;
+              return;
+            }
+            const url = `/api/programs/topics/by-program/${programId}`;
+            const selectedIdsArray = selectedTopicId
+              ? [String(selectedTopicId)]
+              : [];
+            populateSelect(
+              topicSelectElement,
+              url,
+              "-- Select Topic --",
+              "topicId",
+              "topicName",
+              selectedIdsArray,
+              false
+            );
+          }
+
+          function fetchVenuesForDistrict(
+            districtIds,
+            venueSelectElement,
+            selectedVenueId = null
+          ) {
+            if (!venueSelectElement) {
+              console.error(`Venue select element not found`);
+              return;
+            }
+            venueSelectElement.innerHTML = `<option value="">-- Loading Venues --</option>`;
+            venueSelectElement.disabled = true;
+            districtIds = Array.isArray(districtIds)
+              ? districtIds
+              : districtIds
+              ? [districtIds]
+              : [];
+
+            // For state level, if districtIds is empty but we intend all districts, fetch them.
+            // However, the callers (setupStateLevelCreateForm, editCalendar for state) should now pass all district IDs.
+            if (districtIds.length === 0) {
+              // This might happen if allDistrictData hasn't loaded or for some other edge case
+              venueSelectElement.innerHTML = `<option value="">-- No Districts to Fetch Venues From --</option>`;
+              venueSelectElement.disabled = true;
+              return;
+            }
+
+            const url = `/api/venues/by-districts`;
+            fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(districtIds.map((id) => String(id))),
+            })
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(
+                    `HTTP error! Status: ${response.status} fetching venues`
+                  );
+                return response.json();
+              })
+              .then((data) => {
+                data = Array.isArray(data) ? data : [];
+                venueSelectElement.innerHTML = `<option value="">-- Select Venue --</option>`;
+                if (data.length === 0) {
+                  venueSelectElement.innerHTML = `<option value="">-- No Venues Available --</option>`;
+                } else {
+                  data.forEach((venue) => {
+                    const venueId = String(venue?.venueId ?? "");
+                    const venueName = venue?.venueName ?? "Unnamed Venue";
+                    const districtName =
+                      venue?.district?.districtName ??
+                      venue?.districtName ??
+                      "";
+                    const displayText = districtName
+                      ? `${venueName} (${districtName})`
+                      : venueName;
+                    const option = document.createElement("option");
+                    option.value = venueId;
+                    option.textContent = displayText;
+                    if (
+                      selectedVenueId != null &&
+                      venueId === String(selectedVenueId)
+                    ) {
+                      option.selected = true;
+                    }
+                    venueSelectElement.appendChild(option);
+                  });
+                }
+                venueSelectElement.disabled = false;
+              })
+              .catch((error) => {
+                console.error("Error fetching or processing venues:", error);
+                venueSelectElement.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
+              });
+          }
+
+          function renderCalendarTable(eventsToRender) {
+            if (!calendarListBody) return;
+            calendarListBody.innerHTML = "";
+
+            if (!eventsToRender || eventsToRender.length === 0) {
+              calendarListBody.innerHTML =
+                '<tr><td colspan="11" class="text-center p-4">No calendar events.</td></tr>';
+              return;
+            }
+
+            const formatDate = (dateStr) => {
+              if (!dateStr) return "N/A";
+              try {
+                const d = new Date(dateStr);
+                return isNaN(d.getTime())
+                  ? "Invalid Date"
+                  : d.toLocaleDateString("en-GB");
+              } catch (e) {
+                return "Error";
+              }
+            };
+            const formatNameList = (items, nameField) =>
+              items && items.length
+                ? items.map((item) => item?.[nameField] ?? "Unknown").join(", ")
+                : "N/A";
+
+            eventsToRender.forEach((calendar, index) => {
+              const tr = document.createElement("tr");
+              const display = (val) =>
+                val != null && val !== "" ? val : "N/A";
+
+              let programNameDisplay =
+                calendar.programeName?.programName ?? "N/A";
+              if (
+                calendar.trainingLevel &&
+                calendar.trainingLevel.trim() !== ""
+              ) {
+                const levelDisplay =
+                  calendar.trainingLevel.charAt(0).toUpperCase() +
+                  calendar.trainingLevel.slice(1);
+                programNameDisplay +=
+                  calendarFilterSelect.value == "all"
+                    ? ` (${levelDisplay})`
+                    : "";
+              }
+
+              let venueDisplay = "N/A";
+              if (calendar.venueName) {
+                venueDisplay = calendar.venueName.venueName;
+              } else if (calendar.venues && calendar.venues.length > 0) {
+                venueDisplay = calendar.venues
+                  .map((v) => {
+                    let vn = v.venueName || "Unnamed Venue";
+                    return vn;
+                  })
+                  .join(", ");
+              }
+
+              let districtDisplay = "N/A";
+              if (calendar.trainingLevel === "state") {
+                districtDisplay = "All Districts";
+              } else {
+                districtDisplay = formatNameList(
+                  calendar.district,
+                  "districtName"
+                );
+              }
+
+              let approveButtonHtml;
+              let updateButtonHtml;
+
+              if (calendar.status === "APPROVED") {
+                approveButtonHtml = `<button class="btn btn-success btn-sm" disabled>Approved</button>`;
+                updateButtonHtml = `<button class="btn btn-secondary btn-sm mr-1" disabled>Update</button>`;
+              } else {
+                approveButtonHtml = `<button id="approveBtn_${calendar.calendarId}" class="btn btn-primary btn-sm" onclick='approveCalendar(${calendar.calendarId}, this)'>Approve</button>`;
+                updateButtonHtml = `<button class="btn btn-warning btn-sm mr-1" onclick='editCalendar(${calendar.calendarId})'>Update</button>`;
+              }
+
+              tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${programNameDisplay}</td>
+                    <td>${calendar.topic?.topicName ?? "N/A"}</td>
+                    <td>${districtDisplay}</td>
+                    <td>${venueDisplay}</td>
+                    <td>${formatNameList(
+                      calendar.natureOfStaffs,
+                      "natureOfStaffName"
+                    )}</td>
+                    <td class="text-center">${display(calendar.target)}</td>
+                    <td class="text-center">${formatDate(
+                      calendar.startDate
+                    )}</td>
+                    <td class="text-center">${formatDate(calendar.endDate)}</td>
+                    <td class="text-center">${
+                      calendar.duration ? `${calendar.duration} days` : "N/A"
+                    }</td>
+                    <td class="text-right">
+                        ${updateButtonHtml}
+                        ${approveButtonHtml} 
+                    </td>`;
+              calendarListBody.appendChild(tr);
+            });
+          }
+
+          function fetchCalendars() {
+            if (!calendarListBody) return;
+            calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading calendars...</td></tr>`;
+            fetch("/api/calendar/all")
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+              })
+              .then((data) => {
+                allCalendarEvents = Array.isArray(data) ? data : [];
+                renderCalendarTable(allCalendarEvents);
+              })
+              .catch((error) => {
+                console.error("Error fetching calendars:", error);
+                allCalendarEvents = [];
+                renderCalendarTable([]);
+                calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-danger">Error loading. ${error.message}</td></tr>`;
+              });
+          }
+
+          function handleFilterChange() {
+            const filterValue = calendarFilterSelect.value;
+            let filteredEvents = [];
+
+            if (filterValue === "all") {
+              filteredEvents = allCalendarEvents;
+            } else {
+              filteredEvents = allCalendarEvents.filter(
+                (event) => event.trainingLevel === filterValue
+              );
+            }
+            renderCalendarTable(filteredEvents);
+          }
+
+          if (calendarFilterSelect) {
+            calendarFilterSelect.addEventListener("change", handleFilterChange);
+          }
+
+          async function openCreateModalFunction() {
+            if (stateLevelForm) stateLevelForm.reset();
+            if (districtLevelForm) districtLevelForm.reset();
+
+            if (createDurationInput) createDurationInput.value = "";
+            if (createTopicSelect) {
+              createTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
+              createTopicSelect.disabled = true;
+            }
+
+            if (distCreateDurationInput) distCreateDurationInput.value = "";
+            if (distCreateTopicSelect) {
+              distCreateTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
+              distCreateTopicSelect.disabled = true;
+            }
+            if (distCreateVenueContainer)
+              distCreateVenueContainer.innerHTML =
+                '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+
+            if (choicesCreateNOS?.destroy) choicesCreateNOS.destroy();
+            choicesCreateNOS = null;
+            if (choicesCreateDistrict) {
+              choicesCreateDistrict.destroy();
+              choicesCreateDistrict = null;
+            } // Destroy if exists
+
+            if (choicesDistCreateNOS?.destroy) choicesDistCreateNOS.destroy();
+            choicesDistCreateNOS = null;
+            if (choicesDistCreateDistrict?.destroy)
+              choicesDistCreateDistrict.destroy();
+            choicesDistCreateDistrict = null;
+
+            openModal(createModal);
+            const emptySelectedIds = [];
+
+            // Common setup for stateLevelForm (program, NOS)
+            if (createProgramSelect)
+              populateSelect(
+                createProgramSelect,
+                "/api/programs/getall",
+                "-- Select Programme --",
+                "programId",
+                "programName",
+                emptySelectedIds,
+                false
+              );
+            if (createNOSSelect)
+              populateSelect(
+                createNOSSelect,
+                "/api/natureofstaff/getall",
+                "-- Select Nature of Staff --",
+                "natureOfStaffId",
+                "natureOfStaffName",
+                emptySelectedIds,
+                true
+              ).then((i) => (choicesCreateNOS = i));
+
+            // Initial form display based on formMode
+            if (formMode.value === "state") {
+              await setupStateLevelCreateForm();
+            } else {
+              // district
+              setupDistrictLevelCreateForm();
+            }
+          }
+
+          if (createProgramSelect)
+            createProgramSelect.addEventListener("change", function () {
+              fetchTopicsForProgram(this.value, createTopicSelect);
+            });
+          // No listener for createDistrictSelectEl needed for state level as it's "All Districts"
+
+          if (updateProgramSelect) {
+            updateProgramSelect.addEventListener("change", function () {
+              fetchTopicsForProgram(this.value, updateTopicSelect);
+            });
+          }
+
+          if (stateLevelForm) {
+            stateLevelForm.addEventListener("submit", (event) => {
+              event.preventDefault();
+              const createEndDateVal =
+                document.getElementById("createEndDate").value;
+              const createStartDateVal =
+                document.getElementById("createStartDate").value;
+              if (
+                createEndDateVal &&
+                createStartDateVal &&
+                new Date(createEndDateVal) < new Date(createStartDateVal)
+              ) {
+                alert("End date cannot be before start date.");
+                return;
+              }
+              const formData = new FormData(stateLevelForm);
+              if (choicesCreateNOS) {
+                formData.delete("natureOfStaff");
+                choicesCreateNOS
+                  .getValue(true)
+                  .forEach((val) => formData.append("natureOfStaff", val));
+              }
+
+              // Add all district IDs for state level
+              formData.delete("district"); // Remove any if 'name' was accidentally set on the hidden select
+              allDistrictData.forEach((d) =>
+                formData.append("district", d.districtId)
+              );
+
+              formData.append("trainingLevel", "state");
+
+              fetch("/api/calendar", { method: "POST", body: formData })
+                .then((r) =>
+                  r.ok
+                    ? r.json()
+                    : r.text().then((t) => {
+                        throw new Error(`Create failed: ${r.status} - ${t}`);
+                      })
+                )
+                .then(() => {
+                  alert("State Calendar added!");
+                  closeModal(createModal);
+                  fetchCalendars();
+                })
+                .catch((err) => {
+                  console.error("Error state calendar:", err);
+                  alert(`Error: ${err.message}`);
+                });
+            });
+          }
+
+          if (distCreateProgramSelect)
+            distCreateProgramSelect.addEventListener("change", function () {
+              fetchTopicsForProgram(this.value, distCreateTopicSelect);
+            });
+
+          if (districtLevelForm) {
+            districtLevelForm.addEventListener("submit", (event) => {
+              event.preventDefault();
+              const distCreateEndDateVal =
+                document.getElementById("dist_createEndDate").value;
+              const distCreateStartDateVal = document.getElementById(
+                "dist_createStartDate"
+              ).value;
+              if (
+                distCreateEndDateVal &&
+                distCreateStartDateVal &&
+                new Date(distCreateEndDateVal) <
+                  new Date(distCreateStartDateVal)
+              ) {
+                alert("End date cannot be before start date.");
+                return;
+              }
+              const formData = new FormData(districtLevelForm);
+              if (choicesDistCreateNOS) {
+                formData.delete("natureOfStaff");
+                choicesDistCreateNOS
+                  .getValue(true)
+                  .forEach((val) => formData.append("natureOfStaff", val));
+              }
+              if (choicesDistCreateDistrict) {
+                formData.delete("district");
+                choicesDistCreateDistrict
+                  .getValue(true)
+                  .forEach((val) => formData.append("district", val));
+              }
+
+              formData.append("trainingLevel", "district");
+
+              fetch("/api/calendar", { method: "POST", body: formData })
+                .then((r) =>
+                  r.ok
+                    ? r.json()
+                    : r.text().then((t) => {
+                        throw new Error(`Create failed: ${r.status} - ${t}`);
+                      })
+                )
+                .then(() => {
+                  alert("District Calendar added!");
+                  closeModal(createModal);
+                  fetchCalendars();
+                })
+                .catch((err) => {
+                  console.error("Error district calendar:", err);
+                  alert(`Error: ${err.message}`);
+                });
+            });
+          }
+
+          window.editCalendar = async function (calendarId) {
+            if (updateCalendarForm) updateCalendarForm.reset();
+
+            if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
+            choicesUpdateNOS = null;
+            if (choicesUpdateDistrict?.destroy) choicesUpdateDistrict.destroy();
+            choicesUpdateDistrict = null;
+
+            if (updateTopicSelect) {
+              updateTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
+              updateTopicSelect.disabled = true;
+            }
+            if (updateVenueStateEl) {
+              updateVenueStateEl.innerHTML = `<option value="">-- Select District(s) First --</option>`;
+              updateVenueStateEl.disabled = true;
+            }
+            if (updateVenueDistrictContainer) {
+              updateVenueDistrictContainer.innerHTML =
+                '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+            }
+
+            try {
+              const response = await fetch(
+                `/api/calendar/getCalendarById/${calendarId}`
+              );
+              if (!response.ok)
+                throw new Error(`Failed to fetch: ${response.status}`);
+              const calendar = await response.json();
+
+              if (calendar.status === "APPROVED") {
+                alert("Approved events cannot be updated.");
+                return;
+              }
+
+              const formatForDateInput = (dateStr) =>
+                dateStr ? new Date(dateStr).toISOString().split("T")[0] : "";
+
+              document.getElementById("updateCalendarId").value =
+                calendar.calendarId;
+              const trainingLevelInput = document.getElementById(
+                "updateTrainingLevel"
+              );
+              const currentTrainingLevel = calendar.trainingLevel || "state";
+              if (trainingLevelInput) {
+                trainingLevelInput.value = currentTrainingLevel;
+              }
+
+              document.getElementById("updateTarget").value =
+                calendar.target ?? "";
+              if (updateStartDateInputEl)
+                updateStartDateInputEl.value = formatForDateInput(
+                  calendar.startDate
+                );
+              if (updateEndDateInputEl)
+                updateEndDateInputEl.value = formatForDateInput(
+                  calendar.endDate
+                );
+              if (updateDurationInputEl)
+                updateDurationInputEl.value = calendar.duration ?? "";
+
+              const selectedProgramId = calendar.programeName?.programId
+                ? String(calendar.programeName.programId)
+                : null;
+              await populateSelect(
+                updateProgramSelect,
+                "/api/programs/getall",
+                "-- Select Programme --",
+                "programId",
+                "programName",
+                selectedProgramId ? [selectedProgramId] : [],
+                false
+              );
+
+              const selectedTopicId = calendar.topic?.topicId
+                ? String(calendar.topic.topicId)
+                : null;
+              if (selectedProgramId) {
+                await fetchTopicsForProgram(
+                  selectedProgramId,
+                  updateTopicSelect,
+                  selectedTopicId
+                );
+              } else {
+                updateTopicSelect.innerHTML = `<option value="">-- Select Programme First --</option>`;
+                updateTopicSelect.disabled = true;
+              }
+
+              const nosIds =
+                calendar.natureOfStaffs?.map((nos) =>
+                  String(nos.natureOfStaffId)
+                ) || [];
+              choicesUpdateNOS = await populateSelect(
+                updateNOSSelect,
+                "/api/natureofstaff/getall",
+                "-- Select Nature of Staff --",
+                "natureOfStaffId",
+                "natureOfStaffName",
+                nosIds,
+                true
+              );
+
+              if (currentTrainingLevel === "state") {
+                // State Level Update
+                updateDistrictSelectEl.classList.add("d-none");
+                updateDistrictSelectEl.removeAttribute("name"); // VERY IMPORTANT
+                updateDistrictSelectEl.removeAttribute("required");
+                updateDistrictDisplayStateEl.classList.remove("d-none");
+                if (choicesUpdateDistrict) {
+                  choicesUpdateDistrict.destroy();
+                  choicesUpdateDistrict = null;
+                }
+
+                updateVenueStateSection.classList.remove("d-none");
+                updateVenueDistrictContainerWrapper.classList.add("d-none");
+                if (updateVenueStateEl) {
+                  updateVenueStateEl.setAttribute("name", "venueId");
+                  updateVenueStateEl.setAttribute("required", "required");
+                }
+
+                const allDistrictIdsForVenue = allDistrictData.map(
+                  (d) => d.districtId
+                );
+                let venueIdToSelect =
+                  calendar.venueName && calendar.venueName.venueId
+                    ? String(calendar.venueName.venueId)
+                    : calendar.venues &&
+                      calendar.venues.length > 0 &&
+                      calendar.venues[0].venueId
+                    ? String(calendar.venues[0].venueId)
+                    : null;
+                if (allDistrictIdsForVenue.length > 0) {
+                  fetchVenuesForDistrict(
+                    allDistrictIdsForVenue,
+                    updateVenueStateEl,
+                    venueIdToSelect
+                  );
+                } else {
+                  updateVenueStateEl.innerHTML =
+                    '<option value="">-- No Districts Available --</option>';
+                  updateVenueStateEl.disabled = true;
+                }
+                updateDistrictSelectEl.removeEventListener(
+                  "change",
+                  handleUpdateDistrictChangeForVenues
+                );
+              } else {
+                // District Level Update
+                updateDistrictSelectEl.classList.remove("d-none");
+                updateDistrictSelectEl.setAttribute("name", "district"); // Ensure name is present
+                updateDistrictSelectEl.setAttribute("required", "required");
+                updateDistrictDisplayStateEl.classList.add("d-none");
+
+                const selectedDistrictIds =
+                  calendar.district?.map((d) => String(d.districtId)) || [];
+                choicesUpdateDistrict = await populateSelect(
+                  updateDistrictSelectEl,
+                  "/api/district/getall",
+                  "-- Select District(s) --",
+                  "districtId",
+                  "districtName",
+                  selectedDistrictIds,
+                  true
+                );
+
+                updateVenueStateSection.classList.add("d-none");
+                if (updateVenueStateEl) {
+                  updateVenueStateEl.removeAttribute("name");
+                  updateVenueStateEl.removeAttribute("required");
+                }
+                updateVenueDistrictContainerWrapper.classList.remove("d-none");
+                updateVenueDistrictContainer.innerHTML = "";
+
+                const selectedVenuesByDistrict = {};
+                if (calendar.venues && Array.isArray(calendar.venues)) {
+                  calendar.venues.forEach((venue) => {
+                    let dId =
+                      venue.district && venue.district.districtId
+                        ? String(venue.district.districtId)
+                        : String(venue.districtId);
+                    if (dId && venue.venueId)
+                      selectedVenuesByDistrict[dId] = String(venue.venueId);
+                  });
+                }
+
+                const currentlySelectedDistricts = choicesUpdateDistrict
+                  ? choicesUpdateDistrict.getValue()
+                  : [];
+                if (currentlySelectedDistricts.length > 0) {
+                  currentlySelectedDistricts.forEach((districtChoice) => {
+                    createVenueSelectForDistrictUpdate(
+                      districtChoice.value,
+                      districtChoice.label,
+                      updateVenueDistrictContainer,
+                      selectedVenuesByDistrict[districtChoice.value]
+                    );
+                  });
+                } else {
+                  updateVenueDistrictContainer.innerHTML =
+                    '<p class="text-muted small py-2">No districts. Select to assign venues.</p>';
+                }
+                // Attach district change listener only for district level
+                if (updateDistrictSelectEl && choicesUpdateDistrict) {
+                  updateDistrictSelectEl.removeEventListener(
+                    "change",
+                    handleUpdateDistrictChangeForVenues
+                  );
+                  updateDistrictSelectEl.addEventListener(
+                    "change",
+                    handleUpdateDistrictChangeForVenues
+                  );
+                }
+              }
+
+              openModal(updateModal);
+            } catch (error) {
+              console.error("Error loading for update:", error);
+              alert(`Error loading details: ${error.message}`);
+            }
+          };
+
+          if (updateCalendarForm) {
+            updateCalendarForm.addEventListener("submit", (event) => {
+              event.preventDefault();
+              if (
+                updateEndDateInputEl.value &&
+                updateStartDateInputEl.value &&
+                new Date(updateEndDateInputEl.value) <
+                  new Date(updateStartDateInputEl.value)
+              ) {
+                alert("End date cannot be before start date.");
+                return;
+              }
+              const calendarId =
+                document.getElementById("updateCalendarId").value;
+              const formData = new FormData(updateCalendarForm);
+
+              if (choicesUpdateNOS) {
+                formData.delete("natureOfStaff");
+                choicesUpdateNOS
+                  .getValue(true)
+                  .forEach((id) => formData.append("natureOfStaff", id));
+              }
+
+              const trainingLevel = document.getElementById(
+                "updateTrainingLevel"
+              ).value;
+              if (trainingLevel === "state") {
+                formData.delete("district"); // Remove any from potentially named (but hidden) select
+                allDistrictData.forEach((d) =>
+                  formData.append("district", d.districtId)
+                );
+              } else {
+                // district level
+                if (choicesUpdateDistrict) {
+                  formData.delete("district");
+                  choicesUpdateDistrict
+                    .getValue(true)
+                    .forEach((id) => formData.append("district", id));
+                }
+              }
+
+              fetch(`/api/calendar/update/${calendarId}`, {
+                method: "PUT",
+                body: formData,
+              })
+                .then((r) =>
+                  r.ok
+                    ? r.json()
+                    : r.text().then((t) => {
+                        throw new Error(`Update failed: ${r.status} - ${t}`);
+                      })
+                )
+                .then(() => {
+                  alert("Calendar updated!");
+                  closeModal(updateModal);
+                  fetchCalendars();
+                })
+                .catch((err) => {
+                  console.error("Error updating:", err);
+                  alert(`Error: ${err.message}`);
+                });
+            });
+          }
+
+          window.approveCalendar = function (calendarId, buttonElement) {
+            if (
+              !confirm(
+                `Are you sure you want to approve calendar event ID ${calendarId}? This will forward it for further processing.`
+              )
+            )
+              return;
+
+            if (buttonElement) {
+              buttonElement.disabled = true;
+              buttonElement.textContent = "Processing...";
+            }
+
+            fetch(`/api/calendar/approve/${calendarId}`, { method: "POST" })
+              .then((response) => {
+                if (!response.ok) {
+                  if (buttonElement) {
+                    buttonElement.disabled = false;
+                    buttonElement.textContent = "Approve";
+                  }
+                  return response.text().then((text) => {
+                    let errorDetail = text;
+                    try {
+                      const jsonError = JSON.parse(text);
+                      errorDetail =
+                        jsonError.message || jsonError.error || text;
+                    } catch (e) {
+                      /* Use raw text */
+                    }
+                    throw new Error(
+                      `Approval failed: ${response.status} - ${errorDetail}`
+                    );
+                  });
+                }
+                return response.json();
+              })
+              .then((data) => {
+                alert(`Calendar ID ${calendarId} approved successfully!`);
+                fetchCalendars();
+              })
+              .catch((error) => {
+                console.error("Error approving calendar:", error);
+                alert(`Error: ${error.message}`);
+                if (buttonElement) {
+                  if (
+                    error.message &&
+                    !error.message.toLowerCase().includes("already approved")
+                  ) {
+                    buttonElement.disabled = false;
+                    buttonElement.textContent = "Approve";
+                  } else {
+                    fetchCalendars();
+                  }
+                }
+              });
+          };
+
+          fetchCalendars(); // Initial fetch of calendar events
+        });
+        window.calculateCreateDuration = function () {
+          const startInput = document.getElementById("createStartDate");
+          const endInput = document.getElementById("createEndDate");
+          const durationInput = document.getElementById("createDuration");
+          if (startInput && endInput && durationInput) {
+            calculateDuration(startInput.value, endInput.value, durationInput);
+          }
+        };
+
+        window.calculateDistCreateDuration = function () {
+          const startInput = document.getElementById("dist_createStartDate");
+          const endInput = document.getElementById("dist_createEndDate");
+          const durationInput = document.getElementById("dist_createDuration");
+          if (startInput && endInput && durationInput) {
+            calculateDuration(startInput.value, endInput.value, durationInput);
+          }
+        };
+
+        window.calculateUpdateDuration = function () {
+          const startInput = document.getElementById("updateStartDate");
+          const endInput = document.getElementById("updateEndDate");
+          const durationInput = document.getElementById("updateDuration");
+          if (startInput && endInput && durationInput) {
+            calculateDuration(startInput.value, endInput.value, durationInput);
+          }
+        };
+
+        window.downloadExcel = function () {
+          const tableBody = document.getElementById("calendarList");
+          if (
+            !tableBody ||
+            !tableBody.rows ||
+            tableBody.rows.length === 0 ||
+            (tableBody.rows.length === 1 &&
+              tableBody.rows[0].cells[0].colSpan === 11 &&
+              tableBody.rows[0].textContent.includes("No calendar events"))
+          ) {
+            alert("No data to download.");
+            return;
+          }
+          const rows = Array.from(tableBody.rows);
+          const headers = [
+            "Sl. No",
+            "Program",
+            "Topic",
+            "District(s)",
+            "Venue",
+            "Nature of staff",
+            "Target",
+            "Start Date",
+            "End Date",
+            "Duration",
+          ];
+          const data = [
+            headers,
+            ...rows.map((row) =>
+              Array.from(row.querySelectorAll("td"))
+                .slice(0, 10)
+                .map((cell) => cell.textContent.trim())
+            ),
+          ];
+          if (data.length <= 1) {
+            alert("No data rows to download.");
+            return;
+          }
+          try {
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const columnWidths = headers.map((_, colIndex) => ({
+              wch:
+                data.reduce(
+                  (max, row) =>
+                    Math.max(
+                      max,
+                      String(row[colIndex] ?? "").length,
+                      headers[colIndex].length
+                    ),
+                  10
+                ) + 2,
+            }));
+            worksheet["!cols"] = columnWidths;
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Calendar Data");
+            XLSX.writeFile(workbook, "Calendar_Management_Data.xlsx");
+          } catch (error) {
+            console.error("Excel generation error:", error);
+            alert("Error generating Excel. Check console.");
+          }
+        };
+      </script>
+    </main>
+  </body>
+</html>

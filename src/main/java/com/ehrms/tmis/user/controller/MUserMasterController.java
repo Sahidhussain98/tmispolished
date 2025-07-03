@@ -31,6 +31,14 @@ public class MUserMasterController {
 
   @GetMapping("/all")
   public ResponseEntity<List<MUserMasterDTO>> getAllTrainees() {
+    List<MUserMasterDTO> dtos = mUserMasterrService.getAllTrainees();
+    System.out.println("DTOs: " + dtos.get(0).getId().getEmpCd());
+    System.out.println("DTOs: " + dtos.get(0).getFullName() + " " + dtos.get(0).getRoles());
+    return ResponseEntity.ok(dtos);
+  }
+
+  @GetMapping("/all2")
+  public ResponseEntity<List<MUserMasterDTO>> getTrainees() {
     List<MUserMaster> trainees = mUserMasterrService.getTrainees();
     Map<String, String> empCdToFullName = getEmpCdToFullNameMap();
 
