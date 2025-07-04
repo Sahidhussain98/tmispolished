@@ -37,7 +37,8 @@
         border: 1px solid #357abd;
         color: white;
       }
-      .is-focused .choices__inner, .is-open .choices__inner {
+      .is-focused .choices__inner,
+      .is-open .choices__inner {
         border-color: #a0aec0;
       }
       .choices__inner {
@@ -62,7 +63,9 @@
         width: 95vw;
         max-width: 1000px;
       }
-      input[type="hidden"] { display: none; }
+      input[type="hidden"] {
+        display: none;
+      }
     </style>
   </head>
 
@@ -84,17 +87,61 @@
             <table class="min-w-full text-sm">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left">Sl. No</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left">Program</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left">Topic</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left">District(s)</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left">Venue</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left">Nature of Staff</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center">Target</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center">Start Date</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center">End Date</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center">Duration</th>
-                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center">Actions</th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Sl. No
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Program
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Topic
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    District(s)
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Venue
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Nature of Staff
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    Target
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    Start Date
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    End Date
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    Duration
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody id="calendarList" class="divide-y divide-gray-100"></tbody>
@@ -103,14 +150,26 @@
         </div>
       </div>
 
-      <div id="updateModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 p-4">
+      <div
+        id="updateModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 p-4"
+      >
         <div class="bg-white p-6 rounded-lg shadow-lg relative modal-container">
-          <button id="closeUpdateModal" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10">×</button>
+          <button
+            id="closeUpdateModal"
+            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
+          >
+            ×
+          </button>
           <h3 class="text-2xl font-bold text-gray-800 mb-4">Update Calendar</h3>
           <form id="updateCalendarForm">
             <!-- Hidden inputs for read-only fields that need to be submitted -->
             <input type="hidden" id="updateCalendarId" name="calendarId" />
-            <input type="hidden" id="updateTrainingLevel" name="trainingLevel" />
+            <input
+              type="hidden"
+              id="updateTrainingLevel"
+              name="trainingLevel"
+            />
             <input type="hidden" id="updateProgramId" name="programId" />
             <input type="hidden" id="updateTopicId" name="topicId" />
             <!-- No hidden districtId array needed, will be handled by dataset -->
@@ -118,53 +177,136 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <!-- Read-only Programme -->
-                <label class="block text-gray-700 font-semibold mb-2">Programme:</label>
-                <div id="updateProgramNameDisplay" class="readonly-display"></div>
-                
+                <label class="block text-gray-700 font-semibold mb-2"
+                  >Programme:</label
+                >
+                <div
+                  id="updateProgramNameDisplay"
+                  class="readonly-display"
+                ></div>
+
                 <!-- Read-only District(s) -->
-                <label class="block text-gray-700 font-semibold mt-4 mb-2">District(s):</label>
+                <label class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >District(s):</label
+                >
                 <div id="updateDistrictDisplay" class="readonly-display"></div>
 
                 <!-- Editable Nature of Staff -->
-                <label for="updateNatureOfStaff" class="block text-gray-700 font-semibold mt-4 mb-2">Nature of Staff:</label>
-                <select id="updateNatureOfStaff" name="natureOfStaff" multiple required class="w-full p-2 border border-gray-300 rounded choices-multiple"></select>
+                <label
+                  for="updateNatureOfStaff"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Nature of Staff:</label
+                >
+                <select
+                  id="updateNatureOfStaff"
+                  name="natureOfStaff"
+                  multiple
+                  required
+                  class="w-full p-2 border border-gray-300 rounded choices-multiple"
+                ></select>
 
                 <!-- SINGLE Editable Venue Select for both State and District Level -->
                 <div>
-                  <label for="updateVenueSelect" class="block text-gray-700 font-semibold mt-4 mb-2">Venue:</label>
-                  <select id="updateVenueSelect" name="venueId" required class="w-full p-2 border border-gray-300 rounded">
+                  <label
+                    for="updateVenueSelect"
+                    class="block text-gray-700 font-semibold mt-4 mb-2"
+                    >Venue:</label
+                  >
+                  <select
+                    id="updateVenueSelect"
+                    name="venueId"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                  >
                     <option value="">-- Loading venues --</option>
                   </select>
                 </div>
               </div>
               <div>
                 <!-- Read-only Topic -->
-                <label class="block text-gray-700 font-semibold mb-2">Topic:</label>
+                <label class="block text-gray-700 font-semibold mb-2"
+                  >Topic:</label
+                >
                 <div id="updateTopicDisplay" class="readonly-display"></div>
 
                 <!-- Editable Target -->
-                <label for="updateTarget" class="block text-gray-700 font-semibold mt-4 mb-2">Target:</label>
-                <input type="number" id="updateTarget" name="target" placeholder="Target (optional)" min="1" class="w-full p-2 border border-gray-300 rounded" />
-                
+                <label
+                  for="updateTarget"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Target:</label
+                >
+                <input
+                  type="number"
+                  id="updateTarget"
+                  name="target"
+                  placeholder="Target (optional)"
+                  min="1"
+                  class="w-full p-2 border border-gray-300 rounded"
+                />
+
                 <!-- Editable Dates -->
                 <div class="flex items-center space-x-2 mt-4">
-                  <label for="updateStartDate" class="block text-gray-700 font-semibold whitespace-nowrap">Start Date:</label>
-                  <input type="date" id="updateStartDate" name="startDate" required class="w-full p-2 border border-gray-300 rounded" onchange="calculateUpdateDuration()" />
+                  <label
+                    for="updateStartDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >Start Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="updateStartDate"
+                    name="startDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateUpdateDuration()"
+                  />
                 </div>
                 <div class="flex items-center space-x-2 mt-4">
-                  
-                  <label for="updateEndDate" class="block text-gray-700 font-semibold whitespace-nowrap">End Date:</label>
-                  <input type="date" id="updateEndDate" name="endDate" required class="w-full p-2 border border-gray-300 rounded" onchange="calculateUpdateDuration()" />
+                  <label
+                    for="updateEndDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >End Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="updateEndDate"
+                    name="endDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateUpdateDuration()"
+                  />
                 </div>
-                
+
                 <!-- Auto-calculated Duration -->
-                <label for="updateDuration" class="block text-gray-700 font-semibold mt-4 mb-2">Duration (days):</label>
-                <input type="number" id="updateDuration" name="duration" placeholder="Auto-calculated" class="w-full p-2 border border-gray-300 rounded" readonly />
+                <label
+                  for="updateDuration"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Duration (days):</label
+                >
+                <input
+                  type="number"
+                  id="updateDuration"
+                  name="duration"
+                  placeholder="Auto-calculated"
+                  class="w-full p-2 border border-gray-300 rounded"
+                  readonly
+                />
               </div>
             </div>
             <div class="flex justify-end mt-6 space-x-4">
-              <button type="submit" id="updateCalendarBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">Update</button>
-              <button type="button" id="cancelUpdateModalBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Cancel</button>
+              <button
+                type="submit"
+                id="updateCalendarBtn"
+                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+              >
+                Update
+              </button>
+              <button
+                type="button"
+                id="cancelUpdateModalBtn"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Cancel
+              </button>
             </div>
           </form>
         </div>
@@ -199,7 +341,11 @@
           }
           const start = new Date(startDateStr);
           const end = new Date(endDateStr);
-          if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end >= start) {
+          if (
+            !isNaN(start.getTime()) &&
+            !isNaN(end.getTime()) &&
+            end >= start
+          ) {
             const diffTime = end - start;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
             durationInputEl.value = diffDays;
@@ -207,7 +353,7 @@
             durationInputEl.value = "";
           }
         }
-        
+
         // This function is no longer needed in its previous form for the update modal
         // as we are using a single venue select.
         // Keeping it commented out in case it's useful elsewhere or for reference.
@@ -258,27 +404,43 @@
         */
 
         document.addEventListener("DOMContentLoaded", async () => {
-          await fetchAllDistricts(); 
+          await fetchAllDistricts();
 
           const updateModal = document.getElementById("updateModal");
-          const closeUpdateModalBtn = document.getElementById("closeUpdateModal");
-          const cancelUpdateModalBtn = document.getElementById("cancelUpdateModalBtn");
-          const updateCalendarForm = document.getElementById("updateCalendarForm");
+          const closeUpdateModalBtn =
+            document.getElementById("closeUpdateModal");
+          const cancelUpdateModalBtn = document.getElementById(
+            "cancelUpdateModalBtn"
+          );
+          const updateCalendarForm =
+            document.getElementById("updateCalendarForm");
           const calendarListBody = document.getElementById("calendarList");
-          const updateNOSSelect = document.getElementById("updateNatureOfStaff");
-          const updateVenueSelect = document.getElementById("updateVenueSelect"); // Renamed for clarity
-          
+          const updateNOSSelect = document.getElementById(
+            "updateNatureOfStaff"
+          );
+          const updateVenueSelect =
+            document.getElementById("updateVenueSelect"); // Renamed for clarity
+
           // Read-only display elements
-          const updateProgramNameDisplay = document.getElementById("updateProgramNameDisplay");
-          const updateTopicDisplay = document.getElementById("updateTopicDisplay");
-          const updateDistrictDisplay = document.getElementById("updateDistrictDisplay");
+          const updateProgramNameDisplay = document.getElementById(
+            "updateProgramNameDisplay"
+          );
+          const updateTopicDisplay =
+            document.getElementById("updateTopicDisplay");
+          const updateDistrictDisplay = document.getElementById(
+            "updateDistrictDisplay"
+          );
 
           // Hidden input fields for submitting read-only IDs
-          const updateProgramIdInput = document.getElementById("updateProgramId");
+          const updateProgramIdInput =
+            document.getElementById("updateProgramId");
           const updateTopicIdInput = document.getElementById("updateTopicId");
-          const updateCalendarIdInput = document.getElementById("updateCalendarId");
-          const updateTrainingLevelInput = document.getElementById("updateTrainingLevel");
-          
+          const updateCalendarIdInput =
+            document.getElementById("updateCalendarId");
+          const updateTrainingLevelInput = document.getElementById(
+            "updateTrainingLevel"
+          );
+
           function openModal(modalElement) {
             if (modalElement) {
               modalElement.classList.remove("hidden");
@@ -287,222 +449,334 @@
           }
 
           function closeModal(modalElement) {
-             if (modalElement) {
-                modalElement.classList.add("hidden");
-                document.body.classList.remove("overflow-hidden");
-                if (modalElement.id === "updateModal") {
-                    if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
-                    choicesUpdateNOS = null;
-                    updateCalendarForm.reset();
-                }
-             }
+            if (modalElement) {
+              modalElement.classList.add("hidden");
+              document.body.classList.remove("overflow-hidden");
+              if (modalElement.id === "updateModal") {
+                if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
+                choicesUpdateNOS = null;
+                updateCalendarForm.reset();
+              }
+            }
           }
 
           // populateSelect now only handles single-select and Choices.js multi-select
           // It doesn't handle the read-only display fields.
-          function populateSelect(selectElement, url, defaultText, valueField, textField, selectedIds = []) {
-            if (!selectElement) return Promise.reject("Select element not found");
+          function populateSelect(
+            selectElement,
+            url,
+            defaultText,
+            valueField,
+            textField,
+            selectedIds = []
+          ) {
+            if (!selectElement)
+              return Promise.reject("Select element not found");
             if (selectElement.choicesInstance) {
-                selectElement.choicesInstance.destroy();
-                selectElement.choicesInstance = null;
+              selectElement.choicesInstance.destroy();
+              selectElement.choicesInstance = null;
             }
             selectElement.innerHTML = "";
-            return fetch(url, { method: "GET" }).then(response => {
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} for ${url}`);
+            return fetch(url, { method: "GET" })
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(
+                    `HTTP error! Status: ${response.status} for ${url}`
+                  );
                 return response.json();
-            }).then(data => {
+              })
+              .then((data) => {
                 data = Array.isArray(data) ? data : [];
                 // Assumed this function is ONLY for Choices.js multi-select OR normal select (not the read-only divs)
-                const choicesArray = data.map(item => ({
-                    value: String(item[valueField] ?? ""),
-                    label: item[textField] ?? "Invalid Data",
-                    selected: selectedIds.includes(String(item[valueField] ?? "")),
+                const choicesArray = data.map((item) => ({
+                  value: String(item[valueField] ?? ""),
+                  label: item[textField] ?? "Invalid Data",
+                  selected: selectedIds.includes(
+                    String(item[valueField] ?? "")
+                  ),
                 }));
                 // For a single select element (like updateVenueSelect), Choices.js might not be needed.
                 // If this is called for a standard <select>, populate manually.
-                if (selectElement.multiple) { // This condition is for Choices.js multi-selects
-                    const choicesInstance = new Choices(selectElement, {
-                        removeItemButton: true,
-                        choices: choicesArray,
-                        placeholder: true,
-                        placeholderValue: defaultText,
-                        itemSelectText: "",
-                    });
-                    selectElement.choicesInstance = choicesInstance;
-                    return choicesInstance;
-                } else { // For standard single <select>
-                    selectElement.innerHTML = `<option value="">${defaultText}</option>`;
-                    data.forEach(item => {
-                        const option = document.createElement("option");
-                        option.value = String(item[valueField] ?? "");
-                        option.textContent = item[textField] ?? "Invalid Data";
-                        if (selectedIds?.length > 0 && String(item[valueField] ?? "") === String(selectedIds[0])) {
-                            option.selected = true;
-                        }
-                        selectElement.appendChild(option);
-                    });
-                    return null; // Return null if not a Choices.js instance
+                if (selectElement.multiple) {
+                  // This condition is for Choices.js multi-selects
+                  const choicesInstance = new Choices(selectElement, {
+                    removeItemButton: true,
+                    choices: choicesArray,
+                    placeholder: true,
+                    placeholderValue: defaultText,
+                    itemSelectText: "",
+                  });
+                  selectElement.choicesInstance = choicesInstance;
+                  return choicesInstance;
+                } else {
+                  // For standard single <select>
+                  selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+                  data.forEach((item) => {
+                    const option = document.createElement("option");
+                    option.value = String(item[valueField] ?? "");
+                    option.textContent = item[textField] ?? "Invalid Data";
+                    if (
+                      selectedIds?.length > 0 &&
+                      String(item[valueField] ?? "") === String(selectedIds[0])
+                    ) {
+                      option.selected = true;
+                    }
+                    selectElement.appendChild(option);
+                  });
+                  return null; // Return null if not a Choices.js instance
                 }
-            }).catch(error => {
-                console.error(`Error populating select ${selectElement.id}:`, error);
+              })
+              .catch((error) => {
+                console.error(
+                  `Error populating select ${selectElement.id}:`,
+                  error
+                );
                 selectElement.innerHTML = `<option value="">-- Error Loading --</option>`;
                 selectElement.disabled = true;
                 throw error;
-            });
+              });
           }
 
           // Modified fetchVenuesForDistrict to just populate a single select
-          function fetchVenuesForDistrict(districtIds, venueSelectElement, selectedVenueId = null) {
-              if (!venueSelectElement) return;
-              venueSelectElement.innerHTML = `<option value="">-- Loading Venues --</option>`;
-              venueSelectElement.disabled = true;
-              districtIds = Array.isArray(districtIds) ? districtIds : districtIds ? [districtIds] : [];
-              if (districtIds.length === 0) {
-                  venueSelectElement.innerHTML = `<option value="">-- No Districts to Fetch From --</option>`;
-                  return;
-              }
-              fetch(`/api/venues/by-districts`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(districtIds.map(id => String(id))),
-              }).then(response => {
-                  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                  return response.json();
-              }).then(data => {
-                  data = Array.isArray(data) ? data : [];
-                  venueSelectElement.innerHTML = `<option value="">-- Select Venue --</option>`;
-                  data.forEach(venue => {
-                      const option = document.createElement("option");
-                      option.value = String(venue?.venueId ?? "");
-                      option.textContent = venue?.venueName ?? "Unnamed Venue";
-                      if (selectedVenueId != null && String(option.value) === String(selectedVenueId)) {
-                          option.selected = true;
-                      }
-                      venueSelectElement.appendChild(option);
-                  });
-                  venueSelectElement.disabled = false;
-              }).catch(error => {
-                  console.error("Error fetching venues:", error);
-                  venueSelectElement.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
+          function fetchVenuesForDistrict(
+            districtIds,
+            venueSelectElement,
+            selectedVenueId = null
+          ) {
+            if (!venueSelectElement) return;
+            venueSelectElement.innerHTML = `<option value="">-- Loading Venues --</option>`;
+            venueSelectElement.disabled = true;
+            districtIds = Array.isArray(districtIds)
+              ? districtIds
+              : districtIds
+              ? [districtIds]
+              : [];
+            if (districtIds.length === 0) {
+              venueSelectElement.innerHTML = `<option value="">-- No Districts to Fetch From --</option>`;
+              return;
+            }
+            fetch(`/api/venues/by-districts`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(districtIds.map((id) => String(id))),
+            })
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+              })
+              .then((data) => {
+                data = Array.isArray(data) ? data : [];
+                venueSelectElement.innerHTML = `<option value="">-- Select Venue --</option>`;
+                data.forEach((venue) => {
+                  const option = document.createElement("option");
+                  option.value = String(venue?.venueId ?? "");
+                  option.textContent = venue?.venueName ?? "Unnamed Venue";
+                  if (
+                    selectedVenueId != null &&
+                    String(option.value) === String(selectedVenueId)
+                  ) {
+                    option.selected = true;
+                  }
+                  venueSelectElement.appendChild(option);
+                });
+                venueSelectElement.disabled = false;
+              })
+              .catch((error) => {
+                console.error("Error fetching venues:", error);
+                venueSelectElement.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
               });
           }
-          
+
           function renderCalendarTable(eventsToRender) {
-              if (!calendarListBody) return;
-              calendarListBody.innerHTML = "";
-              if (!eventsToRender || eventsToRender.length === 0) {
-                  calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4">No calendar events found.</td></tr>`;
-                  return;
+            if (!calendarListBody) return;
+            calendarListBody.innerHTML = "";
+            if (!eventsToRender || eventsToRender.length === 0) {
+              calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4">No calendar events found.</td></tr>`;
+              return;
+            }
+            const formatDate = (d) =>
+              d ? new Date(d).toLocaleDateString("en-GB") : "N/A";
+            const formatNameList = (items, nameField) =>
+              items?.length
+                ? items.map((item) => item?.[nameField] ?? "N/A").join(", ")
+                : "N/A";
+
+            eventsToRender.forEach((calendar, index) => {
+              const tr = document.createElement("tr");
+              tr.className = "hover:bg-gray-50";
+              const display = (v) => (v != null && v !== "" ? v : "N/A");
+
+              const programNameDisplay = `${
+                calendar.programeName?.programName ?? "N/A"
+              } (${calendar.trainingLevel || "N/A"})`;
+
+              let venueDisplay = "N/A";
+              if (calendar.venueName && calendar.venueName.venueName) {
+                venueDisplay = calendar.venueName.venueName;
+              } else if (calendar.venues && calendar.venues.length > 0) {
+                venueDisplay = formatNameList(calendar.venues, "venueName");
               }
-              const formatDate = (d) => d ? new Date(d).toLocaleDateString("en-GB") : "N/A";
-              const formatNameList = (items, nameField) => items?.length ? items.map(item => item?.[nameField] ?? "N/A").join(", ") : "N/A";
 
-              eventsToRender.forEach((calendar, index) => {
-                  const tr = document.createElement("tr");
-                  tr.className = "hover:bg-gray-50";
-                  const display = (v) => v != null && v !== "" ? v : "N/A";
+              const districtDisplay =
+                calendar.trainingLevel === "state"
+                  ? "All Districts"
+                  : formatNameList(calendar.district, "districtName");
 
-                  const programNameDisplay = `${calendar.programeName?.programName ?? "N/A"} (${calendar.trainingLevel || 'N/A'})`;
-                  
-                  let venueDisplay = "N/A";
-                  if (calendar.venueName && calendar.venueName.venueName) {
-                    venueDisplay = calendar.venueName.venueName;
-                  } else if (calendar.venues && calendar.venues.length > 0) {
-                    venueDisplay = formatNameList(calendar.venues, 'venueName');
-                  }
-
-                  const districtDisplay = calendar.trainingLevel === 'state' ? "All Districts" : formatNameList(calendar.district, 'districtName');
-
-                  tr.innerHTML = `
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${index + 1}</td>
+              tr.innerHTML = `
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${
+                        index + 1
+                      }</td>
                       <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${programNameDisplay}</td>
-                      <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${calendar.topic?.topicName ?? "N/A"}</td>
+                      <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${
+                        calendar.topic?.topicName ?? "N/A"
+                      }</td>
                       <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${districtDisplay}</td>
                       <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${venueDisplay}</td>
-                      <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${formatNameList(calendar.natureOfStaffs, "natureOfStaffName")}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${display(calendar.target)}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${formatDate(calendar.startDate)}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${formatDate(calendar.endDate)}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${calendar.duration ? `${calendar.duration} days` : "N/A"}</td>
+                      <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${formatNameList(
+                        calendar.natureOfStaffs,
+                        "natureOfStaffName"
+                      )}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${display(
+                        calendar.target
+                      )}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${formatDate(
+                        calendar.startDate
+                      )}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${formatDate(
+                        calendar.endDate
+                      )}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${
+                        calendar.duration ? `${calendar.duration} days` : "N/A"
+                      }</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">
-                          <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" onclick='editCalendar(${calendar.calendarId})'>Update</button>
+                          <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" onclick='editCalendar(${
+                            calendar.calendarId
+                          })'>Update</button>
                       </td>`;
-                  calendarListBody.appendChild(tr);
-              });
-          }
-          
-          function fetchCalendars() {
-              if (!calendarListBody) return;
-              calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading calendars...</td></tr>`;
-              fetch("/api/calendar/all")
-                  .then(response => {
-                      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                      return response.json();
-                  })
-                  .then(data => {
-                      allCalendarEvents = Array.isArray(data) ? data : [];
-                      renderCalendarTable(allCalendarEvents);
-                  })
-                  .catch(error => {
-                      console.error("Error fetching calendars:", error);
-                      allCalendarEvents = [];
-                      calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500">Error loading calendars.</td></tr>`;
-                  });
+              calendarListBody.appendChild(tr);
+            });
           }
 
-          if (closeUpdateModalBtn) closeUpdateModalBtn.addEventListener("click", () => closeModal(updateModal));
-          if (cancelUpdateModalBtn) cancelUpdateModalBtn.addEventListener("click", () => closeModal(updateModal));
-          
+          function fetchCalendars() {
+            if (!calendarListBody) return;
+            calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading calendars...</td></tr>`;
+            fetch("/api/calendar/all")
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+              })
+              .then((data) => {
+                allCalendarEvents = Array.isArray(data) ? data : [];
+                renderCalendarTable(allCalendarEvents);
+              })
+              .catch((error) => {
+                console.error("Error fetching calendars:", error);
+                allCalendarEvents = [];
+                calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500">Error loading calendars.</td></tr>`;
+              });
+          }
+
+          if (closeUpdateModalBtn)
+            closeUpdateModalBtn.addEventListener("click", () =>
+              closeModal(updateModal)
+            );
+          if (cancelUpdateModalBtn)
+            cancelUpdateModalBtn.addEventListener("click", () =>
+              closeModal(updateModal)
+            );
+
           window.editCalendar = async function (calendarId) {
             if (updateCalendarForm) updateCalendarForm.reset();
             if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
             choicesUpdateNOS = null;
-            
+
             try {
-              const response = await fetch(`/api/calendar/getCalendarById/${calendarId}`);
-              if (!response.ok) throw new Error(`Failed to fetch event: ${response.status}`);
+              const response = await fetch(
+                `/api/calendar/getCalendarById/${calendarId}`
+              );
+              if (!response.ok)
+                throw new Error(`Failed to fetch event: ${response.status}`);
               const calendar = await response.json();
 
-              const formatForDateInput = (d) => d ? new Date(d).toISOString().split("T")[0] : "";
-              
+              const formatForDateInput = (d) =>
+                d ? new Date(d).toISOString().split("T")[0] : "";
+
               // Populate hidden inputs
               updateCalendarIdInput.value = calendar.calendarId;
-              updateTrainingLevelInput.value = calendar.trainingLevel || 'state';
-              updateProgramIdInput.value = calendar.programeName?.programId ?? "";
+              updateTrainingLevelInput.value =
+                calendar.trainingLevel || "state";
+              updateProgramIdInput.value =
+                calendar.programeName?.programId ?? "";
               updateTopicIdInput.value = calendar.topic?.topicId ?? "";
 
               // Populate read-only display divs
-              updateProgramNameDisplay.textContent = calendar.programeName?.programName ?? "N/A";
-              updateTopicDisplay.textContent = calendar.topic?.topicName ?? "N/A";
-              
+              updateProgramNameDisplay.textContent =
+                calendar.programeName?.programName ?? "N/A";
+              updateTopicDisplay.textContent =
+                calendar.topic?.topicName ?? "N/A";
+
               // Populate editable fields
-              document.getElementById("updateTarget").value = calendar.target ?? "";
-              document.getElementById("updateStartDate").value = formatForDateInput(calendar.startDate);
-              document.getElementById("updateEndDate").value = formatForDateInput(calendar.endDate);
-              document.getElementById("updateDuration").value = calendar.duration ?? "";
+              document.getElementById("updateTarget").value =
+                calendar.target ?? "";
+              document.getElementById("updateStartDate").value =
+                formatForDateInput(calendar.startDate);
+              document.getElementById("updateEndDate").value =
+                formatForDateInput(calendar.endDate);
+              document.getElementById("updateDuration").value =
+                calendar.duration ?? "";
 
               // Populate Nature of Staff (editable multi-select)
-              const nosIds = calendar.natureOfStaffs?.map(nos => String(nos.natureOfStaffId)) || [];
-              choicesUpdateNOS = await populateSelect(updateNOSSelect, "/api/natureofstaff/getall", "-- Select Nature of Staff --", "natureOfStaffId", "natureOfStaffName", nosIds);
-              
+              const nosIds =
+                calendar.natureOfStaffs?.map((nos) =>
+                  String(nos.natureOfStaffId)
+                ) || [];
+              choicesUpdateNOS = await populateSelect(
+                updateNOSSelect,
+                "/api/natureofstaff/getall",
+                "-- Select Nature of Staff --",
+                "natureOfStaffId",
+                "natureOfStaffName",
+                nosIds
+              );
+
               // Handle District display and Venue population based on training level
               let districtIdsForVenueFetch = [];
               let currentVenueIdToSelect = null;
 
               if (calendar.trainingLevel === "state") {
-                  updateDistrictDisplay.textContent = "All Districts";
-                  districtIdsForVenueFetch = allDistrictData.map(d => d.districtId);
-                  currentVenueIdToSelect = calendar.venueName?.venueId ? String(calendar.venueName.venueId) : (calendar.venues?.[0]?.venueId ? String(calendar.venues[0].venueId) : null);
-              } else { // District Level
-                  updateDistrictDisplay.textContent = calendar.district?.map(d => d.districtName).join(", ") || "N/A";
-                  districtIdsForVenueFetch = calendar.district?.map(d => d.districtId) || [];
-                  currentVenueIdToSelect = calendar.venues?.[0]?.venueId ? String(calendar.venues[0].venueId) : null; // Assuming one primary venue for simplicity if multiple are possible
+                updateDistrictDisplay.textContent = "All Districts";
+                districtIdsForVenueFetch = allDistrictData.map(
+                  (d) => d.districtId
+                );
+                currentVenueIdToSelect = calendar.venueName?.venueId
+                  ? String(calendar.venueName.venueId)
+                  : calendar.venues?.[0]?.venueId
+                  ? String(calendar.venues[0].venueId)
+                  : null;
+              } else {
+                // District Level
+                updateDistrictDisplay.textContent =
+                  calendar.district?.map((d) => d.districtName).join(", ") ||
+                  "N/A";
+                districtIdsForVenueFetch =
+                  calendar.district?.map((d) => d.districtId) || [];
+                currentVenueIdToSelect = calendar.venues?.[0]?.venueId
+                  ? String(calendar.venues[0].venueId)
+                  : null; // Assuming one primary venue for simplicity if multiple are possible
               }
               // Store selected district IDs as a dataset attribute for submission
-              updateCalendarForm.dataset.selectedDistrictIds = JSON.stringify(districtIdsForVenueFetch);
+              updateCalendarForm.dataset.selectedDistrictIds = JSON.stringify(
+                districtIdsForVenueFetch
+              );
 
               // Populate the single venue select
-              fetchVenuesForDistrict(districtIdsForVenueFetch, updateVenueSelect, currentVenueIdToSelect);
+              fetchVenuesForDistrict(
+                districtIdsForVenueFetch,
+                updateVenueSelect,
+                currentVenueIdToSelect
+              );
 
               openModal(updateModal);
             } catch (error) {
@@ -516,18 +790,22 @@
               event.preventDefault();
               const calendarId = updateCalendarIdInput.value;
               const formData = new FormData(updateCalendarForm);
-              
+
               // Manually add district IDs from the stored dataset attribute
-              const districtIds = JSON.parse(updateCalendarForm.dataset.selectedDistrictIds || '[]');
+              const districtIds = JSON.parse(
+                updateCalendarForm.dataset.selectedDistrictIds || "[]"
+              );
               formData.delete("district"); // Ensure no old or incorrect district values
-              districtIds.forEach(id => {
-                  formData.append("district", id);
+              districtIds.forEach((id) => {
+                formData.append("district", id);
               });
-              
+
               // Handle multi-select for Nature of Staff (Choices.js)
               if (choicesUpdateNOS) {
-                  formData.delete("natureOfStaff"); // Remove default form data entry
-                  choicesUpdateNOS.getValue(true).forEach(id => formData.append("natureOfStaff", id));
+                formData.delete("natureOfStaff"); // Remove default form data entry
+                choicesUpdateNOS
+                  .getValue(true)
+                  .forEach((id) => formData.append("natureOfStaff", id));
               }
 
               // The FormData object will automatically pick up:
@@ -535,14 +813,23 @@
               // - text/date inputs: target, startDate, endDate, duration
               // - The single venueId select: updateVenueSelect (due to its name="venueId")
 
-              fetch(`/api/calendar/update/${calendarId}`, { method: "PUT", body: formData })
-                .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(`Update failed: ${r.status} - ${t}`) }))
+              fetch(`/api/calendar/update/${calendarId}`, {
+                method: "PUT",
+                body: formData,
+              })
+                .then((r) =>
+                  r.ok
+                    ? r.json()
+                    : r.text().then((t) => {
+                        throw new Error(`Update failed: ${r.status} - ${t}`);
+                      })
+                )
                 .then(() => {
                   alert("Calendar updated successfully!");
                   closeModal(updateModal);
                   fetchCalendars();
                 })
-                .catch(err => {
+                .catch((err) => {
                   console.error("Error updating calendar:", err);
                   alert(`Error: ${err.message}`);
                 });
@@ -558,23 +845,42 @@
           const duration = document.getElementById("updateDuration");
           calculateDuration(start, end, duration);
         }
-        
-        function downloadExcel() {
-            const tableBody = document.getElementById("calendarList");
-            if (!tableBody || !tableBody.rows || tableBody.rows.length === 0 || (tableBody.rows.length === 1 && tableBody.rows[0].cells[0].colSpan > 1)) {
-                alert("No data available to download.");
-                return;
-            }
-            const rows = Array.from(tableBody.rows);
-            const headers = Array.from(document.querySelectorAll("#calendarListContainer th")).slice(0, -1).map(th => th.textContent.trim());
-            const data = [headers, ...rows.map(row => Array.from(row.querySelectorAll("td")).slice(0, -1).map(cell => cell.textContent.trim()))];
 
-            const worksheet = XLSX.utils.aoa_to_sheet(data);
-            const columnWidths = headers.map((_, i) => ({ wch: Math.max(...data.map(r => (r[i] || "").length)) + 2 }));
-            worksheet["!cols"] = columnWidths;
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Calendar Data");
-            XLSX.writeFile(workbook, "Calendar_Management_Data.xlsx");
+        function downloadExcel() {
+          const tableBody = document.getElementById("calendarList");
+          if (
+            !tableBody ||
+            !tableBody.rows ||
+            tableBody.rows.length === 0 ||
+            (tableBody.rows.length === 1 &&
+              tableBody.rows[0].cells[0].colSpan > 1)
+          ) {
+            alert("No data available to download.");
+            return;
+          }
+          const rows = Array.from(tableBody.rows);
+          const headers = Array.from(
+            document.querySelectorAll("#calendarListContainer th")
+          )
+            .slice(0, -1)
+            .map((th) => th.textContent.trim());
+          const data = [
+            headers,
+            ...rows.map((row) =>
+              Array.from(row.querySelectorAll("td"))
+                .slice(0, -1)
+                .map((cell) => cell.textContent.trim())
+            ),
+          ];
+
+          const worksheet = XLSX.utils.aoa_to_sheet(data);
+          const columnWidths = headers.map((_, i) => ({
+            wch: Math.max(...data.map((r) => (r[i] || "").length)) + 2,
+          }));
+          worksheet["!cols"] = columnWidths;
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Calendar Data");
+          XLSX.writeFile(workbook, "Calendar_Management_Data.xlsx");
         }
       </script>
 

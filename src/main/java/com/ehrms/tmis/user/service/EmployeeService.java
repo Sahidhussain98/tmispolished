@@ -19,7 +19,7 @@ public class EmployeeService {
 
     public List<EmployeeNameDTO> getEmployeeNames() {
         // Create a stored procedure query for your procedure
-        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("GET_empnameandcode");
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("GET_allempnameandcode");
 
         // Execute the stored procedure
         List<Object[]> results = query.getResultList();

@@ -8,552 +8,696 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calendar Management</title>
+    <!-- <link rel="stylesheet" th:href="/assets/css/tailwind.min.css" /> -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
+    />
+    <style>
+      input[readonly] {
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+      }
+      .modal-container {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      body.overflow-hidden {
+        overflow: hidden;
+      }
+      #createModal .grid,
+      #updateModal .grid {
+        padding-bottom: 1rem;
+      }
+      .flex label {
+        flex-shrink: 0;
+      }
+      .choices__list--multiple .choices__item {
+        background-color: #4a90e2;
+        border: 1px solid #357abd;
+        color: white;
+        border-radius: 0.25rem;
+        margin-bottom: 0.25rem;
+        margin-right: 0.375rem;
+      }
+      .is-focused .choices__inner,
+      .is-open .choices__inner {
+        border-color: #a0aec0;
+      }
+      .choices__inner {
+        min-height: 38px;
+        padding: 0.25rem 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.25rem;
+      }
+      .readonly-display {
+        background-color: #f3f4f6;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: normal;
+        color: #374151;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #d1d5db;
+        white-space: normal;
+        word-break: break-word;
+      }
+      #createModal .modal-container,
+      #updateModal .modal-container {
+        width: 95vw;
+        max-width: 1000px;
+      }
+      input[type="hidden"] {
+        display: none;
+      }
+    </style>
   </head>
-
-  <body class="bg-light">
-    <main layout:fragment="content">
-      <div class="container-fluid">
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <h1 class="h3 mb-0 text-gray-800">Calendar Management</h1>
-          </div>
-          <div class="col-md-6 text-right">
-            <button id="openCreateModalBtn" class="btn btn-primary">
-              Create New Calendar
-            </button>
-          </div>
+  <main layout:fragment="content">
+    <body class="bg-gray-100">
+      <div class="container mx-auto max-w-screen-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-3xl font-bold text-gray-800">Calendar Management</h1>
+          <button
+            id="openCreateModalBtn"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Create New Calendar
+          </button>
         </div>
 
-        <div class="card shadow mb-4">
-          <div
-            class="card-header py-3 d-flex justify-content-between align-items-center"
-          >
-            <h6 class="m-0 font-weight-bold text-primary">Calendar Events</h6>
-            <div class="form-group mb-0">
-              <select id="calendarFilter" class="form-control form-control-sm">
+        <div
+          id="calendarListContainer"
+          class="bg-white p-6 rounded-lg shadow mb-6"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-semibold text-gray-800">
+              Calendar Events
+            </h3>
+            <div>
+              <label for="calendarFilter" class="sr-only"
+                >Filter by Training Level</label
+              >
+              <select
+                id="calendarFilter"
+                class="p-2 border border-gray-300 rounded text-sm"
+              >
                 <option value="all">All Events</option>
                 <option value="state">State Level</option>
                 <option value="district">District Level</option>
               </select>
             </div>
           </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-bordered" width="100%" cellspacing="0">
-                <thead class="thead-light">
-                  <tr>
-                    <th>Sl. No</th>
-                    <th>Program</th>
-                    <th>Topic</th>
-                    <th>District(s)</th>
-                    <th>Venue</th>
-                    <th>Nature of staff</th>
-                    <th class="text-center">Target</th>
-                    <th class="text-center">Start Date</th>
-                    <th class="text-center">End Date</th>
-                    <th class="text-center">Duration</th>
-                    <th class="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="calendarList"></tbody>
-              </table>
-            </div>
-            <div class="text-right mt-3">
-              <button onclick="downloadExcel()" class="btn btn-success">
-                Download Excel
-              </button>
-            </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Sl. No
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Program
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Topic
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    District(s)
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Venue
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-left"
+                  >
+                    Nature of staff
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    Target
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    Start Date
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    End Date
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    Duration
+                  </th>
+                  <th
+                    class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider text-center"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="calendarList" class="divide-y divide-gray-100"></tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- Create Modal -->
       <div
         id="createModal"
-        class="modal fade"
-        tabindex="-1"
-        role="dialog"
-        aria-hidden="true"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-40 p-4"
       >
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Create Calendar</h5>
-              <button
-                id="closeCreateModal"
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                <label for="formMode">Select Training level:</label>
-                <select id="formMode" class="form-control">
-                  <option value="state">State Level</option>
-                  <option value="district">District Level</option>
+        <div
+          class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl"
+        >
+          <button
+            id="closeCreateModal"
+            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
+          >
+            ×
+          </button>
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">Create Calendar</h3>
+          <div class="mb-4">
+            <label for="formMode" class="block text-gray-700 font-semibold mb-2"
+              >Select Training level:</label
+            >
+            <select id="formMode" class="p-2 border border-gray-300 rounded">
+              <option value="state">State Level</option>
+              <option value="district">District Level</option>
+            </select>
+          </div>
+          <form id="stateLevelForm">
+            <!-- This form is now primarily for State Level -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  for="createProgramName"
+                  class="block text-gray-700 font-semibold mb-2"
+                  >Programme:</label
+                >
+                <select
+                  id="createProgramName"
+                  name="programId"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Programme --</option>
+                </select>
+
+                <label
+                  for="createNatureOfStaff"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Nature of Staff:</label
+                >
+                <select
+                  id="createNatureOfStaff"
+                  name="natureOfStaff"
+                  multiple
+                  required
+                  class="w-full p-2 border border-gray-300 rounded choices-multiple"
+                ></select>
+
+                <!-- District handling for State Level form -->
+                <label
+                  for="createDistrict"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >District:</label
+                >
+                <div id="createDistrictDisplayState" class="readonly-display">
+                  All Districts
+                </div>
+                <select
+                  id="createDistrict"
+                  multiple
+                  class="w-full p-2 border border-gray-300 rounded choices-multiple hidden"
+                >
+                  <!-- This select is hidden and its 'name' attribute will be managed by JS -->
+                </select>
+
+                <label
+                  for="createVenue"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Venue:</label
+                >
+                <select
+                  id="createVenue"
+                  name="venueId"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Loading all venues --</option>
                 </select>
               </div>
+              <div>
+                <label
+                  for="createTopic"
+                  class="block text-gray-700 font-semibold mb-2"
+                  >Topic:</label
+                >
+                <select
+                  id="createTopic"
+                  name="topicId"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Programme First --</option>
+                </select>
 
-              <form id="stateLevelForm">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="createProgramName">Programme:</label>
-                      <select
-                        id="createProgramName"
-                        name="programId"
-                        required
-                        class="form-control"
-                      >
-                        <option value="">-- Select Programme --</option>
-                      </select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="createNatureOfStaff">Nature of Staff:</label>
-                      <select
-                        id="createNatureOfStaff"
-                        name="natureOfStaff"
-                        multiple
-                        required
-                        class="form-control choices-multiple"
-                      ></select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="createDistrict">District:</label>
-                      <div
-                        id="createDistrictDisplayState"
-                        class="form-control-plaintext"
-                      >
-                        All Districts
-                      </div>
-                      <select
-                        id="createDistrict"
-                        multiple
-                        class="form-control choices-multiple d-none"
-                      ></select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="createVenue">Venue:</label>
-                      <select
-                        id="createVenue"
-                        name="venueId"
-                        required
-                        class="form-control"
-                      >
-                        <option value="">-- Loading all venues --</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="createTopic">Topic:</label>
-                      <select
-                        id="createTopic"
-                        name="topicId"
-                        required
-                        class="form-control"
-                      >
-                        <option value="">-- Select Programme First --</option>
-                      </select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="createTarget">Target:</label>
-                      <input
-                        type="number"
-                        id="createTarget"
-                        name="target"
-                        placeholder="Target (Optional)"
-                        min="1"
-                        class="form-control"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="createStartDate">Start Date:</label>
-                      <input
-                        type="date"
-                        id="createStartDate"
-                        name="startDate"
-                        required
-                        class="form-control"
-                        onchange="calculateCreateDuration()"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="createEndDate">End Date:</label>
-                      <input
-                        type="date"
-                        id="createEndDate"
-                        name="endDate"
-                        required
-                        class="form-control"
-                        onchange="calculateCreateDuration()"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="createDuration">Duration (days):</label>
-                      <input
-                        type="number"
-                        id="createDuration"
-                        name="duration"
-                        placeholder="Auto-calculated"
-                        class="form-control"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="submit"
-                    id="createStateCalendarBtn"
-                    class="btn btn-success"
-                  >
-                    Create
-                  </button>
-                  <button
-                    type="button"
-                    id="cancelCreateModalBtn"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-
-              <form id="districtLevelForm" class="d-none">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="dist_createProgramName">Programme:</label>
-                      <select
-                        id="dist_createProgramName"
-                        name="programId"
-                        required
-                        class="form-control"
-                      >
-                        <option value="">-- Select Programme --</option>
-                      </select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="dist_createNatureOfStaff"
-                        >Nature of Staff:</label
-                      >
-                      <select
-                        id="dist_createNatureOfStaff"
-                        name="natureOfStaff"
-                        multiple
-                        required
-                        class="form-control choices-multiple"
-                      ></select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="dist_createDistrict">District(s):</label>
-                      <select
-                        id="dist_createDistrict"
-                        name="district"
-                        multiple
-                        required
-                        class="form-control choices-multiple"
-                      ></select>
-                    </div>
-
-                    <div class="form-group">
-                      <label>Venue(s):</label>
-                      <div id="dist_createVenueContainer" class="mt-1">
-                        <p class="text-muted small py-2">
-                          Select district(s) to choose venues.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="dist_createTopic">Topic:</label>
-                      <select
-                        id="dist_createTopic"
-                        name="topicId"
-                        required
-                        class="form-control"
-                      >
-                        <option value="">-- Select Programme First --</option>
-                      </select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="dist_createTarget">Target:</label>
-                      <input
-                        type="number"
-                        id="dist_createTarget"
-                        name="target"
-                        placeholder="Target (Optional)"
-                        min="1"
-                        class="form-control"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="dist_createStartDate">Start Date:</label>
-                      <input
-                        type="date"
-                        id="dist_createStartDate"
-                        name="startDate"
-                        required
-                        class="form-control"
-                        onchange="calculateDistCreateDuration()"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="dist_createEndDate">End Date:</label>
-                      <input
-                        type="date"
-                        id="dist_createEndDate"
-                        name="endDate"
-                        required
-                        class="form-control"
-                        onchange="calculateDistCreateDuration()"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="dist_createDuration">Duration (days):</label>
-                      <input
-                        type="number"
-                        id="dist_createDuration"
-                        name="duration"
-                        placeholder="Auto-calculated"
-                        class="form-control"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="submit"
-                    id="dist_createCalendarBtn"
-                    class="btn btn-success"
-                  >
-                    Create
-                  </button>
-                  <button
-                    type="button"
-                    id="cancelCreateModalBtnDistrict"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Update Modal -->
-      <div
-        id="updateModal"
-        class="modal fade"
-        tabindex="-1"
-        role="dialog"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Update Calendar</h5>
-              <button
-                id="closeUpdateModal"
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <form id="updateCalendarForm">
-                <input type="hidden" id="updateCalendarId" name="calendarId" />
+                <label
+                  for="createTarget"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Target:</label
+                >
                 <input
-                  type="hidden"
-                  id="updateTrainingLevel"
-                  name="trainingLevel"
+                  type="number"
+                  id="createTarget"
+                  name="target"
+                  placeholder="Target (Optional)"
+                  min="1"
+                  class="w-full p-2 border border-gray-300 rounded"
                 />
 
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="updateProgramName">Programme:</label>
-                      <select
-                        id="updateProgramName"
-                        name="programId"
-                        required
-                        class="form-control"
-                      >
-                        <option value="">-- Select Programme --</option>
-                      </select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="updateDistrict">District(s):</label>
-                      <div
-                        id="updateDistrictDisplayState"
-                        class="form-control-plaintext d-none"
-                      >
-                        All Districts
-                      </div>
-                      <select
-                        id="updateDistrict"
-                        multiple
-                        class="form-control choices-multiple"
-                      ></select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="updateNatureOfStaff">Nature of Staff:</label>
-                      <select
-                        id="updateNatureOfStaff"
-                        name="natureOfStaff"
-                        multiple
-                        required
-                        class="form-control choices-multiple"
-                      ></select>
-                    </div>
-
-                    <div id="updateVenueStateSection">
-                      <div class="form-group">
-                        <label for="updateVenueState"
-                          >Venue (State Level):</label
-                        >
-                        <select
-                          id="updateVenueState"
-                          name="venueId"
-                          class="form-control"
-                        >
-                          <option value="">-- Loading all venues --</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div
-                      id="updateVenueDistrictContainerWrapper"
-                      class="d-none"
-                    >
-                      <div class="form-group">
-                        <label>Venue(s) (District Level):</label>
-                        <div id="updateVenueDistrictContainer" class="mt-1">
-                          <p class="text-muted small py-2">
-                            Select district(s) to choose venues.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="updateTopic">Topic:</label>
-                      <select
-                        id="updateTopic"
-                        name="topicId"
-                        required
-                        class="form-control"
-                      >
-                        <option value="">-- Select Programme First --</option>
-                      </select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="updateTarget">Target:</label>
-                      <input
-                        type="number"
-                        id="updateTarget"
-                        name="target"
-                        placeholder="Target (optional)"
-                        min="1"
-                        class="form-control"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="updateStartDate">Start Date:</label>
-                      <input
-                        type="date"
-                        id="updateStartDate"
-                        name="startDate"
-                        required
-                        class="form-control"
-                        onchange="calculateUpdateDuration()"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="updateEndDate">End Date:</label>
-                      <input
-                        type="date"
-                        id="updateEndDate"
-                        name="endDate"
-                        required
-                        class="form-control"
-                        onchange="calculateUpdateDuration()"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label for="updateDuration">Duration (days):</label>
-                      <input
-                        type="number"
-                        id="updateDuration"
-                        name="duration"
-                        placeholder="Auto-calculated"
-                        class="form-control"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="submit"
-                    id="updateCalendarBtn"
-                    class="btn btn-warning"
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="createStartDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >Start Date:</label
                   >
-                    Update
-                  </button>
-                  <button
-                    type="button"
-                    id="cancelUpdateModalBtn"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                  >
-                    Cancel
-                  </button>
+                  <input
+                    type="date"
+                    id="createStartDate"
+                    name="startDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateCreateDuration()"
+                  />
                 </div>
-              </form>
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="createEndDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >End Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="createEndDate"
+                    name="endDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateCreateDuration()"
+                  />
+                </div>
+
+                <label
+                  for="createDuration"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Duration (days):</label
+                >
+                <input
+                  type="number"
+                  id="createDuration"
+                  name="duration"
+                  placeholder="Auto-calculated"
+                  class="w-full p-2 border border-gray-300 rounded"
+                  readonly
+                />
+              </div>
             </div>
-          </div>
+            <div class="flex justify-end mt-6 space-x-4">
+              <button
+                type="submit"
+                id="createStateCalendarBtn"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+              >
+                Create
+              </button>
+              <button
+                type="button"
+                id="cancelCreateModalBtn"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+
+          <form id="districtLevelForm" class="hidden">
+            <!-- This form is for District Level -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  for="dist_createProgramName"
+                  class="block text-gray-700 font-semibold mb-2"
+                  >Programme:</label
+                >
+                <select
+                  id="dist_createProgramName"
+                  name="programId"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Programme --</option>
+                </select>
+
+                <label
+                  for="dist_createNatureOfStaff"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Nature of Staff:</label
+                >
+                <select
+                  id="dist_createNatureOfStaff"
+                  name="natureOfStaff"
+                  multiple
+                  required
+                  class="w-full p-2 border border-gray-300 rounded choices-multiple"
+                ></select>
+
+                <label
+                  for="dist_createDistrict"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >District(s):</label
+                >
+                <select
+                  id="dist_createDistrict"
+                  name="district"
+                  multiple
+                  required
+                  class="w-full p-2 border border-gray-300 rounded choices-multiple"
+                ></select>
+
+                <label
+                  for="dist_createVenueContainer"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Venue(s):</label
+                >
+                <div id="dist_createVenueContainer" class="mt-1 space-y-1">
+                  <p class="text-sm text-gray-500 py-2">
+                    Select district(s) to choose venues.
+                  </p>
+                </div>
+              </div>
+              <div>
+                <label
+                  for="dist_createTopic"
+                  class="block text-gray-700 font-semibold mb-2"
+                  >Topic:</label
+                >
+                <select
+                  id="dist_createTopic"
+                  name="topicId"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Programme First --</option>
+                </select>
+
+                <label
+                  for="dist_createTarget"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Target:</label
+                >
+                <input
+                  type="number"
+                  id="dist_createTarget"
+                  name="target"
+                  placeholder="Target (Optional)"
+                  min="1"
+                  class="w-full p-2 border border-gray-300 rounded"
+                />
+
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="dist_createStartDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >Start Date:</label
+                  >
+
+                  <input
+                    type="date"
+                    id="dist_createStartDate"
+                    name="startDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateDistCreateDuration()"
+                  />
+                </div>
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="dist_createEndDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >End Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="dist_createEndDate"
+                    name="endDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateDistCreateDuration()"
+                  />
+                </div>
+
+                <label
+                  for="dist_createDuration"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Duration (days):</label
+                >
+                <input
+                  type="number"
+                  id="dist_createDuration"
+                  name="duration"
+                  placeholder="Auto-calculated"
+                  class="w-full p-2 border border-gray-300 rounded"
+                  readonly
+                />
+              </div>
+            </div>
+            <div class="flex justify-end mt-6 space-x-4">
+              <button
+                type="submit"
+                id="dist_createCalendarBtn"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+              >
+                Create
+              </button>
+              <button
+                type="button"
+                id="cancelCreateModalBtnDistrict"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
-      <script src="/assets/js/core/jquery.3.2.1.min.js"></script>
-      <script src="/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
-      <script src="/assets/js/core/popper.min.js"></script>
-      <script src="/assets/js/core/bootstrap.min.js"></script>
+      <div
+        id="updateModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 p-4"
+      >
+        <div
+          class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl"
+        >
+          <button
+            id="closeUpdateModal"
+            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
+          >
+            ×
+          </button>
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">Update Calendar</h3>
+          <form id="updateCalendarForm">
+            <input type="hidden" id="updateCalendarId" name="calendarId" />
+            <input
+              type="hidden"
+              id="updateTrainingLevel"
+              name="trainingLevel"
+            />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  for="updateProgramName"
+                  class="block text-gray-700 font-semibold mb-2"
+                  >Programme:</label
+                >
+                <select
+                  id="updateProgramName"
+                  name="programId"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Programme --</option>
+                </select>
+
+                <!-- District handling for Update Form -->
+                <label
+                  for="updateDistrict"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >District(s):</label
+                >
+                <div
+                  id="updateDistrictDisplayState"
+                  class="readonly-display hidden"
+                >
+                  All Districts
+                </div>
+                <select
+                  id="updateDistrict"
+                  multiple
+                  class="w-full p-2 border border-gray-300 rounded choices-multiple"
+                >
+                  <!-- This select is hidden for state level, its 'name' attribute will be managed by JS -->
+                </select>
+
+                <label
+                  for="updateNatureOfStaff"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Nature of Staff:</label
+                >
+                <select
+                  id="updateNatureOfStaff"
+                  name="natureOfStaff"
+                  multiple
+                  required
+                  class="w-full p-2 border border-gray-300 rounded choices-multiple"
+                ></select>
+
+                <!-- Venue section: conditional display based on training level -->
+                <div id="updateVenueStateSection">
+                  <label
+                    for="updateVenueState"
+                    class="block text-gray-700 font-semibold mt-4 mb-2"
+                    >Venue (State Level):</label
+                  >
+                  <select
+                    id="updateVenueState"
+                    name="venueId"
+                    class="w-full p-2 border border-gray-300 rounded"
+                  >
+                    <option value="">-- Loading all venues --</option>
+                  </select>
+                </div>
+
+                <div id="updateVenueDistrictContainerWrapper" class="hidden">
+                  <label class="block text-gray-700 font-semibold mt-4 mb-2"
+                    >Venue(s) (District Level):</label
+                  >
+                  <div id="updateVenueDistrictContainer" class="mt-1 space-y-1">
+                    <p class="text-sm text-gray-500 py-2">
+                      Select district(s) to choose venues.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label
+                  for="updateTopic"
+                  class="block text-gray-700 font-semibold mb-2"
+                  >Topic:</label
+                >
+                <select
+                  id="updateTopic"
+                  name="topicId"
+                  required
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="">-- Select Programme First --</option>
+                </select>
+
+                <label
+                  for="updateTarget"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Target:</label
+                >
+                <input
+                  type="number"
+                  id="updateTarget"
+                  name="target"
+                  placeholder="Target (optional)"
+                  min="1"
+                  class="w-full p-2 border border-gray-300 rounded"
+                />
+
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="updateStartDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >Start Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="updateStartDate"
+                    name="startDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateUpdateDuration()"
+                  />
+                </div>
+                <div class="flex items-center space-x-2 mt-4">
+                  <label
+                    for="updateEndDate"
+                    class="block text-gray-700 font-semibold whitespace-nowrap"
+                    >End Date:</label
+                  >
+                  <input
+                    type="date"
+                    id="updateEndDate"
+                    name="endDate"
+                    required
+                    class="w-full p-2 border border-gray-300 rounded"
+                    onchange="calculateUpdateDuration()"
+                  />
+                </div>
+
+                <label
+                  for="updateDuration"
+                  class="block text-gray-700 font-semibold mt-4 mb-2"
+                  >Duration (days):</label
+                >
+                <input
+                  type="number"
+                  id="updateDuration"
+                  name="duration"
+                  placeholder="Auto-calculated"
+                  class="w-full p-2 border border-gray-300 rounded"
+                  readonly
+                />
+              </div>
+            </div>
+            <div class="flex justify-end mt-6 space-x-4">
+              <button
+                type="submit"
+                id="updateCalendarBtn"
+                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+              >
+                Update
+              </button>
+              <button
+                type="button"
+                id="cancelUpdateModalBtn"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
       <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
@@ -608,7 +752,7 @@
           if (!distCreateVenueContainer || !choicesDistCreateDistrict) {
             if (distCreateVenueContainer)
               distCreateVenueContainer.innerHTML =
-                '<p class="text-muted small py-2">District selector not ready.</p>';
+                '<p class="text-sm text-gray-500 py-2">District selector not ready.</p>';
             return;
           }
 
@@ -617,7 +761,7 @@
 
           if (!selectedDistricts || selectedDistricts.length === 0) {
             distCreateVenueContainer.innerHTML =
-              '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+              '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
             return;
           }
 
@@ -629,13 +773,14 @@
             districtVenueDiv.className = "mb-2";
 
             const label = document.createElement("label");
-            label.className = "form-label small";
+            label.className = "block text-gray-700 font-semibold mb-1 text-sm";
             label.htmlFor = `venue_for_district_${districtId}`;
             label.textContent = `Venue for ${districtName}:`;
 
             const venueSelect = document.createElement("select");
             venueSelect.id = `venue_for_district_${districtId}`;
-            venueSelect.className = "form-control form-control-sm";
+            venueSelect.className =
+              "w-full p-2 border border-gray-300 rounded text-sm";
             venueSelect.name = "venueId";
             venueSelect.required = true;
             venueSelect.innerHTML =
@@ -695,13 +840,14 @@
           districtVenueDiv.className = "mb-2";
 
           const label = document.createElement("label");
-          label.className = "form-label small";
+          label.className = "block text-gray-700 font-semibold mb-1 text-sm";
           label.htmlFor = `update_venue_for_district_${districtId}`;
           label.textContent = `Venue for ${districtName}:`;
 
           const venueSelect = document.createElement("select");
           venueSelect.id = `update_venue_for_district_${districtId}`;
-          venueSelect.className = "form-control form-control-sm";
+          venueSelect.className =
+            "w-full p-2 border border-gray-300 rounded text-sm";
           venueSelect.name = "venueId";
           venueSelect.setAttribute("data-district-id", districtId);
           venueSelect.required = true;
@@ -775,7 +921,7 @@
             if (!updateVenueDistrictContainer || !choicesUpdateDistrict) {
               if (updateVenueDistrictContainer)
                 updateVenueDistrictContainer.innerHTML =
-                  '<p class="text-muted small py-2">District selector not ready.</p>';
+                  '<p class="text-sm text-gray-500 py-2">District selector not ready.</p>';
               return;
             }
             updateVenueDistrictContainer.innerHTML = "";
@@ -785,7 +931,7 @@
               selectedDistrictChoices.length === 0
             ) {
               updateVenueDistrictContainer.innerHTML =
-                '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+                '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
               return;
             }
             selectedDistrictChoices.forEach((districtChoice) => {
@@ -802,7 +948,7 @@
           }
         }
 
-        $(document).ready(async function () {
+        document.addEventListener("DOMContentLoaded", async () => {
           // Made async for initial district fetch
           await fetchAllDistricts(); // Fetch all districts on page load
 
@@ -826,18 +972,18 @@
 
           // Helper to setup stateLevelForm for "State Level"
           async function setupStateLevelCreateForm() {
-            stateForm.classList.remove("d-none");
-            districtForm.classList.add("d-none");
+            stateForm.classList.remove("hidden");
+            districtForm.classList.add("hidden");
 
             // District setup
             if (choicesCreateDistrict) {
               choicesCreateDistrict.destroy();
               choicesCreateDistrict = null;
             }
-            createDistrictSelectEl.classList.add("d-none");
+            createDistrictSelectEl.classList.add("hidden");
             createDistrictSelectEl.removeAttribute("name"); // VERY IMPORTANT
             createDistrictSelectEl.removeAttribute("required");
-            createDistrictDisplayStateEl.classList.remove("d-none");
+            createDistrictDisplayStateEl.classList.remove("hidden");
 
             // Venue setup (all venues)
             const allIds = allDistrictData.map((d) => d.districtId);
@@ -852,8 +998,8 @@
 
           // Helper to setup districtLevelForm for "District Level"
           function setupDistrictLevelCreateForm() {
-            stateForm.classList.add("d-none");
-            districtForm.classList.remove("d-none");
+            stateForm.classList.add("hidden");
+            districtForm.classList.remove("hidden");
 
             // Initialize Choices for districtLevelForm if not already done
             // (This is usually done in openCreateModalFunction, so ensure it's covered)
@@ -919,7 +1065,7 @@
             });
           }
 
-          const createModal = $("#createModal");
+          const createModal = document.getElementById("createModal");
           const openCreateModalBtn =
             document.getElementById("openCreateModalBtn");
           const closeCreateModalBtn =
@@ -931,7 +1077,7 @@
             "cancelCreateModalBtnDistrict"
           );
 
-          const updateModal = $("#updateModal");
+          const updateModal = document.getElementById("updateModal");
           const closeUpdateModalBtn =
             document.getElementById("closeUpdateModal");
           const cancelUpdateModalBtn = document.getElementById(
@@ -949,69 +1095,76 @@
             document.getElementById("calendarFilter");
 
           function openModal(modalElement) {
-            modalElement.modal("show");
+            if (modalElement) {
+              modalElement.classList.remove("hidden");
+              document.body.classList.add("overflow-hidden");
+            }
           }
 
           function closeModal(modalElement) {
-            modalElement.modal("hide");
-            if (modalElement.attr("id") === "createModal") {
-              if (choicesCreateNOS?.destroy) choicesCreateNOS.destroy();
-              // choicesCreateDistrict is handled by setupStateLevelCreateForm/setupDistrictLevelCreateForm
-              choicesCreateNOS = null;
-              if (document.getElementById("stateLevelForm"))
-                document.getElementById("stateLevelForm").reset();
+            if (modalElement) {
+              modalElement.classList.add("hidden");
+              document.body.classList.remove("overflow-hidden");
+              if (modalElement.id === "createModal") {
+                if (choicesCreateNOS?.destroy) choicesCreateNOS.destroy();
+                // choicesCreateDistrict is handled by setupStateLevelCreateForm/setupDistrictLevelCreateForm
+                choicesCreateNOS = null;
+                if (document.getElementById("stateLevelForm"))
+                  document.getElementById("stateLevelForm").reset();
 
-              if (choicesDistCreateNOS?.destroy) choicesDistCreateNOS.destroy();
-              if (choicesDistCreateDistrict?.destroy)
-                choicesDistCreateDistrict.destroy();
-              choicesDistCreateNOS = null;
-              choicesDistCreateDistrict = null;
-              if (document.getElementById("districtLevelForm")) {
-                document.getElementById("districtLevelForm").reset();
-                if (distCreateVenueContainer)
-                  distCreateVenueContainer.innerHTML =
-                    '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
-              }
-              // Reset createDistrict related elements to default (hidden select, visible display)
-              if (createDistrictSelectEl) {
-                createDistrictSelectEl.classList.add("d-none");
-                createDistrictSelectEl.removeAttribute("name");
-                createDistrictSelectEl.removeAttribute("required");
-              }
-              if (createDistrictDisplayStateEl)
-                createDistrictDisplayStateEl.classList.remove("d-none");
-            } else if (modalElement.attr("id") === "updateModal") {
-              if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
-              if (choicesUpdateDistrict?.destroy)
-                choicesUpdateDistrict.destroy();
-              choicesUpdateNOS = null;
-              choicesUpdateDistrict = null;
-              if (document.getElementById("updateCalendarForm"))
-                document.getElementById("updateCalendarForm").reset();
-              const updateVenueDistrictContainer = document.getElementById(
-                "updateVenueDistrictContainer"
-              );
-              if (updateVenueDistrictContainer)
-                updateVenueDistrictContainer.innerHTML =
-                  '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
-              const updateVenueStateEl =
-                document.getElementById("updateVenueState");
-              if (updateVenueStateEl)
-                updateVenueStateEl.innerHTML =
-                  '<option value="">-- Select District(s) First --</option>';
+                if (choicesDistCreateNOS?.destroy)
+                  choicesDistCreateNOS.destroy();
+                if (choicesDistCreateDistrict?.destroy)
+                  choicesDistCreateDistrict.destroy();
+                choicesDistCreateNOS = null;
+                choicesDistCreateDistrict = null;
+                if (document.getElementById("districtLevelForm")) {
+                  document.getElementById("districtLevelForm").reset();
+                  if (distCreateVenueContainer)
+                    distCreateVenueContainer.innerHTML =
+                      '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
+                }
+                // Reset createDistrict related elements to default (hidden select, visible display)
+                if (createDistrictSelectEl) {
+                  createDistrictSelectEl.classList.add("hidden");
+                  createDistrictSelectEl.removeAttribute("name");
+                  createDistrictSelectEl.removeAttribute("required");
+                }
+                if (createDistrictDisplayStateEl)
+                  createDistrictDisplayStateEl.classList.remove("hidden");
+              } else if (modalElement.id === "updateModal") {
+                if (choicesUpdateNOS?.destroy) choicesUpdateNOS.destroy();
+                if (choicesUpdateDistrict?.destroy)
+                  choicesUpdateDistrict.destroy();
+                choicesUpdateNOS = null;
+                choicesUpdateDistrict = null;
+                if (document.getElementById("updateCalendarForm"))
+                  document.getElementById("updateCalendarForm").reset();
+                const updateVenueDistrictContainer = document.getElementById(
+                  "updateVenueDistrictContainer"
+                );
+                if (updateVenueDistrictContainer)
+                  updateVenueDistrictContainer.innerHTML =
+                    '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
+                const updateVenueStateEl =
+                  document.getElementById("updateVenueState");
+                if (updateVenueStateEl)
+                  updateVenueStateEl.innerHTML =
+                    '<option value="">-- Select District(s) First --</option>';
 
-              // Reset updateDistrict related elements
-              const updateDistrictSelectEl =
-                document.getElementById("updateDistrict");
-              const updateDistrictDisplayStateEl = document.getElementById(
-                "updateDistrictDisplayState"
-              );
-              if (updateDistrictSelectEl) {
-                updateDistrictSelectEl.classList.add("d-none"); // Default to hidden for safety
-                updateDistrictSelectEl.removeAttribute("name");
+                // Reset updateDistrict related elements
+                const updateDistrictSelectEl =
+                  document.getElementById("updateDistrict");
+                const updateDistrictDisplayStateEl = document.getElementById(
+                  "updateDistrictDisplayState"
+                );
+                if (updateDistrictSelectEl) {
+                  updateDistrictSelectEl.classList.add("hidden"); // Default to hidden for safety
+                  updateDistrictSelectEl.removeAttribute("name");
+                }
+                if (updateDistrictDisplayStateEl)
+                  updateDistrictDisplayStateEl.classList.add("hidden");
               }
-              if (updateDistrictDisplayStateEl)
-                updateDistrictDisplayStateEl.classList.add("d-none");
             }
           }
 
@@ -1302,6 +1455,7 @@
 
             eventsToRender.forEach((calendar, index) => {
               const tr = document.createElement("tr");
+              tr.className = "hover:bg-gray-50";
               const display = (val) =>
                 val != null && val !== "" ? val : "N/A";
 
@@ -1346,35 +1500,45 @@
               let updateButtonHtml;
 
               if (calendar.status === "APPROVED") {
-                approveButtonHtml = `<button class="btn btn-success btn-sm" disabled>Approved</button>`;
-                updateButtonHtml = `<button class="btn btn-secondary btn-sm mr-1" disabled>Update</button>`;
+                approveButtonHtml = `<button class="bg-green-500 text-white px-3 py-1 rounded cursor-not-allowed" disabled>Approved</button>`;
+                updateButtonHtml = `<button class="bg-gray-400 text-white px-3 py-1 rounded cursor-not-allowed mr-1" disabled>Update</button>`;
               } else {
-                approveButtonHtml = `<button id="approveBtn_${calendar.calendarId}" class="btn btn-primary btn-sm" onclick='approveCalendar(${calendar.calendarId}, this)'>Approve</button>`;
-                updateButtonHtml = `<button class="btn btn-warning btn-sm mr-1" onclick='editCalendar(${calendar.calendarId})'>Update</button>`;
+                approveButtonHtml = `<button id="approveBtn_${calendar.calendarId}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition" onclick='approveCalendar(${calendar.calendarId}, this)'>Approve</button>`;
+                updateButtonHtml = `<button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition mr-1" onclick='editCalendar(${calendar.calendarId})'>Update</button>`;
               }
 
               tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${programNameDisplay}</td>
-                    <td>${calendar.topic?.topicName ?? "N/A"}</td>
-                    <td>${districtDisplay}</td>
-                    <td>${venueDisplay}</td>
-                    <td>${formatNameList(
-                      calendar.natureOfStaffs,
-                      "natureOfStaffName"
-                    )}</td>
-                    <td class="text-center">${display(calendar.target)}</td>
-                    <td class="text-center">${formatDate(
-                      calendar.startDate
-                    )}</td>
-                    <td class="text-center">${formatDate(calendar.endDate)}</td>
-                    <td class="text-center">${
-                      calendar.duration ? `${calendar.duration} days` : "N/A"
-                    }</td>
-                    <td class="text-right">
-                        ${updateButtonHtml}
-                        ${approveButtonHtml} 
-                    </td>`;
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${
+                          index + 1
+                        }</td>
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${programNameDisplay}</td>
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${
+                          calendar.topic?.topicName ?? "N/A"
+                        }</td>
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${districtDisplay}</td>
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${venueDisplay}</td>
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${formatNameList(
+                          calendar.natureOfStaffs,
+                          "natureOfStaffName"
+                        )}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${display(
+                          calendar.target
+                        )}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${formatDate(
+                          calendar.startDate
+                        )}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${formatDate(
+                          calendar.endDate
+                        )}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${
+                          calendar.duration
+                            ? `${calendar.duration} days`
+                            : "N/A"
+                        }</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">
+                            ${updateButtonHtml}
+                            ${approveButtonHtml} 
+                        </td>`;
               calendarListBody.appendChild(tr);
             });
           }
@@ -1396,7 +1560,7 @@
                 console.error("Error fetching calendars:", error);
                 allCalendarEvents = [];
                 renderCalendarTable([]);
-                calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-danger">Error loading. ${error.message}</td></tr>`;
+                calendarListBody.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500">Error loading. ${error.message}</td></tr>`;
               });
           }
 
@@ -1435,7 +1599,7 @@
             }
             if (distCreateVenueContainer)
               distCreateVenueContainer.innerHTML =
-                '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+                '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
 
             if (choicesCreateNOS?.destroy) choicesCreateNOS.destroy();
             choicesCreateNOS = null;
@@ -1623,7 +1787,7 @@
             }
             if (updateVenueDistrictContainer) {
               updateVenueDistrictContainer.innerHTML =
-                '<p class="text-muted small py-2">Select district(s) to choose venues.</p>';
+                '<p class="text-sm text-gray-500 py-2">Select district(s) to choose venues.</p>';
             }
 
             try {
@@ -1708,17 +1872,17 @@
 
               if (currentTrainingLevel === "state") {
                 // State Level Update
-                updateDistrictSelectEl.classList.add("d-none");
+                updateDistrictSelectEl.classList.add("hidden");
                 updateDistrictSelectEl.removeAttribute("name"); // VERY IMPORTANT
                 updateDistrictSelectEl.removeAttribute("required");
-                updateDistrictDisplayStateEl.classList.remove("d-none");
+                updateDistrictDisplayStateEl.classList.remove("hidden");
                 if (choicesUpdateDistrict) {
                   choicesUpdateDistrict.destroy();
                   choicesUpdateDistrict = null;
                 }
 
-                updateVenueStateSection.classList.remove("d-none");
-                updateVenueDistrictContainerWrapper.classList.add("d-none");
+                updateVenueStateSection.classList.remove("hidden");
+                updateVenueDistrictContainerWrapper.classList.add("hidden");
                 if (updateVenueStateEl) {
                   updateVenueStateEl.setAttribute("name", "venueId");
                   updateVenueStateEl.setAttribute("required", "required");
@@ -1752,10 +1916,10 @@
                 );
               } else {
                 // District Level Update
-                updateDistrictSelectEl.classList.remove("d-none");
+                updateDistrictSelectEl.classList.remove("hidden");
                 updateDistrictSelectEl.setAttribute("name", "district"); // Ensure name is present
                 updateDistrictSelectEl.setAttribute("required", "required");
-                updateDistrictDisplayStateEl.classList.add("d-none");
+                updateDistrictDisplayStateEl.classList.add("hidden");
 
                 const selectedDistrictIds =
                   calendar.district?.map((d) => String(d.districtId)) || [];
@@ -1769,12 +1933,12 @@
                   true
                 );
 
-                updateVenueStateSection.classList.add("d-none");
+                updateVenueStateSection.classList.add("hidden");
                 if (updateVenueStateEl) {
                   updateVenueStateEl.removeAttribute("name");
                   updateVenueStateEl.removeAttribute("required");
                 }
-                updateVenueDistrictContainerWrapper.classList.remove("d-none");
+                updateVenueDistrictContainerWrapper.classList.remove("hidden");
                 updateVenueDistrictContainer.innerHTML = "";
 
                 const selectedVenuesByDistrict = {};
@@ -1803,7 +1967,7 @@
                   });
                 } else {
                   updateVenueDistrictContainer.innerHTML =
-                    '<p class="text-muted small py-2">No districts. Select to assign venues.</p>';
+                    '<p class="text-sm text-gray-500 py-2">No districts. Select to assign venues.</p>';
                 }
                 // Attach district change listener only for district level
                 if (updateDistrictSelectEl && choicesUpdateDistrict) {
@@ -2037,6 +2201,13 @@
           }
         };
       </script>
-    </main>
-  </body>
+
+      <button
+        onclick="downloadExcel()"
+        class="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 shadow-lg z-20"
+      >
+        Download as Excel
+      </button>
+    </body>
+  </main>
 </html>

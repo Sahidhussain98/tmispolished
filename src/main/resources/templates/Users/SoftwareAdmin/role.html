@@ -13,367 +13,359 @@
       rel="stylesheet"
     />
   </head>
-  <body class="bg-gray-100">
-    <main layout:fragment="content">
-      <div
-        class="container mx-auto max-w-3xl px-4 py-8 bg-white shadow rounded mt-8"
-      >
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">
-          Roles Management
-        </h1>
-        <div class="flex justify-center mb-6">
-          <button
-            id="showCreateFormBtn"
-            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Create New Role
-          </button>
-        </div>
-
-        <!-- Error Alert -->
-        <div
-          id="errorAlert"
-          class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
-          role="alert"
+  <main layout:fragment="content">
+    <body class="bg-gray-100">
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">
+        Roles Management
+      </h1>
+      <div class="flex justify-center mb-6">
+        <button
+          id="showCreateFormBtn"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          <span id="errorMessage"></span>
-          <button
-            id="errorRetryBtn"
-            class="ml-4 bg-gray-300 hover:bg-gray-400 text-gray-800 px-2 py-1 rounded"
-          >
-            Retry
-          </button>
-        </div>
-
-        <!-- Role Form Container (Create/Update) -->
-        <div
-          id="roleForm"
-          class="hidden p-6 border border-gray-200 rounded bg-gray-50 mb-6"
-        >
-          <h2 id="formTitle" class="text-2xl font-semibold text-gray-800 mb-4">
-            Create New Role
-          </h2>
-          <form id="roleDataForm" class="space-y-4">
-            <input type="hidden" id="roleId" />
-            <div class="form-group">
-              <label
-                for="roleCode"
-                class="block text-gray-700 font-semibold mb-1"
-                >Role Code</label
-              >
-              <input
-                type="text"
-                id="roleCode"
-                required
-                class="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-            <div class="form-group">
-              <label
-                for="roleName"
-                class="block text-gray-700 font-semibold mb-1"
-                >Role Name</label
-              >
-              <input
-                type="text"
-                id="roleName"
-                required
-                class="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-            <div class="form-group">
-              <label
-                for="roleDescription"
-                class="block text-gray-700 font-semibold mb-1"
-                >Role Description</label
-              >
-              <textarea
-                id="roleDescription"
-                placeholder="Role Description"
-                class="w-full p-2 border border-gray-300 rounded"
-              ></textarea>
-            </div>
-            <div class="form-group">
-              <label
-                for="landingPage"
-                class="block text-gray-700 font-semibold mb-1"
-                >Landing Page</label
-              >
-              <input
-                type="text"
-                id="landingPage"
-                class="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-            <div class="form-group">
-              <label class="block text-gray-700 font-semibold mb-1"
-                >Assigned Processes</label
-              >
-              <div id="processList" class="flex flex-wrap gap-4">
-                <!-- Process checkboxes will be rendered here -->
-              </div>
-            </div>
-            <div class="form-actions text-right space-x-3">
-              <button
-                type="submit"
-                id="submitBtn"
-                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-              >
-                Save Role
-              </button>
-              <button
-                type="button"
-                id="closeFormBtn"
-                class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Roles List -->
-        <div id="rolesList" class="space-y-4">
-          <!-- Role items will be injected here -->
-        </div>
+          Create New Role
+        </button>
       </div>
 
-      <script>
-        // DOM Elements
-        const roleForm = document.getElementById("roleForm");
-        const rolesList = document.getElementById("rolesList");
-        const errorAlert = document.getElementById("errorAlert");
-        const errorMessage = document.getElementById("errorMessage");
-        const roleDataForm = document.getElementById("roleDataForm");
+      <!-- Error Alert -->
+      <div
+        id="errorAlert"
+        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+        role="alert"
+      >
+        <span id="errorMessage"></span>
+        <button
+          id="errorRetryBtn"
+          class="ml-4 bg-gray-300 hover:bg-gray-400 text-gray-800 px-2 py-1 rounded"
+        >
+          Retry
+        </button>
+      </div>
 
-        // State
-        let roles = [];
-        let processes = [];
-        let isUpdateMode = false;
-
-        // Event Listeners
-        document
-          .getElementById("showCreateFormBtn")
-          .addEventListener("click", showCreateForm);
-        document
-          .getElementById("closeFormBtn")
-          .addEventListener("click", hideForm);
-        document
-          .getElementById("errorRetryBtn")
-          .addEventListener("click", loadData);
-        roleDataForm.addEventListener("submit", handleSubmit);
-
-        // Initial Load
-        loadData();
-
-        async function loadData() {
-          try {
-            hideError();
-            const [rolesData, processesData] = await Promise.all([
-              fetchRoles(),
-              fetchProcesses(),
-            ]);
-            roles = rolesData;
-            processes = processesData;
-            renderProcessCheckboxes();
-            renderRolesList();
-          } catch (error) {
-            console.error("Error loading data:", error);
-            showError("Failed to load data. Please try again.");
-          }
-        }
-
-        async function fetchRoles() {
-          const response = await fetch("/userRPM/role/getall");
-          if (!response.ok) throw new Error("Failed to fetch roles");
-          const roles = await response.json();
-          return roles;
-        }
-
-        async function fetchProcesses() {
-          const response = await fetch("/userRPM/process/getall");
-          if (!response.ok) throw new Error("Failed to fetch processes");
-          const processes = await response.json();
-          return processes;
-        }
-
-        function renderRolesList() {
-          rolesList.innerHTML = roles
-            .map(
-              (role) => `
-        <div class="bg-gray-100 p-4 rounded shadow">
-          <div class="flex justify-between items-center">
-            <div>
-              <h3 class="text-xl font-bold text-gray-800">${role.roleName}</h3>
-              <p class="text-gray-600">Code: ${role.roleCode}</p>
-              <p class="text-gray-600">Landing Page: ${role.landingPage}</p>
-              ${
-                role.roleDescription
-                  ? `<p class="text-gray-600">${role.roleDescription}</p>`
-                  : ""
-              }
-            </div>
-            <div class="flex space-x-2">
-              <button onclick="editRole(${
-                role.roleId
-              })" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition">Edit</button>
-              <button onclick="deleteRole(${
-                role.roleId
-              })" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
+      <!-- Role Form Container (Create/Update) -->
+      <div
+        id="roleForm"
+        class="hidden p-6 border border-gray-200 rounded bg-gray-50 mb-6"
+      >
+        <h2 id="formTitle" class="text-2xl font-semibold text-gray-800 mb-4">
+          Create New Role
+        </h2>
+        <form id="roleDataForm" class="space-y-4">
+          <input type="hidden" id="roleId" />
+          <div class="form-group">
+            <label for="roleCode" class="block text-gray-700 font-semibold mb-1"
+              >Role Code</label
+            >
+            <input
+              type="text"
+              id="roleCode"
+              required
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div class="form-group">
+            <label for="roleName" class="block text-gray-700 font-semibold mb-1"
+              >Role Name</label
+            >
+            <input
+              type="text"
+              id="roleName"
+              required
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div class="form-group">
+            <label
+              for="roleDescription"
+              class="block text-gray-700 font-semibold mb-1"
+              >Role Description</label
+            >
+            <textarea
+              id="roleDescription"
+              placeholder="Role Description"
+              class="w-full p-2 border border-gray-300 rounded"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label
+              for="landingPage"
+              class="block text-gray-700 font-semibold mb-1"
+              >Landing Page</label
+            >
+            <input
+              type="text"
+              id="landingPage"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div class="form-group">
+            <label class="block text-gray-700 font-semibold mb-1"
+              >Assigned Processes</label
+            >
+            <div id="processList" class="flex flex-wrap gap-4">
+              <!-- Process checkboxes will be rendered here -->
             </div>
           </div>
-          <details class="mt-2">
-            <summary class="text-gray-700 font-semibold">Assigned Processes (${
-              role.processes ? role.processes.length : 0
-            })</summary>
-            <div class="mt-2 space-y-1">
-              ${
-                role.processes
-                  ? role.processes
-                      .map(
-                        (proc) => `
-                  <div class="text-gray-600">${proc.processName} (${proc.processCode})</div>
-                `
-                      )
-                      .join("")
-                  : ""
-              }
-            </div>
-          </details>
-        </div>
-      `
-            )
-            .join("");
-        }
+          <div class="form-actions text-right space-x-3">
+            <button
+              type="submit"
+              id="submitBtn"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+            >
+              Save Role
+            </button>
+            <button
+              type="button"
+              id="closeFormBtn"
+              class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
 
-        function renderProcessCheckboxes() {
-          const processList = document.getElementById("processList");
-          processList.innerHTML = processes
-            .map(
-              (proc) => `
-            <label class="flex items-center space-x-2">
-              <input type="checkbox" name="processes" value="${proc.processId}" class="form-checkbox">
-              <span class="text-gray-700">${proc.processName}</span>
-            </label>
-        `
-            )
-            .join("");
-        }
+      <!-- Roles List -->
+      <div id="rolesList" class="space-y-4">
+        <!-- Role items will be injected here -->
+      </div>
+    </body>
 
-        async function handleSubmit(event) {
-          event.preventDefault();
-          const formData = {
-            roleCode: document.getElementById("roleCode").value,
-            roleName: document.getElementById("roleName").value,
-            roleDescription: document.getElementById("roleDescription").value,
-            landingPage: document.getElementById("landingPage").value,
-            processes: Array.from(
-              document.querySelectorAll('input[name="processes"]:checked')
-            ).map((checkbox) => ({ processId: parseInt(checkbox.value) })),
-          };
-          try {
-            if (isUpdateMode) {
-              formData.roleId = document.getElementById("roleId").value;
-              await updateRole(formData);
-            } else {
-              await createRole(formData);
+    <script>
+      // DOM Elements
+      const roleForm = document.getElementById("roleForm");
+      const rolesList = document.getElementById("rolesList");
+      const errorAlert = document.getElementById("errorAlert");
+      const errorMessage = document.getElementById("errorMessage");
+      const roleDataForm = document.getElementById("roleDataForm");
+
+      // State
+      let roles = [];
+      let processes = [];
+      let isUpdateMode = false;
+
+      // Event Listeners
+      document
+        .getElementById("showCreateFormBtn")
+        .addEventListener("click", showCreateForm);
+      document
+        .getElementById("closeFormBtn")
+        .addEventListener("click", hideForm);
+      document
+        .getElementById("errorRetryBtn")
+        .addEventListener("click", loadData);
+      roleDataForm.addEventListener("submit", handleSubmit);
+
+      // Initial Load
+      loadData();
+
+      async function loadData() {
+        try {
+          hideError();
+          const [rolesData, processesData] = await Promise.all([
+            fetchRoles(),
+            fetchProcesses(),
+          ]);
+          roles = rolesData;
+          processes = processesData;
+          renderProcessCheckboxes();
+          renderRolesList();
+        } catch (error) {
+          console.error("Error loading data:", error);
+          showError("Failed to load data. Please try again.");
+        }
+      }
+
+      async function fetchRoles() {
+        const response = await fetch("/userRPM/role/getall");
+        if (!response.ok) throw new Error("Failed to fetch roles");
+        const roles = await response.json();
+        return roles;
+      }
+
+      async function fetchProcesses() {
+        const response = await fetch("/userRPM/process/getall");
+        if (!response.ok) throw new Error("Failed to fetch processes");
+        const processes = await response.json();
+        return processes;
+      }
+
+      function renderRolesList() {
+        rolesList.innerHTML = roles
+          .map(
+            (role) => `
+      <div class="bg-gray-100 p-4 rounded shadow">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-xl font-bold text-gray-800">${role.roleName}</h3>
+            <p class="text-gray-600">Code: ${role.roleCode}</p>
+            <p class="text-gray-600">Landing Page: ${role.landingPage}</p>
+            ${
+              role.roleDescription
+                ? `<p class="text-gray-600">${role.roleDescription}</p>`
+                : ""
             }
-            hideForm();
-            loadData();
-          } catch (error) {
-            showError(
-              isUpdateMode ? "Failed to update role" : "Failed to create role"
-            );
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="editRole(${
+              role.roleId
+            })" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition">Edit</button>
+            <button onclick="deleteRole(${
+              role.roleId
+            })" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
+          </div>
+        </div>
+        <details class="mt-2">
+          <summary class="text-gray-700 font-semibold">Assigned Processes (${
+            role.processes ? role.processes.length : 0
+          })</summary>
+          <div class="mt-2 space-y-1">
+            ${
+              role.processes
+                ? role.processes
+                    .map(
+                      (proc) => `
+                <div class="text-gray-600">${proc.processName} (${proc.processCode})</div>
+              `
+                    )
+                    .join("")
+                : ""
+            }
+          </div>
+        </details>
+      </div>
+    `
+          )
+          .join("");
+      }
+
+      function renderProcessCheckboxes() {
+        const processList = document.getElementById("processList");
+        processList.innerHTML = processes
+          .map(
+            (proc) => `
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="processes" value="${proc.processId}" class="form-checkbox">
+            <span class="text-gray-700">${proc.processName}</span>
+          </label>
+      `
+          )
+          .join("");
+      }
+
+      async function handleSubmit(event) {
+        event.preventDefault();
+        const formData = {
+          roleCode: document.getElementById("roleCode").value,
+          roleName: document.getElementById("roleName").value,
+          roleDescription: document.getElementById("roleDescription").value,
+          landingPage: document.getElementById("landingPage").value,
+          processes: Array.from(
+            document.querySelectorAll('input[name="processes"]:checked')
+          ).map((checkbox) => ({ processId: parseInt(checkbox.value) })),
+        };
+        try {
+          if (isUpdateMode) {
+            formData.roleId = document.getElementById("roleId").value;
+            await updateRole(formData);
+          } else {
+            await createRole(formData);
           }
+          hideForm();
+          loadData();
+        } catch (error) {
+          showError(
+            isUpdateMode ? "Failed to update role" : "Failed to create role"
+          );
         }
+      }
 
-        async function createRole(data) {
-          const response = await fetch("/userRPM/role/createorupdaterole", {
-            method: "POST",
+      async function createRole(data) {
+        const response = await fetch("/userRPM/role/createorupdaterole", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error("Failed to create role");
+        return response.json();
+      }
+
+      async function updateRole(data) {
+        const response = await fetch("/userRPM/role/updaterole", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error("Failed to update role");
+        return response.json();
+      }
+
+      async function deleteRole(roleId) {
+        if (!confirm("Are you sure you want to delete this role?")) return;
+        try {
+          const response = await fetch("/userRPM/role/deleterole", {
+            method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
+            body: JSON.stringify({ roleId }),
           });
-          if (!response.ok) throw new Error("Failed to create role");
-          return response.json();
+          if (!response.ok) throw new Error("Failed to delete role");
+          loadData();
+        } catch (error) {
+          showError("Failed to delete role");
         }
+      }
 
-        async function updateRole(data) {
-          const response = await fetch("/userRPM/role/updaterole", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
+      function editRole(roleId) {
+        const role = roles.find((r) => r.roleId === roleId);
+        if (!role) return;
+        document.getElementById("roleId").value = role.roleId;
+        document.getElementById("roleCode").value = role.roleCode;
+        document.getElementById("roleName").value = role.roleName;
+        document.getElementById("roleDescription").value =
+          role.roleDescription || "";
+        document.getElementById("landingPage").value = role.landingPage;
+        document
+          .querySelectorAll('input[name="processes"]')
+          .forEach((checkbox) => {
+            checkbox.checked =
+              role.processes &&
+              Array.isArray(role.processes) &&
+              role.processes.some(
+                (p) => p.processId === parseInt(checkbox.value)
+              );
           });
-          if (!response.ok) throw new Error("Failed to update role");
-          return response.json();
-        }
+        document.getElementById("formTitle").textContent = "Update Role";
+        document.getElementById("submitBtn").textContent = "Update Role";
+        isUpdateMode = true;
+        showForm();
+      }
 
-        async function deleteRole(roleId) {
-          if (!confirm("Are you sure you want to delete this role?")) return;
-          try {
-            const response = await fetch("/userRPM/role/deleterole", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ roleId }),
-            });
-            if (!response.ok) throw new Error("Failed to delete role");
-            loadData();
-          } catch (error) {
-            showError("Failed to delete role");
-          }
-        }
+      function showCreateForm() {
+        roleDataForm.reset();
+        document.getElementById("formTitle").textContent = "Create New Role";
+        document.getElementById("submitBtn").textContent = "Save Role";
+        isUpdateMode = false;
+        showForm();
+      }
 
-        function editRole(roleId) {
-          const role = roles.find((r) => r.roleId === roleId);
-          if (!role) return;
-          document.getElementById("roleId").value = role.roleId;
-          document.getElementById("roleCode").value = role.roleCode;
-          document.getElementById("roleName").value = role.roleName;
-          document.getElementById("roleDescription").value =
-            role.roleDescription || "";
-          document.getElementById("landingPage").value = role.landingPage;
-          document
-            .querySelectorAll('input[name="processes"]')
-            .forEach((checkbox) => {
-              checkbox.checked =
-                role.processes &&
-                Array.isArray(role.processes) &&
-                role.processes.some(
-                  (p) => p.processId === parseInt(checkbox.value)
-                );
-            });
-          document.getElementById("formTitle").textContent = "Update Role";
-          document.getElementById("submitBtn").textContent = "Update Role";
-          isUpdateMode = true;
-          showForm();
-        }
+      function showForm() {
+        roleForm.classList.remove("hidden");
+      }
 
-        function showCreateForm() {
-          roleDataForm.reset();
-          document.getElementById("formTitle").textContent = "Create New Role";
-          document.getElementById("submitBtn").textContent = "Save Role";
-          isUpdateMode = false;
-          showForm();
-        }
+      function hideForm() {
+        roleForm.classList.add("hidden");
+        roleDataForm.reset();
+        isUpdateMode = false;
+      }
 
-        function showForm() {
-          roleForm.classList.remove("hidden");
-        }
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorAlert.classList.remove("hidden");
+      }
 
-        function hideForm() {
-          roleForm.classList.add("hidden");
-          roleDataForm.reset();
-          isUpdateMode = false;
-        }
-
-        function showError(message) {
-          errorMessage.textContent = message;
-          errorAlert.classList.remove("hidden");
-        }
-
-        function hideError() {
-          errorAlert.classList.add("hidden");
-        }
-      </script>
-    </main>
-  </body>
+      function hideError() {
+        errorAlert.classList.add("hidden");
+      }
+    </script>
+  </main>
 </html>

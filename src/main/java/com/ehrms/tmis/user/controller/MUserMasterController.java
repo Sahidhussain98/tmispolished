@@ -58,7 +58,7 @@ public class MUserMasterController {
   private EntityManager entityManager;
 
   public Map<String, String> getEmpCdToFullNameMap() {
-    StoredProcedureQuery query = entityManager.createStoredProcedureQuery("GET_empnameandcode");
+    StoredProcedureQuery query = entityManager.createStoredProcedureQuery("GET_allempnameandcode");
     List<Object[]> results = query.getResultList();
 
     Map<String, String> empCdToFullName = new HashMap<>();

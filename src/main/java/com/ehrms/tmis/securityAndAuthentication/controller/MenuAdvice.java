@@ -12,6 +12,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -155,6 +157,53 @@ public class MenuAdvice {
 
         // build the full home URL
         return String.format("/Users/%s/%s", role.getTemplatePackage(), role.getLandingPage());
+    }
+
+    // at the bottom of MenuAdvice.java
+
+    /** Expose the name of the primary (smallest‐pk) role **/
+
+    @ModelAttribute("primaryRoleName")
+    public String primaryRoleName(HttpServletRequest request) {
+        String jwt = extractJwtFromCookie(request);
+
+        if (jwt == null) {
+
+            return "";
+        }
+
+        String username;
+        try {
+            username = jwtHelper.getUsernameFromToken(jwt);
+
+        } catch (Exception e) {
+
+            return "";
+        }
+
+        List<Long> roleIds = mappingRepo.findByEmpCd(username).stream()
+                .flatMap(m -> Arrays.stream(Optional.ofNullable(m.getRoleIds()).orElse(new Long[] {})))
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (roleIds.isEmpty()) {
+
+            return "";
+        }
+
+        Long primaryId = roleIds.stream().min(Long::compare).orElseThrow();
+
+        String roleName = roleRepo.findById(primaryId)
+                .map(M_Role::getRoleName)
+                .orElse("");
+
+        return roleName;
+    }
+
+    /** Expose a constant application name **/
+    @ModelAttribute("appName")
+    public String appName() {
+        return "Training Management Information System (RHFWTC)";
     }
 
 }
