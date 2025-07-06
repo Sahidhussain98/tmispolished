@@ -30,7 +30,7 @@ public class SqlServerConfig {
                 // .username("sa")
                 // .password("H12aT34e)
                 .username("sa")
-                .password("ehrms")
+                .password("H12aT34e")
 
                 .build();
     }

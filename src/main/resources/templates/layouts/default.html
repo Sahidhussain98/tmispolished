@@ -74,14 +74,23 @@
     <div class="wrapper vh-100">
       <!-- Header -->
       <div class="main-header">
-        <div class="logo-header">
-          <a th:href="${landingPage}" class="logo">TMIS(RHFWTC)</a>
-          <button class="navbar-toggler sidenav-toggler ml-auto" type="button">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <button class="topbar-toggler more">
-            <i class="la la-ellipsis-v"></i>
-          </button>
+        <div class="logo-header d-flex flex-column align-items-start">
+          <!-- Main title -->
+          <a th:href="${landingPage}" class="logo mb-0">TMIS(RHFWTC)</a>
+          <!-- District under the “logo” text -->
+          <small class="text-muted" th:text="${employeeInfo.district}"
+            >District Name</small
+          >
+
+          <!-- Keep your togglers on the right -->
+          <div class="ms-auto d-flex align-items-center">
+            <button class="navbar-toggler sidenav-toggler" type="button">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <button class="topbar-toggler more ms-2">
+              <i class="la la-ellipsis-v"></i>
+            </button>
+          </div>
         </div>
 
         <nav class="navbar navbar-header navbar-expand-lg">
@@ -113,7 +122,7 @@
                     width="36"
                     class="img-circle"
                   />
-                  <span>Hizrian</span>
+                  <span th:text="${employeeInfo.fullName}">Full Name</span>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
                   <li>
@@ -122,7 +131,11 @@
                         <img src="/assets/img/profile.jpg" alt="user" />
                       </div>
                       <div class="u-text">
-                        <h4>Hizrian</h4>
+                        <h4>
+                          <span th:text="${employeeInfo.fullName}"
+                            >Full Name</span
+                          >
+                        </h4>
                         <p class="text-muted">hello@themekita.com</p>
                         <!-- <a
                           href="profile.html"
@@ -171,7 +184,7 @@
                 class="collapsed"
               >
                 <span>
-                  Hizrian
+                  <span th:text="${employeeInfo.fullName}">Full Name</span>
                   <span class="user-level" th:text="${primaryRoleName}"
                     >RoleName</span
                   >

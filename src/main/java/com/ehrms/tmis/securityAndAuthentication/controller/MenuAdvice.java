@@ -8,6 +8,10 @@ import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.MasterRepos.M_Rol
 import com.ehrms.tmis.database.postgreSql.postgreSqlRepository.TransactionalRepo.T_UserRoleMappingRepository;
 import com.ehrms.tmis.securityAndAuthentication.jwt.JwtHelper;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -206,4 +210,47 @@ public class MenuAdvice {
         return "Training Management Information System (RHFWTC)";
     }
 
+    @PersistenceContext(unitName = "sqlServer")
+    private EntityManager entityManager;
+
+    @ModelAttribute("employeeInfo")
+    public Map<String, String> populateEmployeeInfo(HttpServletRequest request) {
+        // 1) Extract JWT and get the empCd (username)
+        String jwt = extractJwtFromCookie(request);
+        if (jwt == null) {
+            return Map.of("fullName", "", "district", "");
+        }
+
+        String empcd;
+        try {
+            empcd = jwtHelper.getUsernameFromToken(jwt);
+        } catch (Exception e) {
+            return Map.of("fullName", "", "district", "");
+        }
+
+        // 2) Call your GET_empnameandcode proc
+        StoredProcedureQuery sp = entityManager
+                .createStoredProcedureQuery("GET_empnameandcode")
+                .registerStoredProcedureParameter("empcd", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("CurrDesig", Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("OfficeLevel", Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("OfficeId", Integer.class, ParameterMode.IN);
+
+        sp.setParameter("empcd", empcd);
+        sp.setParameter("CurrDesig", null);
+        sp.setParameter("OfficeLevel", null);
+        sp.setParameter("OfficeId", null);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = sp.getResultList();
+        if (rows.isEmpty()) {
+            return Map.of("fullName", "Unknown", "district", "Unknown");
+        }
+
+        Object[] row = rows.get(0);
+        String fullName = row[1] != null ? row[1].toString().trim() : "";
+        String district = row[6] != null ? row[6].toString().trim() : "";
+
+        return Map.of("fullName", fullName, "district", district);
+    }
 }
