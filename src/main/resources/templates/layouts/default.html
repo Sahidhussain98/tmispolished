@@ -176,6 +176,11 @@
             <div class="photo">
               <img src="/assets/img/profile.jpg" alt="Profile" />
             </div>
+            <span
+              class="user-level text-muted d-block"
+              th:text="${primaryRoleName}"
+              >RoleName</span
+            >
             <div class="info">
               <a
                 data-bs-toggle="collapse"
@@ -185,9 +190,7 @@
               >
                 <span>
                   <span th:text="${employeeInfo.fullName}">Full Name</span>
-                  <span class="user-level" th:text="${primaryRoleName}"
-                    >RoleName</span
-                  >
+
                   <span class="caret"></span>
                 </span>
               </a>

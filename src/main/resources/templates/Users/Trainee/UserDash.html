@@ -11,16 +11,6 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <title>User Dashboard</title>
-
-    <!-- <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    /> -->
   </head>
   <main layout:fragment="content">
     <body>
@@ -216,12 +206,6 @@
       </div>
 
       <!-- Bootstrap Bundle (with Popper) -->
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-      <!-- jQuery -->
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <!-- jsPDF & html2canvas -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
       <script>
         let GlobalUserFullName = "";
@@ -232,22 +216,9 @@
         });
 
         async function initializeDashboard() {
-          // Show loader, hide content
           $("#loading").show();
           $("#content").addClass("d-none");
-
-          // Fetch user info
-          const userInfo = await fetch("/api/userinfo", {
-            credentials: "include",
-          }).then((r) => {
-            if (!r.ok) throw new Error("Unauthorized");
-            return r.json();
-          });
-
-          currentUserEmpCd = userInfo.empCd || "";
-          GlobalUserFullName = userInfo.fullName || "";
-
-          // Load calendars and then show content
+          // Load calendars
           await loadTrainingCalendars();
 
           $("#loading").hide();
@@ -255,21 +226,18 @@
         }
 
         async function loadTrainingCalendars() {
-          const resp = await fetch(
-            `/api/assigntrainee/getByEmpCd/${currentUserEmpCd}`,
-            { credentials: "include" }
-          );
+          const resp = await fetch("/trainee/calendar", {
+            method: "POST",
+            credentials: "include",
+          });
           if (!resp.ok) {
             console.error("Error fetching calendars");
+            renderCalendars([]);
             return;
           }
-          const assignments = await resp.json();
-          if (!assignments.length) {
-            // Let the “noUpcoming/noOngoing/noCompleted” messages handle empty states
-            renderCalendars([]);
-          } else {
-            renderCalendars(processCalendarData(assignments));
-          }
+          const calendars = await resp.json();
+          console.log("📅 raw calendars:", calendars);
+          renderCalendars(processCalendarData(calendars));
         }
 
         function processCalendarData(data) {
@@ -277,27 +245,29 @@
           today.setHours(0, 0, 0, 0);
 
           return data
-            .map((a) => ({
-              id: a.calendar?.calendarId || a.id,
-              programName:
-                a.calendar?.programeName?.programName ||
-                a.calendar?.programName ||
-                "Training Program",
-              topic: a.calendar?.topicName || a.calendar?.topic || "General",
-              venue: a.calendar?.venueName || a.calendar?.venue || "N/A",
-              startDate: a.calendar?.startDate || a.calendar?.startDateTime,
-              endDate: a.calendar?.endDate || a.calendar?.endDateTime,
-              duration: a.calendar?.duration,
-              status: a.status,
-              materials: a.calendar?.materials || [],
-              assignmentId: a.id,
-            }))
-            .sort((x, y) => new Date(x.startDate) - new Date(y.startDate));
+            .map((a) => {
+              // turn those ISO‑dates into local‑midnight Date objects:
+              const sd = a.startDate
+                ? new Date(a.startDate + "T00:00:00")
+                : null;
+              const ed = a.endDate ? new Date(a.endDate + "T00:00:00") : null;
+
+              return {
+                calendarId: a.calendarId,
+                programName: a.programeName?.programName || "N/A",
+                topicName: a.topic?.topicName || "N/A",
+                venueName: a.venueName?.venueName || "N/A",
+                startDate: sd,
+                endDate: ed,
+                duration: a.duration,
+                status: a.status,
+              };
+            })
+            .sort((x, y) => x.startDate - y.startDate);
         }
 
-        function renderCalendars(calendars) {
-          // Clear tables
-          ["completed", "ongoing", "upcoming"].forEach((cat) => {
+        function renderCalendars(calenders) {
+          ["upcoming", "ongoing", "completed"].forEach((cat) => {
             $(`#${cat}TableBody`).empty();
             $(`#no${capitalize(cat)}`).addClass("d-none");
           });
@@ -306,40 +276,40 @@
           const today = new Date();
           today.setHours(0, 0, 0, 0);
 
-          calendars.forEach((c) => {
+          calenders.forEach((c) => {
             const sd = c.startDate ? new Date(c.startDate) : null;
             const ed = c.endDate ? new Date(c.endDate) : null;
-            let status = c.status;
+            let st;
             if (sd && ed) {
-              if (ed < today) status = "Completed";
-              else if (sd <= today && today <= ed) status = "Ongoing";
-              else status = "Upcoming";
+              if (ed < today) st = "Completed";
+              else if (sd <= today && today <= ed) st = "Ongoing";
+              else st = "Upcoming";
+            } else {
+              st = c.status || "Upcoming";
             }
 
             const row = $("<tr></tr>");
             row.append(
               `<td><div class="fw-semibold">${c.programName}</div></td>`
             );
-            row.append(`<td>${c.topic}</td>`);
+            row.append(`<td>${c.topicName}</td>`);
             row.append(`<td>${formatDate(sd)}</td>`);
             row.append(`<td>${formatDate(ed)}</td>`);
             row.append(`<td>${c.duration ?? "N/A"}</td>`);
-            row.append(`<td>${c.venue}</td>`);
+            row.append(`<td>${c.venueName}</td>`);
             row.append(
-              `<td><span class="badge bg-${badgeClass(
-                status
-              )}">${status}</span></td>`
+              `<td><span class="badge bg-${badgeClass(st)}">${st}</span></td>`
             );
 
-            if (status === "Completed") {
-              const btn = $(
-                `<button class="btn btn-sm btn-primary"><i class="fas fa-download me-1"></i>Certificate</button>`
-              );
+            if (st === "Completed") {
+              const btn = $(`<button class="btn btn-sm btn-primary">
+                               <i class="fas fa-download me-1"></i>Certificate
+                             </button>`);
               btn.on("click", () => openModal(c));
               row.append($("<td></td>").append(btn));
               $("#completedTableBody").append(row);
               counts.completed++;
-            } else if (status === "Ongoing") {
+            } else if (st === "Ongoing") {
               $("#ongoingTableBody").append(row);
               counts.ongoing++;
             } else {
@@ -348,7 +318,6 @@
             }
           });
 
-          // Update badges & show empty states
           $("#upcomingCount").text(counts.upcoming);
           $("#ongoingCount").text(counts.ongoing);
           $("#completedCount").text(counts.completed);
@@ -360,17 +329,15 @@
 
         function badgeClass(status) {
           return (
-            {
-              Upcoming: "info",
-              Ongoing: "primary",
-              Completed: "success",
-            }[status] || "secondary"
+            { Upcoming: "info", Ongoing: "primary", Completed: "success" }[
+              status
+            ] || "secondary"
           );
         }
 
         function formatDate(d) {
           if (!d) return "N/A";
-          return d.toLocaleDateString("en-US", {
+          return new Date(d).toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -381,13 +348,13 @@
           return s.charAt(0).toUpperCase() + s.slice(1);
         }
 
-        function openModal(calendar) {
+        function openModal(c) {
           $("#GlobalUserFullName").text(GlobalUserFullName);
-          $("#programNameValue").text(calendar.programName);
-          $("#topicValue").text(calendar.topic);
-          $("#startDateValue").text(formatDate(new Date(calendar.startDate)));
-          $("#endDateValue").text(formatDate(new Date(calendar.endDate)));
-          $("#venueValue").text(calendar.venue);
+          $("#programNameValue").text(c.programName);
+          $("#topicValue").text(c.topicName);
+          $("#startDateValue").text(formatDate(new Date(c.startDate)));
+          $("#endDateValue").text(formatDate(new Date(c.endDate)));
+          $("#venueValue").text(c.venueName);
           new bootstrap.Modal($("#downloadModal")).show();
         }
 
@@ -396,10 +363,10 @@
           html2canvas(modal).then((canvas) => {
             const img = canvas.toDataURL("image/png");
             const pdf = new jspdf.jsPDF();
-            const imgProps = pdf.getImageProperties(img);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            pdf.addImage(img, "PNG", 0, 0, pdfWidth, pdfHeight);
+            const props = pdf.getImageProperties(img);
+            const w = pdf.internal.pageSize.getWidth();
+            const h = (props.height * w) / props.width;
+            pdf.addImage(img, "PNG", 0, 0, w, h);
             pdf.save(`${GlobalUserFullName}.pdf`);
           });
         });
