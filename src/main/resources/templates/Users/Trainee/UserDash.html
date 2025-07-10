@@ -1,376 +1,358 @@
 <!DOCTYPE html>
-<html
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/default}"
->
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <title>User Dashboard</title>
-  </head>
-  <main layout:fragment="content">
-    <body>
-      <div class="container my-5">
-        <!-- Loading State -->
-        <div id="loading" class="text-center py-5">
-          <div
-            class="spinner-border text-primary"
-            style="width: 3rem; height: 3rem"
-            role="status"
-          >
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="text-muted mt-3">Loading dashboard...</p>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>User Dashboard</title>
+</head>
+<main layout:fragment="content">
+
+  <body>
+    <div class="container my-5">
+      <!-- Loading State -->
+      <div id="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
-
-        <!-- Main Content (hidden until loaded) -->
-        <div id="content" class="d-none">
-          <div class="mb-5 border-bottom pb-3">
-            <h1 class="display-6">
-              <i class="fas fa-calendar-alt me-2"></i>Training Programs
-            </h1>
-            <p class="text-muted">
-              View and manage your assigned training programs
-            </p>
-          </div>
-
-          <!-- Upcoming Programs -->
-          <div class="card mb-4">
-            <div class="card-header bg-info text-white">
-              <h5 class="mb-0">
-                <i class="fas fa-calendar-plus me-2"></i>Upcoming Programs
-                <span id="upcomingCount" class="badge bg-white text-info ms-2"
-                  >0</span
-                >
-              </h5>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Program</th>
-                      <th>Topic</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th>Duration</th>
-                      <th>Venue</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="upcomingTableBody"></tbody>
-                </table>
-              </div>
-              <div id="noUpcoming" class="text-center text-muted py-3 d-none">
-                <i class="fas fa-info-circle me-2"></i>No upcoming training
-                programs
-              </div>
-            </div>
-          </div>
-
-          <!-- Ongoing Programs -->
-          <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0">
-                <i class="fas fa-spinner me-2"></i>Ongoing Programs
-                <span id="ongoingCount" class="badge bg-white text-primary ms-2"
-                  >0</span
-                >
-              </h5>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Program</th>
-                      <th>Topic</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th>Duration</th>
-                      <th>Venue</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="ongoingTableBody"></tbody>
-                </table>
-              </div>
-              <div id="noOngoing" class="text-center text-muted py-3 d-none">
-                <i class="fas fa-info-circle me-2"></i>No ongoing training
-                programs
-              </div>
-            </div>
-          </div>
-
-          <!-- Completed Programs -->
-          <div class="card mb-4">
-            <div class="card-header bg-success text-white">
-              <h5 class="mb-0">
-                <i class="fas fa-check-circle me-2"></i>Completed Programs
-                <span
-                  id="completedCount"
-                  class="badge bg-white text-success ms-2"
-                  >0</span
-                >
-              </h5>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Program</th>
-                      <th>Topic</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th>Duration</th>
-                      <th>Venue</th>
-                      <th>Status</th>
-                      <th>Certificate</th>
-                    </tr>
-                  </thead>
-                  <tbody id="completedTableBody"></tbody>
-                </table>
-              </div>
-              <div id="noCompleted" class="text-center text-muted py-3 d-none">
-                <i class="fas fa-info-circle me-2"></i>No completed training
-                programs
-              </div>
-            </div>
-          </div>
-        </div>
+        <p class="text-muted mt-3">Loading dashboard...</p>
       </div>
 
-      <!-- Certificate Modal -->
-      <div
-        class="modal fade"
-        id="downloadModal"
-        tabindex="-1"
-        aria-labelledby="downloadModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="downloadModalLabel">
-                Certificate of Completion
-              </h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body text-center">
-              <h1 class="text-primary">Certificate of Completion</h1>
-              <p class="lead">This is to certify that</p>
-              <h2 id="GlobalUserFullName" class="my-4"></h2>
-              <table
-                class="table table-borderless mx-auto"
-                style="max-width: 600px"
-              >
-                <tr>
-                  <td><strong>Program Name:</strong></td>
-                  <td><span id="programNameValue">N/A</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Topic:</strong></td>
-                  <td><span id="topicValue">N/A</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Start Date:</strong></td>
-                  <td><span id="startDateValue">N/A</span></td>
-                </tr>
-                <tr>
-                  <td><strong>End Date:</strong></td>
-                  <td><span id="endDateValue">N/A</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Venue:</strong></td>
-                  <td><span id="venueValue">N/A</span></td>
-                </tr>
+      <!-- Main Content (hidden until loaded) -->
+      <div id="content" class="d-none">
+        <div class="mb-5 border-bottom pb-3">
+          <h1 class="display-6">
+            <i class="fas fa-calendar-alt me-2"></i>Training Programs
+          </h1>
+          <p class="text-muted">
+            View and manage your assigned training programs
+          </p>
+        </div>
+
+        <!-- Upcoming Programs -->
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-calendar-plus me-2"></i>Upcoming Programs
+               <!-- <span th:text="${employeeInfo.fullName}">Full Name</span> -->
+              <span id="upcomingCount" class="badge bg-white text-info ms-2">0</span>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Program</th>
+                    <th>Topic</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th>
+                    <th>Venue</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="upcomingTableBody"></tbody>
               </table>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" id="pdfGenerate">
-                <i class="fas fa-download me-1"></i>Download Certificate
-              </button>
+            <div id="noUpcoming" class="text-center text-muted py-3 d-none">
+              <i class="fas fa-info-circle me-2"></i>No upcoming training
+              programs
+            </div>
+          </div>
+        </div>
+
+        <!-- Ongoing Programs -->
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-spinner me-2"></i>Ongoing Programs
+              <span id="ongoingCount" class="badge bg-white text-primary ms-2">0</span>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Program</th>
+                    <th>Topic</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th>
+                    <th>Venue</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="ongoingTableBody"></tbody>
+              </table>
+            </div>
+            <div id="noOngoing" class="text-center text-muted py-3 d-none">
+              <i class="fas fa-info-circle me-2"></i>No ongoing training
+              programs
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed Programs -->
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-check-circle me-2"></i>Completed Programs
+              <span id="completedCount" class="badge bg-white text-success ms-2">0</span>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Program</th>
+                    <th>Topic</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th>
+                    <th>Venue</th>
+                    <th>Status</th>
+                    <th>Certificate</th>
+                  </tr>
+                </thead>
+                <tbody id="completedTableBody"></tbody>
+              </table>
+            </div>
+            <div id="noCompleted" class="text-center text-muted py-3 d-none">
+              <i class="fas fa-info-circle me-2"></i>No completed training
+              programs
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Bootstrap Bundle (with Popper) -->
+    <!-- Certificate Modal -->
+    <div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+           
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <h1 class="text-primary">Certificate of Completion</h1>
+            <p class="lead">This is to certify that</p>
+            <h2 id="GlobalUserFullName" class="my-4"></h2>
+            <table class="table table-borderless mx-auto" style="max-width: 600px">
+              <tr>
+                <td><strong>Program Name:</strong></td>
+                <td><span id="programNameValue">N/A</span></td>
+              </tr>
+              <tr>
+                <td><strong>Topic:</strong></td>
+                <td><span id="topicValue">N/A</span></td>
+              </tr>
+              <tr>
+                <td><strong>Start Date:</strong></td>
+                <td><span id="startDateValue">N/A</span></td>
+              </tr>
+              <tr>
+                <td><strong>End Date:</strong></td>
+                <td><span id="endDateValue">N/A</span></td>
+              </tr>
+              <tr>
+                <td><strong>Venue:</strong></td>
+                <td><span id="venueValue">N/A</span></td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="pdfGenerate">
+              <i class="fas fa-download me-1"></i>Download Certificate
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <script>
-        let GlobalUserFullName = "";
-        let currentUserEmpCd = "";
+    <!-- Bootstrap Bundle (with Popper) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script th:inline="javascript">
+  let GlobalUserFullName = /*[[${employeeInfo.fullName}]]*/ "";
+</script>
+    <script>
 
-        document.addEventListener("DOMContentLoaded", () => {
-          initializeDashboard();
+      let currentUserEmpCd = "";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        initializeDashboard();
+      });
+
+      async function initializeDashboard() {
+        $("#loading").show();
+        $("#content").addClass("d-none");
+        // Load calendars
+        await loadTrainingCalendars();
+
+        $("#loading").hide();
+        $("#content").removeClass("d-none");
+      }
+
+      async function loadTrainingCalendars() {
+        const resp = await fetch("/trainee/calendar", {
+          method: "POST",
+          credentials: "include",
+        });
+        if (!resp.ok) {
+          console.error("Error fetching calendars");
+          renderCalendars([]);
+          return;
+        }
+        const calendars = await resp.json();
+        console.log("📅 raw calendars:", calendars);
+        renderCalendars(processCalendarData(calendars));
+      }
+
+      function processCalendarData(data) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        return data
+          .map((a) => {
+            // turn those ISO‑dates into local‑midnight Date objects:
+            const sd = a.startDate
+              ? new Date(a.startDate + "T00:00:00")
+              : null;
+            const ed = a.endDate ? new Date(a.endDate + "T00:00:00") : null;
+
+            return {
+              calendarId: a.calendarId,
+              programName: a.programeName?.programName || "N/A",
+              topicName: a.topic?.topicName || "N/A",
+              venueName: a.venueName?.venueName || "N/A",
+              startDate: sd,
+              endDate: ed,
+              duration: a.duration,
+              status: a.status,
+            };
+          })
+          .sort((x, y) => x.startDate - y.startDate);
+      }
+
+      function renderCalendars(calenders) {
+        ["upcoming", "ongoing", "completed"].forEach((cat) => {
+          $(`#${cat}TableBody`).empty();
+          $(`#no${capitalize(cat)}`).addClass("d-none");
         });
 
-        async function initializeDashboard() {
-          $("#loading").show();
-          $("#content").addClass("d-none");
-          // Load calendars
-          await loadTrainingCalendars();
+        let counts = { upcoming: 0, ongoing: 0, completed: 0 };
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-          $("#loading").hide();
-          $("#content").removeClass("d-none");
-        }
-
-        async function loadTrainingCalendars() {
-          const resp = await fetch("/trainee/calendar", {
-            method: "POST",
-            credentials: "include",
-          });
-          if (!resp.ok) {
-            console.error("Error fetching calendars");
-            renderCalendars([]);
-            return;
+        calenders.forEach((c) => {
+          const sd = c.startDate ? new Date(c.startDate) : null;
+          const ed = c.endDate ? new Date(c.endDate) : null;
+          let st;
+          if (sd && ed) {
+            if (ed < today) st = "Completed";
+            else if (sd <= today && today <= ed) st = "Ongoing";
+            else st = "Upcoming";
+          } else {
+            st = c.status || "Upcoming";
           }
-          const calendars = await resp.json();
-          console.log("📅 raw calendars:", calendars);
-          renderCalendars(processCalendarData(calendars));
-        }
 
-        function processCalendarData(data) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
+          const row = $("<tr></tr>");
+          row.append(
+            `<td><div class="fw-semibold">${c.programName}</div></td>`
+          );
+          row.append(`<td>${c.topicName}</td>`);
+          row.append(`<td>${formatDate(sd)}</td>`);
+          row.append(`<td>${formatDate(ed)}</td>`);
+          row.append(`<td>${c.duration ?? "N/A"}</td>`);
+          row.append(`<td>${c.venueName}</td>`);
+          row.append(
+            `<td><span class="badge bg-${badgeClass(st)}">${st}</span></td>`
+          );
 
-          return data
-            .map((a) => {
-              // turn those ISO‑dates into local‑midnight Date objects:
-              const sd = a.startDate
-                ? new Date(a.startDate + "T00:00:00")
-                : null;
-              const ed = a.endDate ? new Date(a.endDate + "T00:00:00") : null;
-
-              return {
-                calendarId: a.calendarId,
-                programName: a.programeName?.programName || "N/A",
-                topicName: a.topic?.topicName || "N/A",
-                venueName: a.venueName?.venueName || "N/A",
-                startDate: sd,
-                endDate: ed,
-                duration: a.duration,
-                status: a.status,
-              };
-            })
-            .sort((x, y) => x.startDate - y.startDate);
-        }
-
-        function renderCalendars(calenders) {
-          ["upcoming", "ongoing", "completed"].forEach((cat) => {
-            $(`#${cat}TableBody`).empty();
-            $(`#no${capitalize(cat)}`).addClass("d-none");
-          });
-
-          let counts = { upcoming: 0, ongoing: 0, completed: 0 };
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          calenders.forEach((c) => {
-            const sd = c.startDate ? new Date(c.startDate) : null;
-            const ed = c.endDate ? new Date(c.endDate) : null;
-            let st;
-            if (sd && ed) {
-              if (ed < today) st = "Completed";
-              else if (sd <= today && today <= ed) st = "Ongoing";
-              else st = "Upcoming";
-            } else {
-              st = c.status || "Upcoming";
-            }
-
-            const row = $("<tr></tr>");
-            row.append(
-              `<td><div class="fw-semibold">${c.programName}</div></td>`
-            );
-            row.append(`<td>${c.topicName}</td>`);
-            row.append(`<td>${formatDate(sd)}</td>`);
-            row.append(`<td>${formatDate(ed)}</td>`);
-            row.append(`<td>${c.duration ?? "N/A"}</td>`);
-            row.append(`<td>${c.venueName}</td>`);
-            row.append(
-              `<td><span class="badge bg-${badgeClass(st)}">${st}</span></td>`
-            );
-
-            if (st === "Completed") {
-              const btn = $(`<button class="btn btn-sm btn-primary">
+          if (st === "Completed") {
+            const btn = $(`<button class="btn btn-sm btn-primary">
                                <i class="fas fa-download me-1"></i>Certificate
                              </button>`);
-              btn.on("click", () => openModal(c));
-              row.append($("<td></td>").append(btn));
-              $("#completedTableBody").append(row);
-              counts.completed++;
-            } else if (st === "Ongoing") {
-              $("#ongoingTableBody").append(row);
-              counts.ongoing++;
-            } else {
-              $("#upcomingTableBody").append(row);
-              counts.upcoming++;
-            }
-          });
-
-          $("#upcomingCount").text(counts.upcoming);
-          $("#ongoingCount").text(counts.ongoing);
-          $("#completedCount").text(counts.completed);
-
-          if (!counts.upcoming) $("#noUpcoming").removeClass("d-none");
-          if (!counts.ongoing) $("#noOngoing").removeClass("d-none");
-          if (!counts.completed) $("#noCompleted").removeClass("d-none");
-        }
-
-        function badgeClass(status) {
-          return (
-            { Upcoming: "info", Ongoing: "primary", Completed: "success" }[
-              status
-            ] || "secondary"
-          );
-        }
-
-        function formatDate(d) {
-          if (!d) return "N/A";
-          return new Date(d).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-        }
-
-        function capitalize(s) {
-          return s.charAt(0).toUpperCase() + s.slice(1);
-        }
-
-        function openModal(c) {
-          $("#GlobalUserFullName").text(GlobalUserFullName);
-          $("#programNameValue").text(c.programName);
-          $("#topicValue").text(c.topicName);
-          $("#startDateValue").text(formatDate(new Date(c.startDate)));
-          $("#endDateValue").text(formatDate(new Date(c.endDate)));
-          $("#venueValue").text(c.venueName);
-          new bootstrap.Modal($("#downloadModal")).show();
-        }
-
-        $("#pdfGenerate").on("click", () => {
-          const modal = document.querySelector("#downloadModal .modal-content");
-          html2canvas(modal).then((canvas) => {
-            const img = canvas.toDataURL("image/png");
-            const pdf = new jspdf.jsPDF();
-            const props = pdf.getImageProperties(img);
-            const w = pdf.internal.pageSize.getWidth();
-            const h = (props.height * w) / props.width;
-            pdf.addImage(img, "PNG", 0, 0, w, h);
-            pdf.save(`${GlobalUserFullName}.pdf`);
-          });
+            btn.on("click", () => openModal(c));
+            row.append($("<td></td>").append(btn));
+            $("#completedTableBody").append(row);
+            counts.completed++;
+          } else if (st === "Ongoing") {
+            $("#ongoingTableBody").append(row);
+            counts.ongoing++;
+          } else {
+            $("#upcomingTableBody").append(row);
+            counts.upcoming++;
+          }
         });
-      </script>
-    </body>
-  </main>
+
+        $("#upcomingCount").text(counts.upcoming);
+        $("#ongoingCount").text(counts.ongoing);
+        $("#completedCount").text(counts.completed);
+
+        if (!counts.upcoming) $("#noUpcoming").removeClass("d-none");
+        if (!counts.ongoing) $("#noOngoing").removeClass("d-none");
+        if (!counts.completed) $("#noCompleted").removeClass("d-none");
+      }
+
+      function badgeClass(status) {
+        return (
+          { Upcoming: "info", Ongoing: "primary", Completed: "success" }[
+          status
+          ] || "secondary"
+        );
+      }
+
+      function formatDate(d) {
+        if (!d) return "N/A";
+        return new Date(d).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+
+      function capitalize(s) {
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+
+      function openModal(c) {
+        $("#GlobalUserFullName").text(GlobalUserFullName);
+        $("#programNameValue").text(c.programName);
+        $("#topicValue").text(c.topicName);
+        $("#startDateValue").text(formatDate(new Date(c.startDate)));
+        $("#endDateValue").text(formatDate(new Date(c.endDate)));
+        $("#venueValue").text(c.venueName);
+        new bootstrap.Modal($("#downloadModal")).show();
+      }
+      $("#pdfGenerate").on("click", () => {
+        const modal = document.querySelector("#downloadModal .modal-content");
+
+        // Hide the button temporarily
+        const downloadBtn = document.getElementById("pdfGenerate");
+        downloadBtn.style.display = "none";
+
+        html2canvas(modal).then((canvas) => {
+          const img = canvas.toDataURL("image/png");
+          const pdf = new jspdf.jsPDF();
+          const props = pdf.getImageProperties(img);
+          const w = pdf.internal.pageSize.getWidth();
+          const h = (props.height * w) / props.width;
+          pdf.addImage(img, "PNG", 0, 0, w, h);
+          pdf.save(`${GlobalUserFullName}.pdf`);
+
+          // Show the button again
+          downloadBtn.style.display = "inline-block";
+        });
+      });
+    </script>
+  </body>
+</main>
+
 </html>

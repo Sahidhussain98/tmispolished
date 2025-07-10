@@ -55,7 +55,6 @@ public class M_VenueController {
             return ResponseEntity.badRequest().body(Collections.emptyList());
         }
         System.out.println("INSIDE  bydist:" + districtIds);
-
         // Allow empty list input, service will handle it
         List<M_Venue> venues = m_venueService.getVenuesByDistrictIds(districtIds);
         System.out.println("VENUES" + venues);

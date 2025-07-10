@@ -14,6 +14,11 @@ import java.util.Optional; // Added for Optional return type
 @Repository
 public interface M_CalendarRepository extends JpaRepository<M_Calendar, Long> {
 
+    List<M_Calendar> findByStartDateAfter(LocalDate date); // Upcoming
+    List<M_Calendar> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate start, LocalDate end); // Ongoing
+    List<M_Calendar> findByEndDateBefore(LocalDate date); // Completed
+
+
     long countByStartDateAfter(LocalDate date);
     long countByStartDateEquals(LocalDate date);
     long countByEndDateAfter(LocalDate date);

@@ -167,63 +167,169 @@
           </div>
         </div>
 
-        <!-- ✅ SECOND ROW: Tentative Programs & Recent Events -->
-        <div class="row mt-4">
-          <!-- Tentative Programs -->
-          <div class="col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Upcoming Programs</h4>
-              </div>
-              <div class="card-body">
-                <canvas id="userProgressChart"></canvas>
-              </div>
+      <!-- ✅ SECOND ROW: Tentative Programs & Recent Events -->
+      <div class="row mt-4">
+        <!-- Upcoming Programs -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Upcoming Programs</h4>
+            </div>
+            <div class="card-body">
+              <canvas id="userProgressChart"></canvas>
+              <!-- Add a list for upcoming events -->
+              <ul id="upcomingEventsList" class="list-unstyled mt-3">
+                <!-- Events will be loaded here by JavaScript -->
+              </ul>
             </div>
           </div>
+        </div>
 
-          <!-- Recent Events -->
-          <div class="col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Recent Events</h4>
-              </div>
-              <div class="card-body">
-                <ul class="list-unstyled">
-                  <li
-                    th:each="activity : ${recentActivities}"
-                    class="d-flex justify-content-between py-2 border-bottom"
+        <!-- Recent Events -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Recent Events</h4>
+            </div>
+            <div class="card-body">
+              <!-- This list is for Thymeleaf-populated data -->
+              <ul class="list-unstyled">
+                <li
+                  th:each="activity : ${recentActivities}"
+                  class="d-flex justify-content-between py-2 border-bottom"
+                >
+                  <span th:text="${activity.description}">User completed Course X</span>
+                  <span
+                    class="text-muted small"
+                    th:text="${#temporals.format(activity.timestamp, 'dd-MM-yyyy HH:mm')}"
                   >
-                    <span th:text="${activity.description}">User completed Course X</span>
-                    <span
-                      class="text-muted small"
-                      th:text="${#temporals.format(activity.timestamp, 'dd-MM-yyyy HH:mm')}"
-                    >
-                      01-01-2023 14:30
-                    </span>
-                  </li>
-                </ul>
-              </div>
+                    01-01-2023 14:30
+                  </span>
+                </li>
+              </ul>
+              <!-- Add a separate list for JavaScript-populated recent events -->
+              <ul id="recentEventsList" class="list-unstyled mt-3">
+                 <!-- JavaScript populated recent events -->
+              </ul>
             </div>
           </div>
         </div>
       </div>
 
       <!-- ✅ JavaScript to fetch and populate dashboard data -->
-      <script>
-        window.onload = function () {
+            <script>
+        // Function to fetch and display dashboard metrics
+        function fetchDashboardMetrics() {
           fetch("/Sadmin/DashboardData")
-            .then((response) => response.json())
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
             .then((data) => {
               console.log("Dashboard data:", data);
-
-              document.getElementById("totalProgramsValue").innerText = data.totalPrograms;
-              document.getElementById("totalVenuesValue").innerText = data.totalVenues;
-              document.getElementById("avgCompletionValue").innerText = data.avgCompletion + "%";
-              document.getElementById("pendingEventsValue").innerText = data.pendingEvents;
-              document.getElementById("newEventsValue").innerText = data.newEvents;
-              document.getElementById("conductedEventsValue").innerText = data.conductedEvents;
+              document.getElementById("totalProgramsValue").innerText = data.totalPrograms || '--';
+              document.getElementById("totalVenuesValue").innerText = data.totalVenues || '--';
+              document.getElementById("avgCompletionValue").innerText = (data.avgCompletion !== undefined ? data.avgCompletion + "%" : '--');
+              document.getElementById("pendingEventsValue").innerText = data.pendingEvents || '--';
+              document.getElementById("newEventsValue").innerText = data.newEvents || '--';
+              document.getElementById("conductedEventsValue").innerText = data.conductedEvents || '--';
+              // Fetch and display dynamic trainee/resource person counts if available
+              document.getElementById("totalTraineesValue").innerText = data.totalTrainees || '--'; // Assuming you add this ID to the HTML
+              document.getElementById("resourcePersonsValue").innerText = data.resourcePersons || '--'; // Assuming you add this ID to the HTML
             })
-            .catch((error) => console.error("Fetch failed:", error));
+            .catch((error) => {
+              console.error("Dashboard metrics fetch failed:", error);
+              // Optionally display a message to the user
+              document.getElementById("totalProgramsValue").innerText = "Error";
+              // ... and so on for other metrics
+            });
+        }
+
+        // Function to fetch and display upcoming and recent events
+        function fetchEvents() {
+          const today = new Date();
+          const todayStr = today.toISOString().split("T")[0];
+
+          fetch(`/api/events/list?date=${todayStr}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then((eventData) => {
+              const upcomingEvents = eventData.upcomingEvents || [];
+              const listContainer = document.getElementById("upcomingEventsList");
+              listContainer.innerHTML = ""; // Clear previous content
+
+              if (upcomingEvents.length === 0) {
+                const li = document.createElement("li");
+                li.className = "py-2";
+                li.textContent = "No upcoming events for today.";
+                listContainer.appendChild(li);
+              } else {
+                upcomingEvents.forEach((event) => {
+                  const li = document.createElement("li");
+                  li.className = "py-2 border-bottom";
+                  // More robust display for potential nulls
+                  const programName = event.programeName?.programName || "Unnamed Program";
+                  const topicName = event.topic?.topicName || "No Topic";
+                  li.textContent = `${programName} — ${topicName} — ${event.startDate}`;
+                  listContainer.appendChild(li);
+                });
+              }
+
+              const allEvents = [
+                ...(eventData.upcomingEvents || []),
+                ...(eventData.ongoingEvents || []),
+                ...(eventData.completedEvents || []),
+              ];
+
+              const recentEvents = allEvents.filter((event) => {
+                if (!event.startDate) return false;
+                const start = new Date(event.startDate);
+                // Calculate difference in days, consider time of day for accuracy if needed
+                const diffInMs = start - today;
+                const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+                return Math.abs(diffInDays) <= 3;
+              });
+
+              const recentListContainer = document.getElementById("recentEventsList");
+              recentListContainer.innerHTML = ""; // Clear previous content
+
+              if (recentEvents.length === 0) {
+                const li = document.createElement("li");
+                li.className = "py-2";
+                li.textContent = "No recent events found.";
+                recentListContainer.appendChild(li);
+              } else {
+                recentEvents.forEach((event) => {
+                  const li = document.createElement("li");
+                  li.className = "d-flex justify-content-between py-2 border-bottom";
+                  const programName = event.programeName?.programName || "Unnamed Program";
+                  const topicName = event.topic?.topicName || "No Topic";
+                  li.textContent = `${programName} - ${topicName} (${event.startDate})`;
+                  recentListContainer.appendChild(li);
+                });
+              }
+            })
+            .catch((err) => {
+              console.error("Event list fetch failed:", err);
+              // Display error messages in the lists
+              const upcomingListContainer = document.getElementById("upcomingEventsList");
+              upcomingListContainer.innerHTML = '<li class="py-2 text-danger">Failed to load upcoming events.</li>';
+              const recentListContainer = document.getElementById("recentEventsList");
+              recentListContainer.innerHTML = '<li class="py-2 text-danger">Failed to load recent events.</li>';
+            });
+        }
+
+        // Execute both functions when the window loads
+        window.onload = function () {
+          fetchDashboardMetrics();
+          fetchEvents();
+          // Add chart initialization here if you implement charting
         };
       </script>
     </main>

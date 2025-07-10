@@ -1,373 +1,277 @@
 <!DOCTYPE html>
-<html
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/default}"
->
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calendar Management</title>
-    <link href="/assets/css/tailwind.min.css" rel="stylesheet" />
-    <style>
-      .modal-container {
-        max-height: 90vh;
-        overflow-y: auto;
-      }
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}">
 
-      body.overflow-hidden {
-        overflow: hidden;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar Management</title>
+  <link href="/assets/css/tailwind.min.css" rel="stylesheet" />
+  <style>
+    .modal-container {
+      max-height: 90vh;
+      overflow-y: auto;
+    }
 
-      input[readonly] {
-        background-color: #f3f4f6;
-        cursor: not-allowed;
-      }
+    body.overflow-hidden {
+      overflow: hidden;
+    }
 
-      input[type="hidden"] {
-        display: none;
-      }
+    input[readonly] {
+      background-color: #f3f4f6;
+      cursor: not-allowed;
+    }
 
-      #updateModal .grid,
-      #assignTraineeModal .grid {
-        padding-bottom: 1rem;
-      }
+    input[type="hidden"] {
+      display: none;
+    }
 
-      .flex label {
-        flex-shrink: 0;
-      }
+    #updateModal .grid,
+    #assignTraineeModal .grid {
+      padding-bottom: 1rem;
+    }
 
-      .tab-content {
-        display: none;
-      }
+    .flex label {
+      flex-shrink: 0;
+    }
 
-      .tab-content.active {
-        display: block;
-      }
+    .tab-content {
+      display: none;
+    }
 
-      .tab-button {
-        transition: all 0.3s ease;
-      }
+    .tab-content.active {
+      display: block;
+    }
 
-      .tab-button.active {
-        background-color: #3b82f6;
-        color: white;
-      }
-    </style>
-  </head>
-  <main layout:fragment="content">
-    <body class="bg-gray-100">
-      <div class="container">
-        <div class="flex items-center justify-between mb-6">
-          <h1 class="text-3xl font-bold text-gray-800">Calendar Management</h1>
-          <!-- <button onclick="downloadExcel()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 shadow-lg">
-        Download All as Excel
-      </button> -->
-        </div>
+    .tab-button {
+      transition: all 0.3s ease;
+    }
 
-        <!-- Tab Navigation -->
-        <div class="flex mb-6 bg-white rounded-lg shadow overflow-hidden">
-          <button
-            onclick="switchTab('upcoming')"
-            class="tab-button flex-1 py-3 px-4 font-medium text-center active"
-            id="upcomingTab"
-          >
-            <i class="fas fa-calendar-plus mr-2"></i>Upcoming Programs
-          </button>
-          <button
-            onclick="switchTab('ongoing')"
-            class="tab-button flex-1 py-3 px-4 font-medium text-center"
-            id="ongoingTab"
-          >
-            <i class="fas fa-spinner mr-2"></i>Ongoing Programs
-          </button>
-          <button
-            onclick="switchTab('completed')"
-            class="tab-button flex-1 py-3 px-4 font-medium text-center"
-            id="completedTab"
-          >
-            <i class="fas fa-check-circle mr-2"></i>Completed Programs
-          </button>
-        </div>
+    .tab-button.active {
+      background-color: #3b82f6;
+      color: white;
+    }
+  </style>
+</head>
+<main layout:fragment="content">
 
-        <!-- Upcoming Programs Tab Content -->
-        <div id="upcomingContent" class="tab-content active">
-          <div class="bg-white p-6 rounded-lg shadow mb-6">
-            <h3 class="text-2xl font-semibold text-gray-800 mb-4">
-              Upcoming Programs
-            </h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Sl. No
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Program
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Topic
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      District(s)
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Venue
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Nature Of Staff
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Target
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Start Date
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      End Date
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Duration
-                    </th>
-                    <th
-                      class="px-20 py-3 font-medium text-gray-700 uppercase tracking-wider text-right"
-                    >
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody id="upcomingList" class="divide-y divide-gray-100">
-                  <tr>
-                    <td colspan="11" class="text-center p-4">
-                      Loading upcoming programs...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+  <body class="bg-gray-100">
+    <div class="container">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Calendar Management</h1>
+      
+      </div>
 
-        <!-- Ongoing Programs Tab Content -->
-        <div id="ongoingContent" class="tab-content">
-          <div class="bg-white p-6 rounded-lg shadow mb-6">
-            <h3 class="text-2xl font-semibold text-gray-800 mb-4">
-              Ongoing Programs
-            </h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Sl. No
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Program
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Topic
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      District(S)
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Venue
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Nature Of Staff
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Target
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Start Date
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      End Date
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Duration
-                    </th>
-                    <th
-                      class="px-20 py-3 font-medium text-gray-700 uppercase tracking-wider text-right"
-                    >
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody id="ongoingList" class="divide-y divide-gray-100">
-                  <tr>
-                    <td colspan="11" class="text-center p-4">
-                      Loading ongoing programs...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      <!-- Tab Navigation -->
+      <div class="flex mb-6 bg-white rounded-lg shadow overflow-hidden">
+        <button onclick="switchTab('upcoming')" class="tab-button flex-1 py-3 px-4 font-medium text-center active"
+          id="upcomingTab">
+          <i class="fas fa-calendar-plus mr-2"></i>Upcoming Programs
+        </button>
+        <button onclick="switchTab('ongoing')" class="tab-button flex-1 py-3 px-4 font-medium text-center"
+          id="ongoingTab">
+          <i class="fas fa-spinner mr-2"></i>Ongoing Programs
+        </button>
+        <button onclick="switchTab('completed')" class="tab-button flex-1 py-3 px-4 font-medium text-center"
+          id="completedTab">
+          <i class="fas fa-check-circle mr-2"></i>Completed Programs
+        </button>
+      </div>
 
-        <!-- Completed Programs Tab Content -->
-        <div id="completedContent" class="tab-content">
-          <div class="bg-white p-6 rounded-lg shadow mb-6">
-            <h3 class="text-2xl font-semibold text-gray-800 mb-4">
-              Completed Programs
-            </h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Sl. No
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Program
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Topic
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      District(S)
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Venue
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Nature Of Staff
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Target
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Start Date
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      End Date
-                    </th>
-                    <th
-                      class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Duration
-                    </th>
-                    <th
-                      class="px-20 py-3 font-medium text-gray-700 uppercase tracking-wider text-right"
-                    >
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody id="completedList" class="divide-y divide-gray-100">
-                  <tr>
-                    <td colspan="11" class="text-center p-4">
-                      Loading completed programs...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+      <!-- Upcoming Programs Tab Content -->
+      <div id="upcomingContent" class="tab-content active">
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+            Upcoming Programs
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Sl. No
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Program
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Topic
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    District(s)
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Venue
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Nature Of Staff
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Target
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Start Date
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    End Date
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Duration
+                  </th>
+                  <th class="px-20 py-3 font-medium text-gray-700 uppercase tracking-wider text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="upcomingList" class="divide-y divide-gray-100">
+                <tr>
+                  <td colspan="11" class="text-center p-4">
+                    Loading upcoming programs...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- Update Modal (same as before) -->
-      <div
-        id="updateModal"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 p-4"
-      >
-        <div
-          class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl"
-        >
-          <button
-            id="closeUpdateModal"
-            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
-          >
-            ×
-          </button>
-          <h3 class="text-2xl font-bold text-gray-800 mb-4">Update Calendar</h3>
-          <form id="updateCalendarForm">
-            <input type="hidden" id="updateCalendarId" name="calendarId" />
-            <input type="hidden" id="updateProgramName" name="programmeName" />
-            <input type="hidden" id="updateTopic" name="topic" />
-            <input type="hidden" id="updateDistrict" name="districtName" />
+      <!-- Ongoing Programs Tab Content -->
+      <div id="ongoingContent" class="tab-content">
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+            Ongoing Programs
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Sl. No
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Program
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Topic
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    District(S)
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Venue
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Nature Of Staff
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Target
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Start Date
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    End Date
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Duration
+                  </th>
+                  <th class="px-20 py-3 font-medium text-gray-700 uppercase tracking-wider text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="ongoingList" class="divide-y divide-gray-100">
+                <tr>
+                  <td colspan="11" class="text-center p-4">
+                    Loading ongoing programs...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-gray-700 font-semibold mb-2"
-                  >Programme:</label
-                >
-                <div
-                  id="updateProgramNameDisplay"
-                  class="font-bold text-gray-800 p-2 bg-gray-100 rounded"
-                ></div>
+      <!-- Completed Programs Tab Content -->
+      <div id="completedContent" class="tab-content">
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+            Completed Programs 
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Sl. No
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Program
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Topic
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    District(S)
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Venue
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Nature Of Staff
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Target
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Start Date
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    End Date
+                  </th>
+                  <th class="px-6 py-3 font-medium text-gray-700 uppercase tracking-wider">
+                    Duration
+                  </th>
+                  <th class="px-20 py-3 font-medium text-gray-700 uppercase tracking-wider text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="completedList" class="divide-y divide-gray-100">
+                <tr>
+                  <td colspan="11" class="text-center p-4">
+                    Loading completed programs...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                <label class="block text-gray-700 font-semibold mt-4 mb-2"
-                  >District:</label
-                >
-                <div
-                  id="updateDistrictDisplay"
-                  class="font-bold text-gray-800 p-2 bg-gray-100 rounded"
-                ></div>
+    <!-- Update Modal (same as before) -->
+    <div id="updateModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 p-4">
+      <div class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl">
+        <button id="closeUpdateModal" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10">
+          ×
+        </button>
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">Update Calendar</h3>
+        <form id="updateCalendarForm">
+          <input type="hidden" id="updateCalendarId" name="calendarId" />
+          <input type="hidden" id="updateProgramName" name="programmeName" />
+          <input type="hidden" id="updateTopic" name="topic" />
+          <input type="hidden" id="updateDistrict" name="districtName" />
 
-                <label
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">Programme:</label>
+              <div id="updateProgramNameDisplay" class="font-bold text-gray-800 p-2 bg-gray-100 rounded"></div>
+
+              <label class="block text-gray-700 font-semibold mt-4 mb-2">District:</label>
+              <div id="updateDistrictDisplay" class="font-bold text-gray-800 p-2 bg-gray-100 rounded"></div>
+
+              <label
                   for="updateNatureOfStaff"
                   class="block text-gray-700 font-semibold mt-4 mb-2"
                   >Nature of Staff:</label
@@ -375,985 +279,786 @@
                 <select
                   id="updateNatureOfStaff"
                   name="natureOfStaff"
+                  multiple
                   required
-                  class="w-full p-2 border border-gray-300 rounded"
-                >
-                  <option value="">-- Select Nature of Staff --</option>
-                </select>
+                  class="w-full p-2 border border-gray-300 rounded choices-multiple"
+                ></select>
 
-                <label
-                  for="updateVenue"
-                  class="block text-gray-700 font-semibold mt-4 mb-2"
-                  >Venue:</label
-                >
-                <select
-                  id="updateVenue"
-                  name="venue"
-                  required
-                  class="w-full p-2 border border-gray-300 rounded"
-                >
-                  <option value="">-- Select Venue --</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-2"
-                  >Topic:</label
-                >
-                <div
-                  id="updateTopicDisplay"
-                  class="font-bold text-gray-800 p-2 bg-gray-100 rounded"
-                ></div>
-
-                <label
-                  for="updateTarget"
-                  class="block text-gray-700 font-semibold mt-4 mb-2"
-                  >Target:</label
-                >
-                <input
-                  type="number"
-                  id="updateTarget"
-                  name="target"
-                  placeholder="Target (optional)"
-                  min="1"
-                  class="w-full p-2 border border-gray-300 rounded"
-                />
-
-                <div class="flex items-center space-x-2 mt-4">
-                  <label
-                    for="updateStartDate"
-                    class="block text-gray-700 font-semibold whitespace-nowrap"
-                    >Start Date:</label
-                  >
-                  <input
-                    type="date"
-                    id="updateStartDate"
-                    name="startDate"
-                    required
-                    class="w-full p-2 border border-gray-300 rounded"
-                    onchange="calculateUpdateDuration()"
-                  />
-                </div>
-
-                <div class="flex items-center space-x-2 mt-4">
-                  <label
-                    for="updateEndDate"
-                    class="block text-gray-700 font-semibold whitespace-nowrap"
-                    >End Date:</label
-                  >
-                  <input
-                    type="date"
-                    id="updateEndDate"
-                    name="endDate"
-                    required
-                    class="w-full p-2 border border-gray-300 rounded"
-                    onchange="calculateUpdateDuration()"
-                  />
-                </div>
-
-                <label
-                  for="updateDuration"
-                  class="block text-gray-700 font-semibold mt-4 mb-2"
-                  >Duration (days):</label
-                >
-                <input
-                  type="number"
-                  id="updateDuration"
-                  name="duration"
-                  placeholder="Auto-calculated"
-                  class="w-full p-2 border border-gray-300 rounded"
-                  readonly
-                />
-              </div>
+              <label for="updateVenue" class="block text-gray-700 font-semibold mt-4 mb-2">Venue:</label>
+              <select id="updateVenue" name="venue" required class="w-full p-2 border border-gray-300 rounded">
+                <option value="">-- Select Venue --</option>
+              </select>
             </div>
-            <div class="flex justify-end mt-6 space-x-4">
-              <button
-                type="submit"
-                id="updateCalendarBtn"
-                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
-              >
-                Update
-              </button>
-              <button
-                type="button"
-                id="cancelUpdateModalBtn"
-                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-              >
-                Cancel
-              </button>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">Topic:</label>
+              <div id="updateTopicDisplay" class="font-bold text-gray-800 p-2 bg-gray-100 rounded"></div>
+
+              <label for="updateTarget" class="block text-gray-700 font-semibold mt-4 mb-2">Target:</label>
+              <input type="number" id="updateTarget" name="target" placeholder="Target (optional)" min="1"
+                class="w-full p-2 border border-gray-300 rounded" />
+
+              <div class="flex items-center space-x-2 mt-4">
+                <label for="updateStartDate" class="block text-gray-700 font-semibold whitespace-nowrap">Start
+                  Date:</label>
+                <input type="date" id="updateStartDate" name="startDate" required
+                  class="w-full p-2 border border-gray-300 rounded" onchange="calculateUpdateDuration()" />
+              </div>
+
+              <div class="flex items-center space-x-2 mt-4">
+                <label for="updateEndDate" class="block text-gray-700 font-semibold whitespace-nowrap">End Date:</label>
+                <input type="date" id="updateEndDate" name="endDate" required
+                  class="w-full p-2 border border-gray-300 rounded" onchange="calculateUpdateDuration()" />
+              </div>
+
+              <label for="updateDuration" class="block text-gray-700 font-semibold mt-4 mb-2">Duration (days):</label>
+              <input type="number" id="updateDuration" name="duration" placeholder="Auto-calculated"
+                class="w-full p-2 border border-gray-300 rounded" readonly />
             </div>
-          </form>
-        </div>
+          </div>
+          <div class="flex justify-end mt-6 space-x-4">
+            <button type="submit" id="updateCalendarBtn"
+              class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">
+              Update
+            </button>
+            <button type="button" id="cancelUpdateModalBtn"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <!-- Assign Trainee Modal (same as before) -->
-      <div
-        id="assignTraineeModal"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-40 p-4"
-        style="overflow: auto"
-      >
-        <div
-          class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl"
-        >
-          <button
-            id="closeAssignTraineeModal"
-            class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10"
-          >
-            ×
-          </button>
-          <h3 class="text-2xl font-bold text-gray-800 mb-4">Assign Trainee</h3>
-          <form id="assignTraineeForm">
-            <input type="hidden" id="assignCalendarID" name="calendarId" />
+    <!-- Assign Trainee Modal (same as before) -->
+    <div id="assignTraineeModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-40 p-4"
+      style="overflow: auto">
+      <div class="bg-white p-6 rounded-lg shadow-lg relative modal-container w-[90vw] max-w-4xl">
+        <button id="closeAssignTraineeModal"
+          class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-3xl z-10">
+          ×
+        </button>
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">Assign Trainee</h3>
+        <form id="assignTraineeForm">
+          <input type="hidden" id="assignCalendarID" name="calendarId" />
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >Programme:</label
-                >
-                <p
-                  id="assign_program_name"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >Topic:</label
-                >
-                <p
-                  id="assign_topicName"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >District:</label
-                >
-                <p
-                  id="assign_district_name"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >Venue:</label
-                >
-                <p
-                  id="assign_venue_name"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >Nature of Staff:</label
-                >
-                <p
-                  id="assign_nature_Of_Staff"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >Target:</label
-                >
-                <p
-                  id="assign_target"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >Start Date:</label
-                >
-                <p
-                  id="assign_start_date"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >End Date:</label
-                >
-                <p
-                  id="assign_end_date"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-gray-700 font-semibold mb-1"
-                  >Duration (days):</label
-                >
-                <p
-                  id="assign_duration"
-                  class="bg-gray-100 p-2 rounded text-sm"
-                ></p>
-              </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">Programme:</label>
+              <p id="assign_program_name" class="bg-gray-100 p-2 rounded text-sm"></p>
             </div>
-            <hr class="my-4" />
-            <p class="text-center text-gray-500">
-              (Trainee selection form/table will go here)
-            </p>
-            <div class="flex justify-end mt-6 space-x-4">
-              <button
-                type="submit"
-                id="submitAssignTraineeBtn"
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-              >
-                Assign Selected
-              </button>
-              <button
-                type="button"
-                id="cancelAssignTraineeModalBtn"
-                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
-              >
-                Cancel
-              </button>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">Topic:</label>
+              <p id="assign_topicName" class="bg-gray-100 p-2 rounded text-sm"></p>
             </div>
-          </form>
-        </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">District:</label>
+              <p id="assign_district_name" class="bg-gray-100 p-2 rounded text-sm"></p>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">Venue:</label>
+              <p id="assign_venue_name" class="bg-gray-100 p-2 rounded text-sm"></p>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">Nature of Staff:</label>
+              <p id="assign_nature_Of_Staff" class="bg-gray-100 p-2 rounded text-sm"></p>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">Target:</label>
+              <p id="assign_target" class="bg-gray-100 p-2 rounded text-sm"></p>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">Start Date:</label>
+              <p id="assign_start_date" class="bg-gray-100 p-2 rounded text-sm"></p>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">End Date:</label>
+              <p id="assign_end_date" class="bg-gray-100 p-2 rounded text-sm"></p>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-1">Duration (days):</label>
+              <p id="assign_duration" class="bg-gray-100 p-2 rounded text-sm"></p>
+            </div>
+          </div>
+          <hr class="my-4" />
+          <p class="text-center text-gray-500">
+            (Trainee selection form/table will go here)
+          </p>
+          <div class="flex justify-end mt-6 space-x-4">
+            <button type="submit" id="submitAssignTraineeBtn"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+              Assign Selected
+            </button>
+            <button type="button" id="cancelAssignTraineeModalBtn"
+              class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-      <script
-        src="https://kit.fontawesome.com/a076d05399.js"
-        crossorigin="anonymous"
-      ></script>
-      <script>
-        // Tab switching function
-        function switchTab(tabName) {
-          // Update tab buttons
-          document.querySelectorAll(".tab-button").forEach((btn) => {
-            btn.classList.remove("active");
-          });
-          document.getElementById(`${tabName}Tab`).classList.add("active");
 
-          // Update tab content
-          document.querySelectorAll(".tab-content").forEach((content) => {
-            content.classList.remove("active");
-          });
-          document.getElementById(`${tabName}Content`).classList.add("active");
+<script th:inline="javascript">
+  let GlobalDistrictName = /*[[${employeeInfo.district}]]*/ "";
+</script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <script>
+      // Tab switching function
+      function switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll(".tab-button").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        document.getElementById(`${tabName}Tab`).classList.add("active");
+
+        // Update tab content
+        document.querySelectorAll(".tab-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+        document.getElementById(`${tabName}Content`).classList.add("active");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const upcomingList = document.getElementById("upcomingList");
+        const ongoingList = document.getElementById("ongoingList");
+        const completedList = document.getElementById("completedList");
+        const updateModalEl = document.getElementById("updateModal");
+        const closeUpdateModalBtn =
+          document.getElementById("closeUpdateModal");
+        const cancelUpdateModalBtn = document.getElementById(
+          "cancelUpdateModalBtn"
+        );
+        const updateCalendarForm =
+          document.getElementById("updateCalendarForm");
+        const assignTraineeModalEl =
+          document.getElementById("assignTraineeModal");
+        const closeAssignTraineeModalBtn = document.getElementById(
+          "closeAssignTraineeModal"
+        );
+        const cancelAssignTraineeModalBtn = document.getElementById(
+          "cancelAssignTraineeModalBtn"
+        );
+        const assignTraineeForm =
+          document.getElementById("assignTraineeForm");
+
+        function openModal(modalElement) {
+          if (modalElement) {
+            modalElement.classList.remove("hidden");
+            document.body.classList.add("overflow-hidden");
+          } else {
+            console.error("Attempted to open a null modal element");
+          }
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-          const upcomingList = document.getElementById("upcomingList");
-          const ongoingList = document.getElementById("ongoingList");
-          const completedList = document.getElementById("completedList");
-          const updateModalEl = document.getElementById("updateModal");
-          const closeUpdateModalBtn =
-            document.getElementById("closeUpdateModal");
-          const cancelUpdateModalBtn = document.getElementById(
-            "cancelUpdateModalBtn"
-          );
-          const updateCalendarForm =
-            document.getElementById("updateCalendarForm");
-          const assignTraineeModalEl =
-            document.getElementById("assignTraineeModal");
-          const closeAssignTraineeModalBtn = document.getElementById(
-            "closeAssignTraineeModal"
-          );
-          const cancelAssignTraineeModalBtn = document.getElementById(
-            "cancelAssignTraineeModalBtn"
-          );
-          const assignTraineeForm =
-            document.getElementById("assignTraineeForm");
-
-          function openModal(modalElement) {
-            if (modalElement) {
-              modalElement.classList.remove("hidden");
-              document.body.classList.add("overflow-hidden");
-            } else {
-              console.error("Attempted to open a null modal element");
-            }
+        function closeModal(modalElement) {
+          if (modalElement) {
+            modalElement.classList.add("hidden");
+            document.body.classList.remove("overflow-hidden");
+          } else {
+            console.error("Attempted to close a null modal element");
           }
+        }
 
-          function closeModal(modalElement) {
-            if (modalElement) {
-              modalElement.classList.add("hidden");
-              document.body.classList.remove("overflow-hidden");
-            } else {
-              console.error("Attempted to close a null modal element");
-            }
+        function populateSelect(
+          selectElement,
+          url,
+          defaultText,
+          valueField,
+          textField,
+          selectedIds = [],
+          isMultiple = false // Added parameter to control if it's a multi-select
+        ) {
+          if (!selectElement) {
+            debugger;
+            console.error(
+              `Select element (ID: ${selectElement ? selectElement.id : "N/A"
+              }) not found`
+            );
+            return Promise.reject("Select element not found");
           }
+          // --- Key Improvement: Manage Choices.js instance ---
+          if (selectElement.choicesInstance) {
+            selectElement.choicesInstance.destroy(); // Destroy previous instance if it exists
+            selectElement.choicesInstance = null;
+          }
+          // --- End Key Improvement ---
 
-          function populateSelect(
-            selectId,
-            url,
-            defaultText,
-            valueField,
-            textField,
-            selectedValue = null
-          ) {
-            const selectElement = document.getElementById(selectId);
-            if (!selectElement) {
-              console.error(`Select element not found: ${selectId}`);
-              return;
-            }
-            selectElement.innerHTML = `<option value="">${defaultText}</option>`;
-            selectElement.disabled = true;
+          selectElement.innerHTML = ""; // Clear previous options
+          selectElement.disabled = false;
 
-            fetch(url, { method: "GET" })
-              .then((response) => {
-                if (!response.ok)
-                  throw new Error(
-                    `HTTP error! Status: ${response.status} for ${url}`
-                  );
-                return response.json();
-              })
-              .then((data) => {
-                if (!Array.isArray(data)) {
-                  console.error(
-                    `Expected array but got ${typeof data} from ${url}`
-                  );
-                  data = [];
-                }
+          return fetch(url, { method: "GET" })
+            .then((response) => {
+              if (!response.ok)
+                throw new Error(
+                  `HTTP error! Status: ${response.status} for ${url}`
+                );
+              return response.json();
+            })
+            .then((data) => {
+              data = Array.isArray(data) ? data : [];
+              if (isMultiple) { // Logic for Multi-select (Choices.js)
+                selectElement.innerHTML = ""; // Ensure it's clear for Choices
+                const choicesArray = data.map((item) => ({
+                  value: String(item[valueField] ?? ""),
+                  label: item[textField] ?? "Invalid Data",
+                  selected: selectedIds.includes(
+                    String(item[valueField] ?? "") // Pre-select values if provided
+                  ),
+                  disabled: false,
+                }));
+                // --- Key Improvement: Initialize Choices.js ---
+                const choicesInstance = new Choices(selectElement, {
+                  removeItemButton: true, // Allows removal of selected items
+                  choices: choicesArray, // Populate with data
+                  shouldSort: false, // Maintain order or sort as needed
+                  placeholder: true, // Show placeholder text
+                  placeholderValue: defaultText,
+                  itemSelectText: "", // Customize text on select
+                });
+                selectElement.choicesInstance = choicesInstance; // Store instance on the element
+                // --- End Key Improvement ---
+                selectElement.disabled = false;
+                return choicesInstance; // Return the instance for further use
+              } else { // Logic for Single-select
                 selectElement.innerHTML = `<option value="">${defaultText}</option>`;
                 data.forEach((item) => {
                   const option = document.createElement("option");
-                  option.value = item.hasOwnProperty(valueField)
-                    ? item[valueField]
-                    : "";
-                  option.textContent = item.hasOwnProperty(textField)
-                    ? item[textField]
-                    : "Invalid Data";
+                  option.value = String(item[valueField] ?? "");
+                  option.textContent = item[textField] ?? "Invalid Data";
                   if (
-                    selectedValue != null &&
-                    String(option.value) === String(selectedValue)
+                    selectedIds?.length > 0 &&
+                    String(item[valueField] ?? "") === String(selectedIds[0])
                   ) {
-                    option.selected = true;
+                    option.selected = true; // Pre-select if provided
                   }
                   selectElement.appendChild(option);
                 });
                 selectElement.disabled = false;
-              })
-              .catch((error) => {
-                console.error(`Error populating ${selectId}:`, error);
+                return null; // Not returning a Choices instance for single select
+              }
+            })
+            .catch((error) => {
+              console.error(
+                `Error populating select ${selectElement.id}:`,
+                error
+              );
+              if (selectElement) {
                 selectElement.innerHTML = `<option value="">-- Error Loading --</option>`;
                 selectElement.disabled = true;
-              });
+              }
+              throw error; // Re-throw to be caught by caller if needed
+            });
+        }
+        let allDistrictData = []; // Global to store fetched districts
+        async function fetchAllDistricts() {
+          if (allDistrictData.length > 0) return allDistrictData; // Return cached data if available
+          try {
+            const response = await fetch("/api/district/getall");
+            if (!response.ok) throw new Error("Failed to fetch districts");
+            allDistrictData = await response.json();
+            return allDistrictData;
+          } catch (error) {
+            console.error("Error fetching all districts:", error);
+            allDistrictData = []; // Reset on error
+            return [];
           }
+        }
 
-          function fetchVenuesForDistrict(
-            districtId,
-            venueSelectId,
-            selectedVenueId = null
-          ) {
-            const venueSelect = document.getElementById(venueSelectId);
-            if (!venueSelect) {
-              console.error(`Venue select element not found: ${venueSelectId}`);
-              return;
+
+
+    
+
+function fetchCalendars() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (!upcomingList || !ongoingList || !completedList) return;
+
+  upcomingList.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading upcoming programs...</td></tr>`;
+  ongoingList.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading ongoing programs...</td></tr>`;
+  completedList.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading completed programs...</td></tr>`;
+
+  fetch("/api/calendar/all")
+    .then((response) => {
+      if (!response.ok)
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      if (!Array.isArray(data)) {
+        const errorHtml = '<tr><td colspan="11" class="text-center p-4 text-red-500">Error: Invalid data format received.</td></tr>';
+        upcomingList.innerHTML = errorHtml;
+        ongoingList.innerHTML = errorHtml;
+        completedList.innerHTML = errorHtml;
+        return;
+      }
+
+      const userDistrictName = (typeof GlobalDistrictName === "string" ? GlobalDistrictName.trim().toLowerCase() : "");
+
+      data.sort((a, b) =>
+        (a.programeName?.programName ?? "").localeCompare(b.programeName?.programName ?? "")
+      );
+
+      // Clear tables
+      upcomingList.innerHTML = "";
+      ongoingList.innerHTML = "";
+      completedList.innerHTML = "";
+
+      const formatDate = (dateStr) => {
+        if (!dateStr) return "N/A";
+        const d = new Date(dateStr);
+        return d.toLocaleDateString("en-GB");
+      };
+
+      const formatForInput = (dateStr) => {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        return d.toISOString().split("T")[0];
+      };
+
+      let upcomingCount = 0;
+      let ongoingCount = 0;
+      let completedCount = 0;
+
+      data.forEach((calendar) => {
+        const startDateObj = calendar.startDate ? new Date(calendar.startDate) : null;
+        const endDateObj = calendar.endDate ? new Date(calendar.endDate) : null;
+        if (startDateObj) startDateObj.setHours(0, 0, 0, 0);
+        if (endDateObj) endDateObj.setHours(0, 0, 0, 0);
+
+        let status = "upcoming";
+        if (startDateObj && startDateObj > today) {
+          status = "upcoming";
+        } else if (startDateObj && endDateObj && startDateObj <= today && today <= endDateObj) {
+          status = "ongoing";
+        } else if (endDateObj && endDateObj < today) {
+          status = "completed";
+        }
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-gray-50";
+
+        const display = (val) => val != null && val !== "" ? val : "N/A";
+        const escapeQuotes = (str) => String(str ?? "").replace(/'/g, "\\'").replace(/"/g, '"');
+
+        const calendarId = calendar.calendarId;
+        const programId = calendar.programeName?.programId ?? null;
+        const programName = calendar.programeName?.programName ?? "N/A";
+        const topicId = calendar.topic?.topicId ?? null;
+        const topicName = calendar.topic?.topicName ?? "N/A";
+        const firstDistrict = Array.isArray(calendar.district) ? calendar.district[0] : null;
+        const districtId = firstDistrict?.districtId ?? null;
+        const districtName = firstDistrict?.districtName ?? "N/A";
+
+        // ✅ Filter by GlobalDistrictName (case-insensitive)
+        if (userDistrictName && districtName.trim().toLowerCase() !== userDistrictName) {
+          return;
+        }
+
+        const venueId = calendar.venueName?.venueId ?? null;
+        const venueName = calendar.venueName?.venueName ?? "N/A";
+        const natureOfStaffs = Array.isArray(calendar.natureOfStaffs) ? calendar.natureOfStaffs : [];
+        const natureOfStaffNames = natureOfStaffs.map(staff => staff.natureOfStaffName).join(", ") || "N/A";
+        const target = calendar.target ?? "";
+        const startDateStr = formatForInput(calendar.startDate);
+        const endDateStr = formatForInput(calendar.endDate);
+        const duration = calendar.duration ?? "";
+
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${status === "upcoming"
+            ? ++upcomingCount
+            : status === "ongoing"
+              ? ++ongoingCount
+              : ++completedCount
+          }</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${programName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${topicName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${districtName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${venueName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${natureOfStaffNames}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${display(target)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(calendar.startDate)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(calendar.endDate)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${duration ? `${duration} days` : "N/A"}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">
+            ${status === "upcoming"
+              ? `
+           <td class="text-end">
+    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition mr-1"
+      onclick='editCalendar(
+        ${calendarId},
+        ${topicId},
+        ${programId},
+        "${escapeQuotes(programName)}",
+        ${JSON.stringify(natureOfStaffs)},
+        ${venueId},
+        "${escapeQuotes(target)}",
+        "${startDateStr}",
+        "${endDateStr}",
+        "${escapeQuotes(duration)}",
+        "${escapeQuotes(topicName)}",
+        ${districtId},
+        "${escapeQuotes(districtName)}"
+      )'>
+      Update
+    </button>
+  </td>
+              <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="redirectToAssignTrainee(${calendarId})">
+                Assign Trainee
+              </button>`
+              : status === "ongoing"
+                ? `
+              <button class="bg-gray-300 text-gray-600 px-3 py-1 rounded mr-1 cursor-not-allowed" title="Cannot update ongoing programs">Update</button>
+              <button class="bg-gray-300 text-gray-600 px-3 py-1 rounded cursor-not-allowed" title="Cannot assign trainees to ongoing programs">Assign Trainee</button>`
+                : `
+              <button class="bg-gray-300 text-gray-600 px-3 py-1 rounded mr-1 cursor-not-allowed" title="Cannot update completed programs">Update</button>
+              <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="redirectToViewEmployees(${calendarId})">
+                View Details
+              </button>`
             }
-            venueSelect.innerHTML = `<option value="">-- Loading Venues --</option>`;
-            venueSelect.disabled = true;
+          </td>
+        `;
 
-            if (!districtId) {
-              venueSelect.innerHTML = `<option value="">-- District Not Specified --</option>`;
-              return;
-            }
+        if (status === "upcoming") {
+          upcomingList.appendChild(tr);
+        } else if (status === "ongoing") {
+          ongoingList.appendChild(tr);
+        } else {
+          completedList.appendChild(tr);
+        }
+      });
 
-            const url = `/api/venues/by-district/${districtId}`;
+      if (upcomingCount === 0) {
+        upcomingList.innerHTML = `<tr><td colspan="11" class="text-center p-4">No upcoming programs found.</td></tr>`;
+      }
+      if (ongoingCount === 0) {
+        ongoingList.innerHTML = `<tr><td colspan="11" class="text-center p-4">No ongoing programs found.</td></tr>`;
+      }
+      if (completedCount === 0) {
+        completedList.innerHTML = `<tr><td colspan="11" class="text-center p-4">No completed programs found.</td></tr>`;
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching or processing calendars:", error);
+      const errorHtml = (msg) => `<tr><td colspan="11" class="text-center p-4 text-red-500">Error: ${msg}</td></tr>`;
+      upcomingList.innerHTML = errorHtml(error.message);
+      ongoingList.innerHTML = errorHtml(error.message);
+      completedList.innerHTML = errorHtml(error.message);
+    });
+}
 
-            fetch(url, { method: "GET" })
-              .then((response) => {
-                if (!response.ok) {
-                  throw new Error(
-                    `HTTP error! Status: ${response.status} fetching venues for district ${districtId}`
-                  );
-                }
-                const contentType = response.headers.get("content-type");
-                if (
-                  contentType &&
-                  contentType.indexOf("application/json") !== -1
-                ) {
-                  return response.json();
-                } else {
-                  throw new Error(
-                    "Server did not return JSON data for venues."
-                  );
-                }
-              })
-              .then((data) => {
-                if (!Array.isArray(data)) {
-                  throw new Error(
-                    "Invalid data format received for venues (expected an array)."
-                  );
-                }
-                venueSelect.innerHTML = `<option value="">-- Select Venue --</option>`;
-                data.forEach((venue) => {
-                  const option = document.createElement("option");
-                  option.value = venue?.venueId ?? "";
-                  option.textContent = venue?.venueName ?? "Unnamed Venue";
-                  if (
-                    selectedVenueId != null &&
-                    String(option.value) === String(selectedVenueId)
-                  ) {
-                    option.selected = true;
-                  }
-                  venueSelect.appendChild(option);
-                });
-                venueSelect.disabled = false;
-              })
-              .catch((error) => {
-                console.error("Error fetching or processing venues:", error);
-                venueSelect.innerHTML = `<option value="">-- Error Loading Venues --</option>`;
-                venueSelect.disabled = true;
-              });
+
+window.editCalendar = function (
+  calendarId,
+  topicId,
+  programId,
+  programName,
+  natureOfStaffIds, // now array of IDs
+  venueId,
+  target,
+  startDate,
+  endDate,
+  duration,
+  topicName,
+  districtId,
+  districtName,
+  
+) {
+  updateCalendarForm.reset();
+  debugger;
+  document.getElementById("updateCalendarId").value = calendarId;
+  document.getElementById("updateProgramName").value = programId ?? "";
+  document.getElementById("updateTopic").value = topicId ?? "";
+  document.getElementById("updateDistrict").value = districtId ?? "";
+
+  document.getElementById("updateProgramNameDisplay").textContent = programName ?? "N/A";
+  document.getElementById("updateTopicDisplay").textContent = topicName ?? "N/A";
+  document.getElementById("updateDistrictDisplay").textContent = districtName ?? "N/A";
+
+  document.getElementById("updateTarget").value = target ?? "";
+  document.getElementById("updateStartDate").value = startDate ?? "";
+  document.getElementById("updateEndDate").value = endDate ?? "";
+  document.getElementById("updateDuration").value = duration ?? "";
+  document.getElementById("updateVenue").value = venueId ?? "";
+
+  const capturedNatureOfStaffIds = Array.isArray(natureOfStaffIds) ? natureOfStaffIds : [];
+  loadNatureOfStaffOptions(capturedNatureOfStaffIds);
+  fetchVenuesForDistrict([districtId],venueId);
+  function fetchVenuesForDistrict(districtIdArray, selectedVenueId) {
+  const venueSelect = $('#updateVenue');
+
+  // Clear existing options and add default
+  venueSelect.empty().append('<option value="">-- Select Venue --</option>');
+
+  // Ensure it's an array with at least one value
+  if (!Array.isArray(districtIdArray) || districtIdArray.length === 0) return;
+
+  $.ajax({
+    url: '/api/venues/by-districts',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(districtIdArray),
+    success: function (venues) {
+      if (Array.isArray(venues)) {
+        venues.forEach(function (venue) {
+          const option = $('<option>')
+            .val(venue.venueId)
+            .text(venue.venueName);
+          if (selectedVenueId && venue.venueId === selectedVenueId) {
+            option.prop('selected', true);
           }
+          venueSelect.append(option);
+        });
+      }
+    },
+    error: function (xhr, status, error) {
+      console.error("Error fetching venues:", error);
+    }
+  });
+}
 
-          function fetchCalendars() {
-            debugger;
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
 
-            if (!upcomingList || !ongoingList || !completedList) return;
+  function loadNatureOfStaffOptions(selectedStaffObjects = []) {
+  const $select = $('#updateNatureOfStaff');
+  $select.empty();
 
-            upcomingList.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading upcoming programs...</td></tr>`;
-            ongoingList.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading ongoing programs...</td></tr>`;
-            completedList.innerHTML = `<tr><td colspan="11" class="text-center p-4">Loading completed programs...</td></tr>`;
+  // Extract just the IDs from the passed objects (e.g., [114, 107])
+  const selectedIds = selectedStaffObjects.map(item => item.natureOfStaffId.toString());
 
-            fetch("/api/calendar/all")
-              .then((response) => {
-                if (!response.ok)
-                  throw new Error(
-                    `HTTP error! Status: ${response.status} fetching calendars`
-                  );
-                return response.json();
-              })
-              .then((data) => {
-                debugger;
-                console.log("Calendar Data", data);
-                if (!Array.isArray(data)) {
-                  console.error(
-                    "Expected array but got non-array for calendars:",
-                    data
-                  );
-                  upcomingList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4 text-red-500">Error: Invalid data format received.</td></tr>';
-                  ongoingList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4 text-red-500">Error: Invalid data format received.</td></tr>';
-                  completedList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4 text-red-500">Error: Invalid data format received.</td></tr>';
-                  return;
-                }
+  $.ajax({
+    url: '/api/natureofstaff/getall',
+    method: 'GET',
+    success: function (data) {
+      if (!Array.isArray(data)) {
+        console.error('API did not return an array');
+        return;
+      }
 
-                // Sort by program name
-                data.sort((a, b) =>
-                  (a.programeName?.programName ?? "").localeCompare(
-                    b.programeName?.programName ?? ""
-                  )
-                );
+      // Add options to the <select>
+      data.forEach(item => {
+        const option = new Option(item.natureOfStaffName, item.natureOfStaffId, false, false);
+        $select.append(option);
+      });
 
-                // Clear tables
-                upcomingList.innerHTML = "";
-                ongoingList.innerHTML = "";
-                completedList.innerHTML = "";
+      // Re-initialize Choices.js
+      if ($select[0]._choices) {
+        $select[0]._choices.destroy();
+      }
 
-                if (data.length === 0) {
-                  upcomingList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4">No upcoming programs found.</td></tr>';
-                  ongoingList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4">No ongoing programs found.</td></tr>';
-                  completedList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4">No completed programs found.</td></tr>';
-                  return;
-                }
+      const choices = new Choices($select[0], {
+        removeItemButton: true,
+        shouldSort: false
+      });
 
-                const formatDate = (dateStr) => {
-                  if (!dateStr) return "N/A";
-                  try {
-                    const d = new Date(dateStr);
-                    return d.toLocaleDateString("en-GB");
-                  } catch (e) {
-                    return "Invalid Date";
-                  }
-                };
-                const formatForInput = (dateStr) => {
-                  if (!dateStr) return "";
-                  try {
-                    const d = new Date(dateStr);
-                    return d.toISOString().split("T")[0];
-                  } catch (e) {
-                    return "";
-                  }
-                };
+      $select[0]._choices = choices;
 
-                let upcomingCount = 0;
-                let ongoingCount = 0;
-                let completedCount = 0;
+      // Select matched values by value (converted to string)
+      if (selectedIds.length > 0) {
+        choices.setChoiceByValue(selectedIds);
+      }
+    },
+    error: function (err) {
+      console.error('Failed to fetch Nature of Staff:', err);
+    }
+  });
+}
 
-                data.forEach((calendar, index) => {
-                  console.log(calendar);
-                  const startDate = calendar.startDate
-                    ? new Date(calendar.startDate)
-                    : null;
-                  const endDate = calendar.endDate
-                    ? new Date(calendar.endDate)
-                    : null;
 
-                  // Determine program status based on dates
-                  let status = "upcoming";
-                  if (startDate && endDate) {
-                    if (endDate < today) {
-                      status = "completed";
-                    } else if (startDate <= today && today <= endDate) {
-                      status = "ongoing";
-                    }
-                  }
+  openModal(updateModalEl);
+};
 
-                  const tr = document.createElement("tr");
-                  tr.className = "hover:bg-gray-50";
-                  const display = (val) =>
-                    val != null && val !== "" ? val : "N/A";
-                  const escapeQuotes = (str) =>
-                    String(str ?? "")
-                      .replace(/'/g, "\\'")
-                      .replace(/"/g, '"');
 
-                  const calendarId = calendar.calendarId;
-                  const programId = calendar.programeName?.programId ?? null;
-                  const programName =
-                    calendar.programeName?.programName ?? "N/A";
-                  const topicId = calendar.topic?.topicId ?? null;
-                  const topicName = calendar.topic?.topicName ?? "N/A";
-                  const districtId = calendar.district?.districtId ?? null;
-                  const districtName = calendar.district?.districtName ?? "N/A";
-                  const venueId = calendar.venueName?.venueId ?? null;
-                  const venueName = calendar.venueName?.venueName ?? "N/A";
-                  const natureOfStaffId =
-                    calendar.natureOfStaffs?.natureOfStaffId ?? null;
-                  const natureOfStaffName =
-                    calendar.natureOfStaffs?.natureOfStaffName ?? "N/A";
-                  const target = calendar.target ?? "";
-                  const startDateStr = formatForInput(calendar.startDate);
-                  const endDateStr = formatForInput(calendar.endDate);
-                  const duration = calendar.duration ?? "";
+        if (closeUpdateModalBtn)
+          closeUpdateModalBtn.addEventListener("click", () =>
+            closeModal(updateModalEl)
+          );
+        if (cancelUpdateModalBtn)
+          cancelUpdateModalBtn.addEventListener("click", () =>
+            closeModal(updateModalEl)
+          );
 
-                  tr.innerHTML = `
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${
-                    status === "upcoming"
-                      ? upcomingCount + 1
-                      : status === "ongoing"
-                      ? ongoingCount + 1
-                      : completedCount + 1
-                  }</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${programName}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${topicName}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${districtName}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${venueName}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${natureOfStaffName}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${display(
-                    target
-                  )}</td>
-                  
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(
-                    calendar.startDate
-                  )}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(
-                    calendar.endDate
-                  )}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">${
-                    duration ? `${duration} days` : "N/A"
-                  }</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right">
-                    ${
-                      status === "upcoming"
-                        ? `
-                      <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition mr-1"
-                          onclick='editCalendar(
-                              ${calendarId}, ${topicId}, ${programId}, "${escapeQuotes(
-                            programName
-                          )}",
-                              ${natureOfStaffId}, ${venueId}, "${escapeQuotes(
-                            target
-                          )}",
-                              "${startDateStr}", "${endDateStr}", "${escapeQuotes(
-                            duration
-                          )}",
-                              "${escapeQuotes(
-                                topicName
-                              )}", ${districtId}, "${escapeQuotes(
-                            districtName
-                          )}"
-                          )'>
-                          Update
-                      </button>
-                      <button
-                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
-                        onclick="redirectToAssignTrainee(${
-                          calendar.calendarId
-                        })">
-                        Assign Trainee
-                      </button>
-                      
-                    `
-                        : status === "ongoing"
-                        ? `
-                      <button class="bg-gray-300 text-gray-600 px-3 py-1 rounded mr-1 cursor-not-allowed"
-                          title="Cannot update ongoing programs">
-                          Update
-                      </button>
-                      <button
-                        class="bg-gray-300 text-gray-600 px-3 py-1 rounded cursor-not-allowed"
-                        title="Cannot assign trainees to ongoing programs">
-                        Assign Trainee
-                      </button>
-                    `
-                        : `
-                      <button class="bg-gray-300 text-gray-600 px-3 py-1 rounded mr-1 cursor-not-allowed"
-                          title="Cannot update completed programs">
-                          Update
-                      </button>
-                      <button
-                        class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-                        onclick="redirectToViewEmployees(${calendar.calendarId})">
-                        View Details
-                      </button>
-                    `
-                    }
-                  </td>
-                `;
+        updateCalendarForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const calendarId =
+            document.getElementById("updateCalendarId").value;
+          const programId =
+            document.getElementById("updateProgramName").value;
+          const topicId = document.getElementById("updateTopic").value;
+          const districtId = document.getElementById("updateDistrict").value;
+          const natureOfStaffId = document.getElementById(
+            "updateNatureOfStaff"
+          ).value;
+          const venueId = document.getElementById("updateVenue").value;
+          const target = document.getElementById("updateTarget").value;
+          const startDate = document.getElementById("updateStartDate").value;
+          const endDate = document.getElementById("updateEndDate").value;
+          const duration = document.getElementById("updateDuration").value;
 
-                  // Add to appropriate table
-                  if (status === "upcoming") {
-                    upcomingList.appendChild(tr);
-                    upcomingCount++;
-                  } else if (status === "ongoing") {
-                    ongoingList.appendChild(tr);
-                    ongoingCount++;
-                  } else {
-                    completedList.appendChild(tr);
-                    completedCount++;
-                  }
-                });
-
-                // Handle empty states
-                if (upcomingCount === 0) {
-                  upcomingList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4">No upcoming programs found.</td></tr>';
-                }
-                if (ongoingCount === 0) {
-                  ongoingList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4">No ongoing programs found.</td></tr>';
-                }
-                if (completedCount === 0) {
-                  completedList.innerHTML =
-                    '<tr><td colspan="11" class="text-center p-4">No completed programs found.</td></tr>';
-                }
-              })
-              .catch((error) => {
-                console.error("Error fetching or processing calendars:", error);
-                upcomingList.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500">Error loading upcoming programs. ${error.message}</td></tr>`;
-                ongoingList.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500">Error loading ongoing programs. ${error.message}</td></tr>`;
-                completedList.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500">Error loading completed programs. ${error.message}</td></tr>`;
-              });
-          }
-
-          window.editCalendar = function (
-            calendarId,
-            topicId,
-            programId,
-            programName,
-            natureOfStaffId,
-            venueId,
-            target,
-            startDate,
-            endDate,
-            duration,
-            topicName,
-            districtId,
-            districtName
-          ) {
-            updateCalendarForm.reset();
-
-            document.getElementById("updateCalendarId").value = calendarId;
-            document.getElementById("updateProgramName").value =
-              programId ?? "";
-            document.getElementById("updateTopic").value = topicId ?? "";
-            document.getElementById("updateDistrict").value = districtId ?? "";
-
-            document.getElementById("updateProgramNameDisplay").textContent =
-              programName ?? "N/A";
-            document.getElementById("updateTopicDisplay").textContent =
-              topicName ?? "N/A";
-            document.getElementById("updateDistrictDisplay").textContent =
-              districtName ?? "N/A";
-
-            document.getElementById("updateTarget").value = target ?? "";
-            document.getElementById("updateStartDate").value = startDate ?? "";
-            document.getElementById("updateEndDate").value = endDate ?? "";
-            document.getElementById("updateDuration").value = duration ?? "";
-
-            populateSelect(
-              "updateNatureOfStaff",
-              "/api/natureofstaff/getall",
-              "-- Select Nature of Staff --",
-              "natureOfStaffId",
-              "natureOfStaffName",
-              natureOfStaffId
-            );
-
-            if (districtId) {
-              fetchVenuesForDistrict(districtId, "updateVenue", venueId);
-            } else {
-              const venueSelect = document.getElementById("updateVenue");
-              venueSelect.innerHTML =
-                '<option value="">-- District Not Specified --</option>';
-              venueSelect.disabled = true;
-            }
-
-            openModal(updateModalEl);
-          };
-
-          if (closeUpdateModalBtn)
-            closeUpdateModalBtn.addEventListener("click", () =>
-              closeModal(updateModalEl)
-            );
-          if (cancelUpdateModalBtn)
-            cancelUpdateModalBtn.addEventListener("click", () =>
-              closeModal(updateModalEl)
-            );
-
-          updateCalendarForm.addEventListener("submit", (event) => {
-            event.preventDefault();
-            const calendarId =
-              document.getElementById("updateCalendarId").value;
-            const programId =
-              document.getElementById("updateProgramName").value;
-            const topicId = document.getElementById("updateTopic").value;
-            const districtId = document.getElementById("updateDistrict").value;
-            const natureOfStaffId = document.getElementById(
-              "updateNatureOfStaff"
-            ).value;
-            const venueId = document.getElementById("updateVenue").value;
-            const target = document.getElementById("updateTarget").value;
-            const startDate = document.getElementById("updateStartDate").value;
-            const endDate = document.getElementById("updateEndDate").value;
-            const duration = document.getElementById("updateDuration").value;
-
-            if (!natureOfStaffId || !venueId || !startDate || !endDate) {
-              alert(
-                "Please fill out required fields (Nature, Venue, Start Date, End Date)."
-              );
-              return;
-            }
-            if (new Date(endDate) < new Date(startDate)) {
-              alert("End date cannot be before the start date.");
-              return;
-            }
-
-            const jsonData = {
-              calendarId: Number(calendarId),
-              programId: programId ? Number(programId) : null,
-              topicId: topicId ? Number(topicId) : null,
-              districtId: districtId ? Number(districtId) : null,
-              natureOfStaffId: Number(natureOfStaffId),
-              venueId: Number(venueId),
-              target: target ? Number(target) : null,
-              startDate: startDate || null,
-              endDate: endDate || null,
-              duration: duration ? Number(duration) : null,
-            };
-
-            fetch("api/calendar/update/{calendarId}", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(jsonData),
-            })
-              .then((response) => {
-                if (response.ok) {
-                  return response
-                    .text()
-                    .then((text) => (text ? JSON.parse(text) : {}));
-                } else {
-                  return response.text().then((text) => {
-                    throw new Error(
-                      `Update failed: ${response.status} - ${
-                        text || "No details"
-                      }`
-                    );
-                  });
-                }
-              })
-              .then(() => {
-                alert("Calendar updated successfully!");
-                closeModal(updateModalEl);
-                fetchCalendars();
-              })
-              .catch((error) => {
-                console.error("Error updating calendar:", error);
-                alert(`Error updating calendar: ${error.message}`);
-              });
-          });
-
-          window.openAssignTraineeModal = function (
-            calendarId,
-            programName,
-            topicName,
-            districtName,
-            venueName,
-            natureOfStaffName,
-            target,
-            formattedStartDate,
-            formattedEndDate,
-            duration
-          ) {
-            if (!assignTraineeModalEl) return;
-            assignTraineeForm.reset();
-
-            document.getElementById("assignCalendarID").value = calendarId;
-            document.getElementById("assign_program_name").textContent =
-              programName ?? "N/A";
-            document.getElementById("assign_topicName").textContent =
-              topicName ?? "N/A";
-            document.getElementById("assign_district_name").textContent =
-              districtName ?? "N/A";
-            document.getElementById("assign_venue_name").textContent =
-              venueName ?? "N/A";
-            document.getElementById("assign_nature_Of_Staff").textContent =
-              natureOfStaffName ?? "N/A";
-            document.getElementById("assign_target").textContent =
-              target && target !== "null" && target !== "" ? target : "N/A";
-            document.getElementById("assign_start_date").textContent =
-              formattedStartDate ?? "N/A";
-            document.getElementById("assign_end_date").textContent =
-              formattedEndDate ?? "N/A";
-            document.getElementById("assign_duration").textContent =
-              duration && duration !== "null" && duration !== ""
-                ? `${duration} days`
-                : "N/A";
-
-            openModal(assignTraineeModalEl);
-          };
-
-          if (closeAssignTraineeModalBtn)
-            closeAssignTraineeModalBtn.addEventListener("click", () =>
-              closeModal(assignTraineeModalEl)
-            );
-          if (cancelAssignTraineeModalBtn)
-            cancelAssignTraineeModalBtn.addEventListener("click", () =>
-              closeModal(assignTraineeModalEl)
-            );
-
-          assignTraineeForm.addEventListener("submit", (event) => {
-            event.preventDefault();
-            const calendarId =
-              document.getElementById("assignCalendarID").value;
-            console.log(`Submitting assignment for Calendar ID: ${calendarId}`);
+          if (!natureOfStaffId || !venueId || !startDate || !endDate) {
             alert(
-              "Assign Trainee form submission logic needs to be implemented."
+              "Please fill out required fields (Nature, Venue, Start Date, End Date)."
             );
+            return;
+          }
+          if (new Date(endDate) < new Date(startDate)) {
+            alert("End date cannot be before the start date.");
+            return;
+          }
 
-            closeModal(assignTraineeModalEl);
-          });
+          const jsonData = {
+            calendarId: Number(calendarId), // still used in the body if needed
+            programId: programId ? Number(programId) : null,
+            topicId: topicId ? Number(topicId) : null,
+            districtId: districtId ? Number(districtId) : null,
+            natureOfStaffId: Number(natureOfStaffId),
+            venueId: Number(venueId),
+            target: target ? Number(target) : null,
+            startDate: startDate || null,
+            endDate: endDate || null,
+            duration: duration ? Number(duration) : null,
+          };
+          console.log("Updating calendar with ID:", calendarId);
 
-          fetchCalendars();
+
+          fetch(`/api/calendar/update/${calendarId}`, { 
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(jsonData),
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.text().then((text) => (text ? JSON.parse(text) : {}));
+              } else {
+                return response.text().then((text) => {
+                  throw new Error(
+                    `Update failed: ${response.status} - ${text || "No details"}`
+                  );
+                });
+              }
+            })
+            .then(() => {
+              alert("Calendar updated successfully!");
+              closeModal(updateModalEl);
+              fetchCalendars();
+            })
+            .catch((error) => {
+              console.error("Error updating calendar:", error);
+              alert(`Error updating calendar: ${error.message}`);
+            });
         });
 
-        function calculateUpdateDuration() {
-          const startDateInput = document.getElementById("updateStartDate");
-          const endDateInput = document.getElementById("updateEndDate");
-          const durationInput = document.getElementById("updateDuration");
+        window.openAssignTraineeModal = function (
+          calendarId,
+          programName,
+          topicName,
+          districtName,
+          venueName,
+          natureOfStaffName,
+          target,
+          formattedStartDate,
+          formattedEndDate,
+          duration
+        ) {
+          if (!assignTraineeModalEl) return;
+          assignTraineeForm.reset();
 
-          if (!startDateInput || !endDateInput || !durationInput) return;
+          document.getElementById("assignCalendarID").value = calendarId;
+          document.getElementById("assign_program_name").textContent =
+            programName ?? "N/A";
+          document.getElementById("assign_topicName").textContent =
+            topicName ?? "N/A";
+          document.getElementById("assign_district_name").textContent =
+            districtName ?? "N/A";
+          document.getElementById("assign_venue_name").textContent =
+            venueName ?? "N/A";
+          document.getElementById("assign_nature_Of_Staff").textContent =
+            natureOfStaffName ?? "N/A";
+          document.getElementById("assign_target").textContent =
+            target && target !== "null" && target !== "" ? target : "N/A";
+          document.getElementById("assign_start_date").textContent =
+            formattedStartDate ?? "N/A";
+          document.getElementById("assign_end_date").textContent =
+            formattedEndDate ?? "N/A";
+          document.getElementById("assign_duration").textContent =
+            duration && duration !== "null" && duration !== ""
+              ? `${duration} days`
+              : "N/A";
 
-          const startDate = startDateInput.value;
-          const endDate = endDateInput.value;
+          openModal(assignTraineeModalEl);
+        };
 
-          if (startDate && endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+        if (closeAssignTraineeModalBtn)
+          closeAssignTraineeModalBtn.addEventListener("click", () =>
+            closeModal(assignTraineeModalEl)
+          );
+        if (cancelAssignTraineeModalBtn)
+          cancelAssignTraineeModalBtn.addEventListener("click", () =>
+            closeModal(assignTraineeModalEl)
+          );
 
-            if (
-              !isNaN(start.getTime()) &&
-              !isNaN(end.getTime()) &&
-              end >= start
-            ) {
-              const diffTime = Math.abs(end - start);
-              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-              durationInput.value = diffDays;
-            } else {
-              durationInput.value = "";
-              if (end < start) {
-                console.warn("End date is before start date.");
-              }
-            }
+        assignTraineeForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const calendarId =
+            document.getElementById("assignCalendarID").value;
+          console.log(`Submitting assignment for Calendar ID: ${calendarId}`);
+          alert(
+            "Assign Trainee form submission logic needs to be implemented."
+          );
+
+          closeModal(assignTraineeModalEl);
+        });
+
+        fetchCalendars();
+      });
+
+      function calculateUpdateDuration() {
+        const startDateInput = document.getElementById("updateStartDate");
+        const endDateInput = document.getElementById("updateEndDate");
+        const durationInput = document.getElementById("updateDuration");
+
+        if (!startDateInput || !endDateInput || !durationInput) return;
+
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+
+        if (startDate && endDate) {
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+
+          if (
+            !isNaN(start.getTime()) &&
+            !isNaN(end.getTime()) &&
+            end >= start
+          ) {
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            durationInput.value = diffDays;
           } else {
             durationInput.value = "";
-          }
-        }
-        function redirectToViewEmployees(calendarId) {
-          // Redirect to viewEmployee page with the calendarId as a parameter
-          window.location.href = `viewEmployees?calendarId=${calendarId}`;
-        }
-
-        function redirectToAssignTrainee(calendarId) {
-          window.location.href = `assignTrainee?calendarId=${calendarId}`;
-        }
-        function downloadExcel() {
-          const tableBody = document.getElementById("calendarList");
-          if (
-            !tableBody ||
-            !tableBody.rows ||
-            tableBody.rows.length === 0 ||
-            tableBody.rows[0].cells.length < 10
-          ) {
-            alert("No calendar data available in the table to download.");
-            return;
-          }
-          const rows = Array.from(tableBody.rows);
-          const headers = [
-            "Sl. No",
-            "Program",
-            "Topic",
-            "District(s)",
-            "Venue",
-            "Nature Of Staff ",
-            "Target",
-            "Start Date",
-            "End Date",
-            "Duration (days)",
-          ];
-          const data = [headers];
-
-          rows.forEach((row) => {
-            const cells = row.querySelectorAll("td");
-            if (cells.length >= 10) {
-              const rowData = Array.from(cells)
-                .slice(0, 10)
-                .map((cell) => cell.textContent.trim());
-              data.push(rowData);
-            } else {
-              console.warn(
-                "Skipping row with insufficient cells for Excel export:",
-                row
-              );
+            if (end < start) {
+              console.warn("End date is before start date.");
             }
-          });
-
-          if (data.length <= 1) {
-            alert("No data rows found to download.");
-            return;
           }
-
-          try {
-            const worksheet = XLSX.utils.aoa_to_sheet(data);
-            const columnWidths = headers.map((_, colIndex) => {
-              const maxLength = data.reduce((max, row) => {
-                const cellContent =
-                  row && row[colIndex] != null ? String(row[colIndex]) : "";
-                return Math.max(max, cellContent.length);
-              }, 10);
-              return { wch: maxLength + 2 };
-            });
-            worksheet["!cols"] = columnWidths;
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Calendar Data");
-            XLSX.writeFile(workbook, "Calendar_Management_Data.xlsx");
-          } catch (error) {
-            console.error("Error generating Excel file:", error);
-            alert(
-              "An error occurred while generating the Excel file. Please check the console for details."
-            );
-          }
+        } else {
+          durationInput.value = "";
         }
-      </script>
-    </body>
-  </main>
+      }
+      function redirectToViewEmployees(calendarId) {
+        // Redirect to viewEmployee page with the calendarId as a parameter
+        window.location.href = `viewEmployees?calendarId=${calendarId}`;
+      }
+
+      function redirectToAssignTrainee(calendarId) {
+        window.location.href = `assignTrainee?calendarId=${calendarId}`;
+      }4
+    </script>
+  </body>
+</main>
+
 </html>
