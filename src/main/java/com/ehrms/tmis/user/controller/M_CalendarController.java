@@ -101,7 +101,7 @@ public class M_CalendarController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating calendar: " + e.getMessage());
         }
     }
-    @PostMapping(value = "/update/{calendarId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/update/{calendarId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateMcalendar(
         @PathVariable Long calendarId,
         @RequestParam("natureOfStaff") List<Long> nosIDs,
@@ -144,6 +144,8 @@ public class M_CalendarController {
         }
     }
 
+    
+    
     @GetMapping("/getCalendarById/{calendarId}")
     public ResponseEntity<M_Calendar> getCalendarById(@PathVariable Long calendarId) {
         Optional<M_Calendar> calendar = mCalendarService.getMcalendarByIdWithDetails(calendarId);

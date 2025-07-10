@@ -935,7 +935,7 @@ window.editCalendar = function (
             console.log("Updating calendar with ID:", calendarId);
 
               fetch(`/api/calendar/update/${calendarId}`, {
-                method: "POST", // Use POST because controller expects multipart/form-data
+                method: "PUT", // Use POST because controller expects multipart/form-data
                 body: formData,
               })
                 .then((r) =>
@@ -1064,5 +1064,4 @@ window.editCalendar = function (
     </script>
   </body>
 </main>
-
 </html>
