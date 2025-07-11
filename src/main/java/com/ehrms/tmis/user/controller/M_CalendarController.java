@@ -11,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -100,18 +101,16 @@ public class M_CalendarController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating calendar: " + e.getMessage());
         }
     }
-
-    @PutMapping(value = "/update/{calendarId}", consumes = { "multipart/form-data",
-            "application/x-www-form-urlencoded" })
+    @PutMapping(value = "/update/{calendarId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateMcalendar(
-            @PathVariable Long calendarId,
-            @RequestParam("natureOfStaff") List<Long> nosIDs,
-            @RequestParam("venueId") Long venueId,
-            @RequestParam(value = "target", required = false) Long target,
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam("duration") Long duration,
-            @RequestParam("trainingLevel") String trainingLevel) {
+        @PathVariable Long calendarId,
+        @RequestParam("natureOfStaff") List<Long> nosIDs,
+        @RequestParam("venueId") Long venueId,
+        @RequestParam(value = "target", required = false) Long target,
+        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam("duration") Long duration,
+        @RequestParam(required=false) String trainingLevel) {
         try {
             M_Calendar propertiesToUpdate = new M_Calendar();
 
@@ -145,6 +144,8 @@ public class M_CalendarController {
         }
     }
 
+    
+    
     @GetMapping("/getCalendarById/{calendarId}")
     public ResponseEntity<M_Calendar> getCalendarById(@PathVariable Long calendarId) {
         Optional<M_Calendar> calendar = mCalendarService.getMcalendarByIdWithDetails(calendarId);
