@@ -44,105 +44,113 @@ public class MUserMasterrService {
                 return mUserMasterRepository.findAll();
         }
 
-        public List<MUserMasterDTO> getAllTrainees() {
-                // 1) load all users
-                List<MUserMaster> users = mUserMasterRepository.findAll();
+public List<MUserMasterDTO> getAllTrainees() {
+    // 1) load all users
+    List<MUserMaster> users = mUserMasterRepository.findAll();
 
-                // 2) load SP map
-                Map<String, String> fullNameMap = getEmpCdToFullNameMap();
+    // 2) load SP map (empCd → FullName + DistrictName)
+    Map<String, FullNameAndDistrict> empCdToInfoMap = getEmpCdToFullNameAndDistrictMap();
 
-                // 3) determine which empCds survived your filter
-                List<String> keptEmpCds = users.stream()
-                                .map(u -> u.getId().getEmpCd().trim())
-                                .filter(fullNameMap::containsKey)
-                                .distinct()
-                                .collect(Collectors.toList());
+    // 3) determine which empCds survived your filter
+    List<String> keptEmpCds = users.stream()
+        .map(u -> u.getId().getEmpCd().trim())
+        .filter(empCdToInfoMap::containsKey)
+        .distinct()
+        .collect(Collectors.toList());
 
-                // 4) bulk-load all mappings for those empCds
-                List<T_UserRoleMapping> mappings = userRoleMappingRepository
-                                .findByEmpCdIn(keptEmpCds);
+    // 4) bulk-load all mappings for those empCds
+    List<T_UserRoleMapping> mappings = userRoleMappingRepository.findByEmpCdIn(keptEmpCds);
 
-                // System.out.print("Role ID Map: " + mappings);
+    // 5) collect every distinct roleId
+    Set<Long> allRoleIds = mappings.stream()
+        .flatMap(m -> Arrays.stream(m.getRoleIds()))
+        .collect(Collectors.toSet());
 
-                // 5) collect every distinct roleId
-                Set<Long> allRoleIds = mappings.stream()
-                                .flatMap(m -> Arrays.stream(m.getRoleIds()))
-                                .collect(Collectors.toSet());
+    // 6) bulk-load their names
+    Map<Long, String> roleIdToName = roleRepository.findAllById(allRoleIds)
+        .stream()
+        .collect(Collectors.toMap(
+            M_Role::getRoleId,
+            M_Role::getRoleName
+        ));
 
-                // 6) bulk-load their names
-                Map<Long, String> roleIdToName = roleRepository
-                                .findAllById(allRoleIds)
-                                .stream()
-                                .collect(Collectors.toMap(
-                                                M_Role::getRoleId,
-                                                M_Role::getRoleName));
+    // 7) build empCd → List<roleName>
+    Map<String, List<String>> empCdToRoleNames = mappings.stream()
+        .collect(Collectors.groupingBy(
+            m -> m.getEmpCd().trim(),
+            Collectors.collectingAndThen(
+                Collectors.flatMapping(
+                    m -> Arrays.stream(m.getRoleIds())
+                        .map(roleIdToName::get)
+                        .filter(Objects::nonNull),
+                    Collectors.toSet() // ✅ deduplicate here
+                ),
+                ArrayList::new // convert Set back to List
+            )
+        ));
 
-                // System.out.print("Role Name Map: " + roleIdToName);
+    // 8) Build DTOs using data from SP + role mappings
+    return users.stream()
+        .filter(u -> {
+            String cd = u.getId().getEmpCd().trim();
+            return empCdToInfoMap.containsKey(cd) && u.getId().getStateId() != 37;
+        })
+        .map(u -> {
+            String cd = u.getId().getEmpCd().trim();
+            MUserMasterDTO dto = new MUserMasterDTO(u);
 
-                // 7) build empCd → List<roleName>
-                // 7) build empCd → List<roleName> with trimmed keys
-                Map<String, List<String>> empCdToRoleNames = mappings.stream()
-                                .collect(Collectors.groupingBy(
-                                                m -> m.getEmpCd().trim(),
-                                                Collectors.collectingAndThen(
-                                                                Collectors.flatMapping(
-                                                                                m -> Arrays.stream(m.getRoleIds())
-                                                                                                .map(roleIdToName::get)
-                                                                                                .filter(Objects::nonNull),
-                                                                                Collectors.toSet() // ✅ deduplicate here
-                                                                ),
-                                                                ArrayList::new // convert Set back to List
-                                                )));
-                System.out.println("Role Names Map: " + empCdToRoleNames);
-                Map<String, DistrictDTO> empCdToDistrict = mappings.stream()
-                                .filter(m -> m.getDistrictId() != null)
-                                .collect(Collectors.toMap(
-                                                m -> m.getEmpCd().trim(),
-                                                m -> new DistrictDTO(
-                                                                m.getDistrictId().getDistrictId(),
-                                                                m.getDistrictId().getDistrictName()),
-                                                (existing, replacement) -> existing // in case of duplicates
-                                ));
+            FullNameAndDistrict info = empCdToInfoMap.get(cd);
+            dto.setFullName(info.getFullName());  // From SP
+            dto.setDistrict(new DistrictDTO(null, info.getDistrictName())); // Only name from SP
 
-                // 8) now stream back your DTOs
-                return users.stream()
-                                .filter(u -> {
-                                        String cd = u.getId().getEmpCd().trim();
-                                        return fullNameMap.containsKey(cd) && u.getId().getStateId() != 37;
-                                })
-                                .map(u -> {
-                                        String cd = u.getId().getEmpCd().trim();
-                                        MUserMasterDTO dto = new MUserMasterDTO(u);
-                                        dto.setFullName(fullNameMap.get(cd));
-                                        dto.setRoles(empCdToRoleNames.getOrDefault(cd, Collections.emptyList()));
-                                        dto.setDistrict(empCdToDistrict.get(cd));
-                                        return dto;
-                                })
-                                .sorted(
-                                                Comparator
-                                                                .comparing((MUserMasterDTO dto) -> dto.getRoles()
-                                                                                .isEmpty())
-                                                                .thenComparing(dto -> Integer.parseInt(
-                                                                                dto.getId().getEmpCd().trim())))
-                                .collect(Collectors.toList());
-
-        }
+            dto.setRoles(empCdToRoleNames.getOrDefault(cd, Collections.emptyList()));
+            return dto;
+        })
+        .sorted(
+            Comparator.comparing((MUserMasterDTO dto) -> dto.getRoles().isEmpty())
+                .thenComparing(dto -> Integer.parseInt(dto.getId().getEmpCd().trim()))
+        )
+        .collect(Collectors.toList());
+}
 
         @PersistenceContext(unitName = "sqlServer")
         private EntityManager entityManager;
 
-        public Map<String, String> getEmpCdToFullNameMap() {
-                StoredProcedureQuery query = entityManager.createStoredProcedureQuery("GET_allempnameandcode");
-                List<Object[]> results = query.getResultList();
+        public Map<String, FullNameAndDistrict> getEmpCdToFullNameAndDistrictMap() {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("GET_allempnameandcode");
+        List<Object[]> results = query.getResultList();
 
-                Map<String, String> empCdToFullName = new HashMap<>();
-                for (Object[] row : results) {
-                        String empCd = ((String) row[0]).trim();
-                        String fullName = (String) row[1];
-                        empCdToFullName.put(empCd, fullName);
-                }
-                return empCdToFullName;
+        Map<String, FullNameAndDistrict> map = new HashMap<>();
+        for (Object[] row : results) {
+                String empCd = ((String) row[0]).trim();
+                String fullName = (String) row[1];
+                String districtName = (String) row[2];
+                map.put(empCd, new FullNameAndDistrict(fullName, districtName));
         }
+        return map;
+        }
+
+
+        // ↓ Add this inside MUserMasterrService class (outside any method)
+        private static class FullNameAndDistrict {
+        private final String fullName;
+        private final String districtName;
+
+        public FullNameAndDistrict(String fullName, String districtName) {
+                this.fullName = fullName;
+                this.districtName = districtName;
+        }
+
+        public String getFullName() {
+                return fullName;
+        }
+
+        public String getDistrictName() {
+                return districtName;
+        }
+        }
+
+        
 
         public MUserMasterDTO getTraineeByEmpCd(String empCd) {
                 // 1) reuse your getAllTrainees() logic, then pick the one you want:

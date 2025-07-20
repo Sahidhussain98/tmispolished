@@ -5,6 +5,8 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.Set;
 
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_Resources;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -31,7 +33,7 @@ public class M_Calendar {
 
     @ManyToOne
     @JoinColumn(name = "resourcePersonId")
-    private M_ResourcePerson resourcePerson;
+    private T_Resources resourcePerson;
 
     @ManyToMany
     @JoinTable(name = "mt_calendar_district", joinColumns = @JoinColumn(name = "calendarId"), inverseJoinColumns = @JoinColumn(name = "districtId"))

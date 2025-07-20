@@ -31,8 +31,8 @@ public class PostgreSQLConfig {
         return DataSourceBuilder.create()
                 .driverClassName("org.postgresql.Driver")
                 .url("jdbc:postgresql://localhost:5432/TmisEhrms")
-                .username("tmis")
-                .password("rhfwtc")
+                .username("postgres")
+                .password("postgres")
                 .build();
     }
 

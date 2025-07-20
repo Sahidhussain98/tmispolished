@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload Resources</title>
+
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<main layout:fragment="content">
+  <body>
+    <div class="container my-5">
+      <h2 class="mb-4">
+        <i class="fas fa-upload me-2"></i>Upload Resource Files
+      </h2>
+
+      <!-- Upload Form -->
+      <form id="uploadForm" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="files" class="form-label">Select Files (PDF, DOCX, etc.)</label>
+          <input class="form-control" type="file" id="files" name="files" multiple required />
+          <div id="fileList" class="form-text mt-2 text-muted">No files selected</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-cloud-upload-alt me-1"></i>Upload
+        </button>
+
+        <div id="uploadStatus" class="mt-3"></div>
+      </form>
+
+      <!-- Upload Spinner -->
+      <div id="loadingSpinner" class="text-center mt-4 d-none">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+          <span class="visually-hidden">Uploading...</span>
+        </div>
+        <p class="text-muted mt-2">Uploading files, please wait...</p>
+      </div>
+
+      <!-- Uploaded Files Section -->
+      <hr class="my-5" />
+      <h3 class="mb-3"><i class="fas fa-folder-open me-2"></i>Uploaded Files</h3>
+      <div id="resourceFilesContainer" class="mb-5">
+        <div class="text-muted">Loading files...</div>
+      </div>
+    </div>
+
+    <!-- JS Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const fileInput = document.getElementById("files");
+        const fileList = document.getElementById("fileList");
+        const uploadForm = document.getElementById("uploadForm");
+        const uploadStatus = document.getElementById("uploadStatus");
+        const loadingSpinner = document.getElementById("loadingSpinner");
+        const fileContainer = document.getElementById("resourceFilesContainer");
+
+        // Show selected file names and types
+        fileInput.addEventListener("change", () => {
+          const files = Array.from(fileInput.files);
+          if (files.length > 0) {
+            const fileDetails = files.map(f =>
+              `<li>${f.name}<small class="text-muted"> (${f.type || "Unknown"})</small></li>`
+            ).join("");
+            fileList.innerHTML = `<ul class="mb-0">${fileDetails}</ul>`;
+          } else {
+            fileList.textContent = "No files selected";
+          }
+        });
+
+        // Submit form
+        uploadForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const files = fileInput.files;
+          if (!files.length) {
+            uploadStatus.innerHTML = `
+              <div class="alert alert-warning">
+                Please select at least one file to upload.
+              </div>`;
+            return;
+          }
+
+          uploadStatus.innerHTML = '';
+          loadingSpinner.classList.remove('d-none');
+
+          const formData = new FormData();
+          for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+          }
+
+          try {
+            const response = await fetch("/api/resource-person/upload", {
+              method: "POST",
+              body: formData,
+              credentials: "include"
+            });
+
+            const result = await response.json();
+            loadingSpinner.classList.add("d-none");
+
+            if (response.ok) {
+              uploadStatus.innerHTML = `
+                <div class="alert alert-success">
+                  ✅ Successfully uploaded ${result.length} file(s).
+                </div>`;
+              uploadForm.reset();
+              fileList.textContent = "No files selected";
+              loadUploadedFiles();
+            } else {
+              uploadStatus.innerHTML = `
+                <div class="alert alert-danger">
+                  ❌ Upload failed. ${result.message || ""}
+                </div>`;
+            }
+          } catch (err) {
+            loadingSpinner.classList.add("d-none");
+            console.error('Upload failed', err);
+            uploadStatus.innerHTML = `
+              <div class="alert alert-danger">
+                🚫 An error occurred during upload. Please try again.
+              </div>`;
+          }
+        });
+
+        // Load uploaded files
+        async function loadUploadedFiles() {
+          fileContainer.innerHTML = `<div class="text-muted">Loading files...</div>`;
+
+          try {
+            const resp = await fetch("/api/resource-person/files", {
+              method: "GET",
+              credentials: "include"
+            });
+
+            if (!resp.ok) throw new Error("Failed to load files");
+            const files = await resp.json();
+
+            if (!files.length) {
+              fileContainer.innerHTML = `<div class="text-muted">No files uploaded yet.</div>`;
+              return;
+            }
+
+            const grouped = {};
+            files.forEach(file => {
+              const type = file.fileType || "Unknown";
+              if (!grouped[type]) grouped[type] = [];
+              grouped[type].push(file);
+            });
+
+            let html = "";
+            for (const [type, items] of Object.entries(grouped)) {
+              html += `
+              <div class="mb-4">
+                <h5 class="text-primary">
+                  <i class="fas fa-file-alt me-1"></i>${type}
+                </h5>
+                <ul class="list-group">`;
+
+              items.forEach(f => {
+                html += `
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${f.fileName}
+                    <a href="/api/resource-person/download/${f.resourcePersonId}"
+                       class="btn btn-sm btn-outline-primary"
+                       title="Download ${f.fileName}">
+                      <i class="fas fa-download me-1"></i>Download
+                    </a>
+                  </li>`;
+              });
+
+              html += `</ul></div>`;
+            }
+
+            fileContainer.innerHTML = html;
+          } catch (error) {
+            console.error(error);
+            fileContainer.innerHTML = `<div class="text-danger">Failed to load uploaded files.</div>`;
+          }
+        }
+
+        // Load files on page load
+        loadUploadedFiles();
+      });
+    </script>
+  </body>
+</main>
+</html>
