@@ -564,7 +564,7 @@
               "traineeTableBody"
             ).innerHTML = `<tr><td colspan="5" class="text-center">Loading...</td></tr>`;
 
-            const response = await fetch("/api/assignRolesAndDistricts/all");
+            const response = await fetch("/api/assignRolesAndDistricts/allTrainees");
             if (!response.ok)
               throw new Error(`HTTP error! Status: ${response.status}`);
 

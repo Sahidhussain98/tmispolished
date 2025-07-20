@@ -30,8 +30,8 @@ public class MUserMasterController {
   private MUserMasterrService mUserMasterrService;
 
   @GetMapping("/all")
-  public ResponseEntity<List<MUserMasterDTO>> getAllTrainees() {
-    List<MUserMasterDTO> dtos = mUserMasterrService.getAllTrainees();
+  public ResponseEntity<List<MUserMasterDTO>> getAllemp() {
+    List<MUserMasterDTO> dtos = mUserMasterrService.getAllemp();
     System.out.println("DTOs: " + dtos.get(0).getId().getEmpCd());
     System.out.println("DTOs: " + dtos.get(0).getFullName() + " " + dtos.get(0).getRoles());
     return ResponseEntity.ok(dtos);
@@ -76,4 +76,12 @@ public class MUserMasterController {
     return ResponseEntity.ok(dto);
   }
 
+
+    @GetMapping("/allTrainees")
+  public ResponseEntity<List<MUserMasterDTO>> getAllTrainees() {
+    List<MUserMasterDTO> dtos = mUserMasterrService.getAllTrainees();
+    System.out.println("DTOs: " + dtos.get(0).getId().getEmpCd());
+    System.out.println("DTOs: " + dtos.get(0).getFullName() + " " + dtos.get(0).getRoles());
+    return ResponseEntity.ok(dtos);
+  }
 }
