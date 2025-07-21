@@ -139,7 +139,8 @@
                   <div class="col-7 d-flex align-items-center">
                     <div class="numbers">
                       <p class="card-category">Total Trainees</p>
-                      <h4 class="card-title">340</h4>
+                    <h4 class="card-title" id="totalTraineesValue">340</h4>
+
                     </div>
                   </div>
                 </div>
@@ -158,7 +159,8 @@
                   <div class="col-7 d-flex align-items-center">
                     <div class="numbers">
                       <p class="card-category">Resource Persons</p>
-                      <h4 class="card-title">28</h4>
+                     <h4 class="card-title" id="resourcePersonsValue">28</h4>
+
                     </div>
                   </div>
                 </div>
@@ -233,11 +235,11 @@
               document.getElementById("totalVenuesValue").innerText = data.totalVenues || '--';
               document.getElementById("avgCompletionValue").innerText = (data.avgCompletion !== undefined ? data.avgCompletion + "%" : '--');
               document.getElementById("pendingEventsValue").innerText = data.pendingEvents || '--';
-              document.getElementById("newEventsValue").innerText = data.newEvents || '--';
+              document.getElementById("newEventsValue").innerText = data.newEvents || 0;
               document.getElementById("conductedEventsValue").innerText = data.conductedEvents || '--';
               // Fetch and display dynamic trainee/resource person counts if available
-              document.getElementById("totalTraineesValue").innerText = data.totalTrainees || '--'; // Assuming you add this ID to the HTML
-              document.getElementById("resourcePersonsValue").innerText = data.resourcePersons || '--'; // Assuming you add this ID to the HTML
+              document.getElementById("totalTraineesValue").innerText = data.usersByRole?.ROLE_11 || 0;
+              document.getElementById("resourcePersonsValue").innerText = data.usersByRole?.ROLE_10 || 0;
             })
             .catch((error) => {
               console.error("Dashboard metrics fetch failed:", error);
