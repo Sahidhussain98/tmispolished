@@ -45,9 +45,6 @@ public class UserRoleMappingController {
     @PostMapping("/assignRoles")
     public ResponseEntity<?> assignRoles(@RequestBody RoleAssignmentDTO assignmentDTO) {
         try {
-            logger.info("Received role assignment request: {}", assignmentDTO);
-
-            // Validate input
             if (assignmentDTO == null || assignmentDTO.getEmpCd() == null
                     || assignmentDTO.getEmpCd().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(
@@ -59,7 +56,7 @@ public class UserRoleMappingController {
                         Map.of("message", "At least one role is required", "status", "BAD_REQUEST"));
             }
 
-            // Process assignment
+            // `districtId` can be null here, safely handled inside service
             UserRoleMappingDTO response = userRoleMappingService.assignAndFetch(
                     assignmentDTO.getEmpCd(),
                     assignmentDTO.getRoleIds(),

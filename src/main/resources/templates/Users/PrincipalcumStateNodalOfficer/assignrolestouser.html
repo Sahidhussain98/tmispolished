@@ -526,7 +526,7 @@
         loader.classList.remove("d-none");
         form.classList.add("d-none");
         modal.show();
-
+        console.log("Opening modal for empCd:", empCd, "fullName:", fullName);
         try {
           // 2) fetch this employee’s data (names in .roles)
           const res = await fetch(`/api/assignRolesAndDistricts/${empCd}`);

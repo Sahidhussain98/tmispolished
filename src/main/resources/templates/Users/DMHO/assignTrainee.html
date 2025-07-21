@@ -315,9 +315,7 @@
         </div>
       </div>
 
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
       <script>
-        // Global variables
         let traineeData = [];
         let filteredTrainees = [];
         let currentPage = 1;
@@ -326,154 +324,200 @@
         let targetValue = 0;
         let calendarId = null;
         let assignedTrainees = [];
-        let currentRemovalData = {
-          empCd: null,
-          assignTraineeId: null,
-          event: null,
-        };
 
-        // Initialize the page
-        document.addEventListener("DOMContentLoaded", function () {
-          calendarId = getQueryParam("calendarId");
+        document.addEventListener("DOMContentLoaded", async function () {
+          calendarId = new URLSearchParams(window.location.search).get(
+            "calendarId"
+          );
           if (calendarId) {
-            fetchCalendarDetails(calendarId);
-            fetchAssignedTrainees(calendarId);
-            fetchTrainees();
+            await fetchCalendarDetails(calendarId);
+            await fetchAssignedTrainees(calendarId);
           } else {
-            console.error("calendarId not found in URL");
-            showError("Calendar ID is missing from URL");
+            showError("Missing calendarId in URL");
           }
         });
 
-        // Helper function to get query parameters
-        function getQueryParam(param) {
-          const urlParams = new URLSearchParams(window.location.search);
-          return urlParams.get(param);
-        }
-
-        // Fetch calendar details
-        async function fetchCalendarDetails(calendarId) {
-          try {
-            document.getElementById("programName").innerText = "Loading...";
-            const response = await fetch(
-              `/api/calendar/getCalendarById/${calendarId}`
-            );
-
-            if (!response.ok)
-              throw new Error(`HTTP error! Status: ${response.status}`);
-
-            const calendar = await response.json();
-
-            // Update UI with calendar details
-            document.getElementById("programName").innerText =
-              calendar?.programeName?.programName || "Not Provided";
-            document.getElementById("topicName").innerText =
-              calendar?.topic?.topicName || "Not Provided";
-            document.getElementById("venueName").innerText =
-              calendar?.venueName?.venueName || "Not Provided";
-            document.getElementById("natureOfStaffId").innerText =
-              calendar?.natureOfStuffName?.natureOfStaffName || "Not Provided";
-            document.getElementById("startDate").innerText = formatDate(
-              calendar?.startDate
-            );
-            document.getElementById("endDate").innerText = formatDate(
-              calendar?.endDate
-            );
-            document.getElementById("duration").innerText =
-              calendar?.duration || "Not Provided";
-
-            targetValue = parseInt(calendar?.target) || 0;
-            document.getElementById("target").innerText = targetValue;
-            document.getElementById("targetValue").innerText = targetValue;
-
-            if (targetValue > 0) {
-              document.getElementById("targetAlert").style.display = "block";
-            }
-          } catch (error) {
-            console.error("Error fetching calendar details:", error);
-            showError(`Failed to load calendar details: ${error.message}`);
+        async function fetchCalendarDetails(id) {
+          const res = await fetch(`/api/calendar/getCalendarById/${id}`);
+          const cal = await res.json();
+          document.getElementById("programName").innerText =
+            cal?.programeName?.programName || "N/A";
+          document.getElementById("topicName").innerText =
+            cal?.topic?.topicName || "N/A";
+          document.getElementById("venueName").innerText =
+            cal?.venueName?.venueName || "N/A";
+          document.getElementById("natureOfStaffId").innerText =
+            cal?.natureOfStuffName?.natureOfStaffName || "N/A";
+          document.getElementById("startDate").innerText = formatDate(
+            cal?.startDate
+          );
+          document.getElementById("endDate").innerText = formatDate(
+            cal?.endDate
+          );
+          document.getElementById("duration").innerText =
+            cal?.duration || "N/A";
+          targetValue = parseInt(cal?.target || 0);
+          document.getElementById("target").innerText = targetValue;
+          document.getElementById("targetValue").innerText = targetValue;
+          if (targetValue > 0) {
+            document.getElementById("targetAlert").style.display = "block";
           }
         }
 
-        // Fetch assigned trainees
-        async function fetchAssignedTrainees(calendarId) {
-          try {
-            document.getElementById(
-              "assignedTraineesTableBody"
-            ).innerHTML = `<tr><td colspan="4" class="text-center">Loading...</td></tr>`;
-
-            const response = await fetch(
-              `/api/assignTrainee/getAssignTraineByID/${calendarId}`
-            );
-            if (!response.ok)
-              throw new Error(`HTTP error! Status: ${response.status}`);
-
-            const data = await response.json();
-
-            if (Array.isArray(data)) {
-              assignedTrainees = data;
-            } else if (data && Array.isArray(data.data)) {
-              assignedTrainees = data.data;
-            } else {
-              assignedTrainees = [];
-            }
-
-            renderAssignedTrainees();
-            updateAssignmentCount();
-
-            // Disable assign button if target is reached
-            if (targetValue > 0 && assignedTrainees.length >= targetValue) {
-              document.getElementById("assignButton").disabled = true;
-              document.getElementById("targetReachedAlert").style.display =
-                "block";
-            } else {
-              document.getElementById("assignButton").disabled = false;
-              document.getElementById("targetReachedAlert").style.display =
-                "none";
-            }
-          } catch (error) {
-            console.error("Error fetching assigned trainees:", error);
-            document.getElementById(
-              "assignedTraineesTableBody"
-            ).innerHTML = `<tr><td colspan="4" class="text-center text-danger">
-                      Error loading assigned trainees: ${error.message}
-                    </td></tr>`;
-          }
+        async function fetchAssignedTrainees(id) {
+          const res = await fetch(
+            `/api/assignTrainee/getAssignTraineByID/${id}`
+          );
+          let data = await res.json();
+          assignedTrainees = Array.isArray(data) ? data : data?.data || [];
+          renderAssignedTrainees();
+          updateAssignmentCount();
+          await fetchTrainees();
+          const assignBtn = document.getElementById("assignButton");
+          assignBtn.disabled =
+            targetValue > 0 && assignedTrainees.length >= targetValue;
+          document.getElementById("targetReachedAlert").style.display =
+            assignBtn.disabled ? "block" : "none";
         }
 
-        // Render assigned trainees table
         function renderAssignedTrainees() {
-          let tableBody = document.getElementById("assignedTraineesTableBody");
-
-          if (!assignedTrainees || assignedTrainees.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="4" class="text-center">No trainees assigned yet</td></tr>`;
+          const tbody = document.getElementById("assignedTraineesTableBody");
+          tbody.innerHTML = "";
+          if (!assignedTrainees.length) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center">No trainees assigned yet</td></tr>`;
             return;
           }
-
-          tableBody.innerHTML = "";
-
-          assignedTrainees.forEach((assignment) => {
-            const assignTraineeId = assignment.assignTraineeId || "N/A";
-            const empCd = assignment.empCd || "N/A";
-            const fullName = assignment.fullName || "No Name Provided";
-
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                    <td>${assignTraineeId}</td>
-                    <td>${empCd}</td>
-                    <td>${fullName}</td>
-                    <td>
-                        <button class="btn btn-sm btn-danger" 
-                            onclick="removeTrainee(event, '${empCd}', '${assignTraineeId}')">
-                            Remove
-                        </button>
-                    </td>
-                `;
-            tableBody.appendChild(row);
+          assignedTrainees.forEach((tr) => {
+            let empCd = tr.empCd || "N/A";
+            let assignId = tr.assignTraineeId || "N/A";
+            let name = tr.fullName || "N/A";
+            tbody.innerHTML += `
+        <tr>
+          <td>${assignId}</td>
+          <td>${empCd}</td>
+          <td>${name}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="removeTrainee('${empCd}', '${assignId}')">Remove</button>
+          </td>
+        </tr>`;
           });
         }
 
-        // Update assignment count
+        async function removeTrainee(empCd, assignTraineeId) {
+          try {
+            await fetch("/api/assignTrainee/delete", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: assignTraineeId }),
+            });
+            await fetchAssignedTrainees(calendarId);
+            showSuccess(`Removed ${empCd} successfully`);
+          } catch (e) {
+            showError(`Failed to remove ${empCd}: ${e.message}`);
+          }
+        }
+
+        async function fetchTrainees() {
+          try {
+            // Step 1: Fetch assigned trainees first for exclusion
+            const assignedRes = await fetch(
+              `/api/assignTrainee/getAssignTraineByID/${calendarId}`
+            );
+            let assignedData = await assignedRes.json();
+
+            assignedTrainees = Array.isArray(assignedData)
+              ? assignedData
+              : assignedData?.data || [];
+
+            // Step 2: Build a set of assigned EmpCDs
+            const assignedEmpCdSet = new Set(
+              assignedTrainees.map((t) => t.empCd)
+            );
+
+            // Step 3: Fetch all trainees
+            const res = await fetch("/api/assignRolesAndDistricts/allTrainees");
+            if (!res.ok) throw new Error("Failed to fetch trainee list");
+
+            const all = await res.json();
+
+            // Step 4: Filter out assigned trainees
+            traineeData = all.filter((user) => {
+              const empCd = user.empCd || user.id?.empCd;
+              return empCd && !assignedEmpCdSet.has(empCd);
+            });
+
+            // Step 5: Update UI
+            filteredTrainees = [...traineeData];
+            updatePagination();
+            renderTrainees();
+
+            // Step 6: Update assignment info (optional)
+            renderAssignedTrainees();
+            updateAssignmentCount();
+
+            const assignBtn = document.getElementById("assignButton");
+            assignBtn.disabled =
+              targetValue > 0 && assignedTrainees.length >= targetValue;
+            document.getElementById("targetReachedAlert").style.display =
+              assignBtn.disabled ? "block" : "none";
+          } catch (error) {
+            console.error("Error filtering trainees:", error);
+            showError("Unable to load trainees: " + error.message);
+          }
+        }
+
+        function renderTrainees() {
+          const tbody = document.getElementById("traineeTableBody");
+          tbody.innerHTML = "";
+          const start = (currentPage - 1) * entriesPerPage;
+          const end = Math.min(filteredTrainees.length, start + entriesPerPage);
+          const trainees = filteredTrainees.slice(start, end);
+          if (!trainees.length) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center">No trainees available</td></tr>`;
+          }
+          trainees.forEach((user) => {
+            const empCd = user.empCd || user.id?.empCd || "N/A";
+            const fullName =
+              user.fullName || `${user.firstName || ""} ${user.lastName || ""}`;
+            tbody.innerHTML += `
+        <tr>
+          <td>
+            <input type="checkbox" value="${empCd}" data-empcd="${empCd}" onchange="validateSelection()">
+          </td>
+          <td>${empCd}</td>
+          <td>${fullName}</td>
+        </tr>`;
+          });
+          updatePaginationInfo();
+          updatePaginationButtons();
+          validateSelection();
+        }
+
+        function validateSelection() {
+          let checked = document.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          ).length;
+          let status = document.getElementById("selectionStatus");
+          if (targetValue > 0) {
+            if (checked === targetValue) {
+              status.innerHTML =
+                '<span class="text-success"> - Target reached!</span>';
+            } else if (checked > targetValue) {
+              status.innerHTML =
+                '<span class="text-danger"> - Over target!</span>';
+            } else {
+              status.innerHTML = "";
+            }
+            const checkboxes = document.querySelectorAll(
+              'input[type="checkbox"]'
+            );
+            checkboxes.forEach((cb) => {
+              cb.disabled = checked >= targetValue && !cb.checked;
+              cb.classList.toggle("disabled-checkbox", cb.disabled);
+            });
+          }
+        }
+
         function updateAssignmentCount() {
           const countElement = document.getElementById("assignmentCount");
           const targetReachedAlert =
@@ -481,6 +525,7 @@
 
           if (targetValue > 0) {
             countElement.innerText = `${assignedTrainees.length} of ${targetValue} assigned`;
+
             if (assignedTrainees.length >= targetValue) {
               countElement.classList.remove("bg-primary");
               countElement.classList.add("bg-success");
@@ -496,448 +541,72 @@
           }
         }
 
-        // Remove trainee function
-        function removeTrainee(event, empCd, assignTraineeId) {
-          currentRemovalData = { empCd, assignTraineeId, event };
-
-          document.getElementById("traineeToRemove").textContent = empCd;
-          const modal = new bootstrap.Modal(
-            document.getElementById("confirmDeleteModal")
-          );
-          modal.show();
-
-          document.getElementById("confirmDeleteBtn").onclick =
-            async function () {
-              modal.hide();
-              await performTraineeRemoval();
-            };
-        }
-
-        // Perform trainee removal
-        async function performTraineeRemoval() {
-          const { empCd, assignTraineeId, event } = currentRemovalData;
-
-          try {
-            const btn = event.target;
-            btn.disabled = true;
-            btn.innerHTML =
-              '<span class="spinner-border spinner-border-sm"></span> Removing...';
-
-            const response = await fetch("/api/assignTrainee/delete", {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                id: assignTraineeId.toString(),
-              }),
-            });
-
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({}));
-              throw new Error(
-                errorData.message ||
-                  `Server responded with status ${response.status}`
-              );
-            }
-
-            showSuccess(`Trainee ${empCd} removed successfully!`);
-
-            // Refresh the assigned trainees list
-            await fetchAssignedTrainees(calendarId);
-          } catch (error) {
-            console.error("Error removing trainee:", error);
-            showError(`Failed to remove trainee: ${error.message}`);
-          } finally {
-            if (event?.target) {
-              const btn = event.target;
-              btn.disabled = false;
-              btn.innerHTML = "Remove";
-            }
-          }
-        }
-
-        // Fetch all trainees
-        async function fetchTrainees() {
-          try {
-            document.getElementById(
-              "traineeTableBody"
-            ).innerHTML = `<tr><td colspan="5" class="text-center">Loading...</td></tr>`;
-
-            const response = await fetch("/api/assignRolesAndDistricts/allTrainees");
-            if (!response.ok)
-              throw new Error(`HTTP error! Status: ${response.status}`);
-
-            const allTrainees = await response.json();
-
-            // Filter out already assigned trainees
-            traineeData = allTrainees.filter((trainee) => {
-              const empCd = trainee.id?.empCd || trainee.empCd;
-              return !assignedTrainees.some(
-                (assigned) => assigned.empCd === empCd
-              );
-            });
-
-            filteredTrainees = [...traineeData];
-            updatePagination();
-            renderTrainees();
-          } catch (error) {
-            console.error("Error fetching trainees:", error);
-            document.getElementById(
-              "traineeTableBody"
-            ).innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading trainees: ${error.message}</td></tr>`;
-          }
-        }
-
-        // Render trainees table
-        function renderTrainees() {
-          let tableBody = document.getElementById("traineeTableBody");
-          tableBody.innerHTML = "";
-
-          if (!filteredTrainees || filteredTrainees.length === 0) {
-            tableBody.innerHTML =
-              "<tr><td colspan='5' class='text-center'>No trainees available</td></tr>";
-            updatePaginationInfo();
-            return;
-          }
-
-          const startIndex = (currentPage - 1) * entriesPerPage;
-          const endIndex = Math.min(
-            startIndex + entriesPerPage,
-            filteredTrainees.length
-          );
-          const currentPageTrainees = filteredTrainees.slice(
-            startIndex,
-            endIndex
-          );
-
-          currentPageTrainees.forEach((user) => {
-            let empCdValue = user.id?.empCd || user.empCd || "N/A";
-            let fullName =
-              user.fullName || `${user.firstName || ""} ${user.lastName || ""}`;
-            let isAssigned = assignedTrainees.some(
-              (t) => t.empCd === empCdValue
-            );
-
-            let row = document.createElement("tr");
-            if (isAssigned) {
-              row.classList.add("table-success");
-            }
-
-            row.innerHTML = `
-                    <td>
-                        <input type="checkbox"  value="${empCdValue}" data-empcd="${empCdValue}" 
-                            onchange="validateSelection()"
-                            ${
-                              isAssigned
-                                ? 'disabled class="disabled-checkbox"'
-                                : ""
-                            }>
-                        ${
-                          isAssigned
-                            ? '<span class="badge bg-success ms-2">Assigned</span>'
-                            : ""
-                        }
-                    </td> 
-                    <td>${empCdValue}</td>
-                    <td>${fullName}</td>
-                `;
-            tableBody.appendChild(row);
-          });
-
-          updatePaginationInfo();
-          updatePaginationButtons();
-          validateSelection();
-        }
-
-        // Validate selection against target
-        function validateSelection() {
-          if (targetValue <= 0) return;
-
-          const checkboxes = document.querySelectorAll(
-            'input[type="checkbox"]:not(:disabled)'
-          );
-          const checkedCount = document.querySelectorAll(
-            'input[type="checkbox"]:checked'
-          ).length;
-          const statusElement = document.getElementById("selectionStatus");
-
-          // Update status message
-          if (checkedCount === targetValue) {
-            statusElement.innerHTML =
-              '<span class="text-success"> - Target reached!</span>';
-          } else if (checkedCount > targetValue) {
-            statusElement.innerHTML =
-              '<span class="text-danger"> - Too many selected!</span>';
-          }
-
-          // Enable/disable checkboxes based on selection
-          if (checkedCount >= targetValue) {
-            checkboxes.forEach((checkbox) => {
-              if (!checkbox.checked) {
-                checkbox.disabled = true;
-                checkbox.classList.add("disabled-checkbox");
-              }
-            });
-          } else {
-            checkboxes.forEach((checkbox) => {
-              if (!checkbox.checked && !checkbox.disabled) {
-                checkbox.disabled = false;
-                checkbox.classList.remove("disabled-checkbox");
-              }
-            });
-          }
-        }
-
-        // Assign trainees function
         async function assignTrainees() {
-          // First check if target is already reached
-          if (targetValue > 0 && assignedTrainees.length >= targetValue) {
-            showError("Cannot assign more trainees - target already reached!");
+          const checkboxes = document.querySelectorAll(
+            "tbody#traineeTableBody input[type='checkbox']:checked"
+          );
+          if (!checkboxes.length) {
+            showError("Please select at least one trainee");
             return;
           }
-
-          const checkboxes = document.querySelectorAll(
-            'input[type="checkbox"]:checked'
-          );
-          const selectedCount = checkboxes.length;
-
-          // Strict target validation
           if (
             targetValue > 0 &&
-            assignedTrainees.length + selectedCount > targetValue
+            assignedTrainees.length + checkboxes.length > targetValue
           ) {
-            showError(
-              `You can only assign ${
-                targetValue - assignedTrainees.length
-              } more trainees (${selectedCount} selected)`
-            );
+            showError(`Cannot assign more than ${targetValue} trainees`);
             return;
           }
 
-          if (selectedCount === 0) {
-            showError("Please select at least one trainee!");
-            return;
+          const assignBtn = document.getElementById("assignButton");
+          assignBtn.disabled = true;
+          assignBtn.innerHTML = "Assigning...";
+
+          let successCount = 0;
+
+          for (const cb of checkboxes) {
+            const empCd = cb.dataset.empcd;
+            const payload = {
+              empCd: empCd,
+              calendar: { calendarId: calendarId },
+            };
+            try {
+              const res = await fetch("/api/assignTrainee/trainees", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+              if (res.ok) successCount++;
+            } catch (e) {
+              console.error(`Error assigning ${empCd}:`, e);
+            }
           }
 
-          try {
-            // Disable button during processing
-            const assignBtn = document.getElementById("assignButton");
-            assignBtn.disabled = true;
-            assignBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
-
-            const assignments = [];
-            const errors = [];
-
-            // Collect all selected trainees
-            for (const checkbox of checkboxes) {
-              const empCd = checkbox.getAttribute("data-empcd")?.trim();
-              if (!empCd) continue;
-
-              // Double-check this trainee isn't already assigned
-              if (assignedTrainees.some((t) => t.empCd === empCd)) {
-                errors.push({
-                  empCd: empCd,
-                  message: "Trainee is already assigned",
-                });
-                continue;
-              }
-
-              assignments.push({
-                empCd: empCd,
-                calendar: {
-                  calendarId: calendarId,
-                },
-              });
-            }
-
-            // Process assignments sequentially with error handling
-            for (const assignment of assignments) {
-              try {
-                const response = await fetch("/api/assignTrainee/trainees", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(assignment),
-                });
-
-                if (!response.ok) {
-                  const error = await response.json();
-                  errors.push({
-                    empCd: assignment.empCd,
-                    message: error.message || "Unknown error",
-                  });
-                  continue;
-                }
-
-                // Send notification after successful assignment
-                try {
-                  const calendarResponse = await fetch(
-                    `/api/calendar/getCalendarById/${calendarId}`
-                  );
-                  if (!calendarResponse.ok) continue;
-
-                  const calendar = await calendarResponse.json();
-
-                  const notificationMessage = `
-You have been assigned to a new training program.
-Program: ${calendar?.programeName?.programName || "Not Provided"}
-Topic: ${calendar?.topic?.topicName || "Not Provided"}
-Venue: ${calendar?.venueName?.venueName || "Not Provided"}
-Start Date: ${calendar?.startDate || "Not Provided"}
-End Date: ${calendar?.endDate || "Not Provided"}
-Duration: ${calendar?.duration || "Not Provided"}
-`;
-
-                  const notificationData = {
-                    empCd: assignment.empCd,
-                    notificationMessage: notificationMessage.trim(),
-                    readStatus: false,
-                  };
-
-                  await fetch("/api/notifications", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(notificationData),
-                  });
-                } catch (notificationError) {
-                  console.error(
-                    "Failed to send notification:",
-                    notificationError
-                  );
-                }
-              } catch (error) {
-                errors.push({
-                  empCd: assignment.empCd,
-                  message: error.message,
-                });
-                console.error(
-                  `Error assigning trainee ${assignment.empCd}:`,
-                  error
-                );
-              }
-            }
-
-            // Show results
-            if (errors.length === 0) {
-              showSuccess(`All trainees assigned successfully!`);
-
-              // Remove assigned trainees from traineeData
-              assignments.forEach((assignment) => {
-                traineeData = traineeData.filter((trainee) => {
-                  const empCd = trainee.id?.empCd || trainee.empCd;
-                  return empCd !== assignment.empCd;
-                });
-              });
-
-              // Update filtered trainees
-              filteredTrainees = [...traineeData];
-              updatePagination();
-              renderTrainees();
-            } else if (errors.length === assignments.length) {
-              showError("Failed to assign any trainees");
-            } else {
-              showError(`Some trainees were not assigned successfully`);
-
-              // Only remove successfully assigned trainees
-              const successfulAssignments = assignments.filter(
-                (a) => !errors.some((e) => e.empCd === a.empCd)
-              );
-
-              successfulAssignments.forEach((assignment) => {
-                traineeData = traineeData.filter((trainee) => {
-                  const empCd = trainee.id?.empCd || trainee.empCd;
-                  return empCd !== assignment.empCd;
-                });
-              });
-
-              filteredTrainees = [...traineeData];
-              updatePagination();
-              renderTrainees();
-            }
-
-            await fetchAssignedTrainees(calendarId);
-          } catch (error) {
-            console.error("Unexpected error:", error);
-            showError(`An unexpected error occurred: ${error.message}`);
-          } finally {
-            // Re-enable button
-            const assignBtn = document.getElementById("assignButton");
-            assignBtn.disabled = false;
-            assignBtn.textContent = "Assign Selected Trainees";
+          if (successCount > 0) {
+            showSuccess(`${successCount} trainee(s) assigned successfully`);
+          } else {
+            showError("Failed to assign selected trainees");
           }
+
+          await fetchAssignedTrainees(calendarId);
+          assignBtn.disabled = false;
+          assignBtn.innerHTML = "Assign Selected Trainees";
         }
 
-        // Helper functions
-        function formatDate(dateTimeString) {
-          if (!dateTimeString) return "Not Provided";
-          const date = new Date(dateTimeString);
-          return date.toLocaleString();
-        }
-
-        function showError(message) {
-          const errorModal = new bootstrap.Modal(
-            document.getElementById("errorModal")
-          );
-          document.getElementById("errorMessage").textContent = message;
-          errorModal.show();
-        }
-
-        function showSuccess(message) {
-          const successModal = new bootstrap.Modal(
-            document.getElementById("successModal")
-          );
-          document.getElementById("successMessage").textContent = message;
-          successModal.show();
-        }
-
-        function searchTrainees() {
-          let searchValue = document
-            .getElementById("searchInput")
-            .value.toLowerCase();
-          filteredTrainees = traineeData.filter((user) => {
-            const empCd = user.id?.empCd || user.empCd || "";
-            const fullName = (
-              user.fullName || `${user.firstName || ""} ${user.lastName || ""}`
-            ).toLowerCase();
-            return (
-              empCd.toLowerCase().includes(searchValue) ||
-              fullName.includes(searchValue)
-            );
-          });
-          currentPage = 1;
-          updatePagination();
-          renderTrainees();
-        }
-
-        function filterEntries() {
-          entriesPerPage = parseInt(
-            document.getElementById("entriesSelect").value
-          );
-          currentPage = 1;
-          updatePagination();
-          renderTrainees();
-        }
-
+        // Pagination
         function updatePagination() {
           totalPages = Math.ceil(filteredTrainees.length / entriesPerPage);
-          if (totalPages === 0) totalPages = 1;
           if (currentPage > totalPages) currentPage = totalPages;
         }
 
         function updatePaginationInfo() {
-          const startIndex = (currentPage - 1) * entriesPerPage + 1;
-          const endIndex = Math.min(
+          let start = (currentPage - 1) * entriesPerPage + 1;
+          let end = Math.min(
             currentPage * entriesPerPage,
             filteredTrainees.length
           );
           document.getElementById(
             "entriesInfo"
-          ).textContent = `Showing ${startIndex} to ${endIndex} of ${filteredTrainees.length} entries`;
+          ).textContent = `Showing ${start} to ${end} of ${filteredTrainees.length} entries`;
         }
 
         function updatePaginationButtons() {
@@ -960,11 +629,58 @@ Duration: ${calendar?.duration || "Not Provided"}
           }
         }
 
+        function formatDate(datetime) {
+          if (!datetime) return "N/A";
+          return new Date(datetime).toLocaleString();
+        }
+
+        function showSuccess(msg) {
+          const modal = new bootstrap.Modal(
+            document.getElementById("successModal")
+          );
+          document.getElementById("successMessage").textContent = msg;
+          modal.show();
+        }
+
+        function showError(msg) {
+          const modal = new bootstrap.Modal(
+            document.getElementById("errorModal")
+          );
+          document.getElementById("errorMessage").textContent = msg;
+          modal.show();
+        }
+
+        function searchTrainees() {
+          const val = document
+            .getElementById("searchInput")
+            .value.toLowerCase();
+          filteredTrainees = traineeData.filter((t) => {
+            const empCd = t.empCd || t.id?.empCd || "";
+            const fullName = (
+              t.fullName || `${t.firstName || ""} ${t.lastName || ""}`
+            )
+              .trim()
+              .toLowerCase();
+            return empCd.toLowerCase().includes(val) || fullName.includes(val);
+          });
+          currentPage = 1;
+          updatePagination();
+          renderTrainees();
+        }
+
+        function filterEntries() {
+          entriesPerPage = parseInt(
+            document.getElementById("entriesSelect").value
+          );
+          currentPage = 1;
+          updatePagination();
+          renderTrainees();
+        }
+
         function refreshAllData() {
           if (calendarId) {
             fetchCalendarDetails(calendarId);
             fetchAssignedTrainees(calendarId);
-            fetchTrainees();
           }
         }
       </script>
