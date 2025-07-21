@@ -623,7 +623,9 @@ function fetchCalendars() {
       let ongoingCount = 0;
       let completedCount = 0;
 
-      data.forEach((calendar) => {
+      const approvedCalendars = data.filter(c => c.status === "APPROVED");
+      approvedCalendars.forEach((calendar) => {
+
         const startDateObj = calendar.startDate ? new Date(calendar.startDate) : null;
         const endDateObj = calendar.endDate ? new Date(calendar.endDate) : null;
         if (startDateObj) startDateObj.setHours(0, 0, 0, 0);

@@ -668,9 +668,12 @@
                 return response.json();
               })
               .then((data) => {
-                allCalendarEvents = Array.isArray(data) ? data : [];
+                allCalendarEvents = Array.isArray(data)
+                  ? data.filter(event => event.status === "APPROVED")
+                  : [];
                 renderCalendarTable(allCalendarEvents);
               })
+
               .catch((error) => {
                 console.error("Error fetching calendars:", error);
                 allCalendarEvents = [];
