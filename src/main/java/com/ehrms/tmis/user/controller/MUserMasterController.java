@@ -84,4 +84,12 @@ public class MUserMasterController {
     System.out.println("DTOs: " + dtos.get(0).getFullName() + " " + dtos.get(0).getRoles());
     return ResponseEntity.ok(dtos);
   }
+
+  @GetMapping("/allResourcePersons")
+  public ResponseEntity<List<MUserMasterDTO>> getAllResourcePersons() {
+    List<MUserMasterDTO> dtos = mUserMasterrService.getAllResourcePersons();
+    System.out.println("Resource Person DTOs: " + dtos.size());
+    return ResponseEntity.ok(dtos);
+  }
+
 }

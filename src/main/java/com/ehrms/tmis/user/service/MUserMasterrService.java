@@ -217,4 +217,60 @@ public class MUserMasterrService {
         .orElseThrow(() -> new EntityNotFoundException("No trainee with empCd=" + empCd));
   }
 
+  public List<MUserMasterDTO> getAllResourcePersons() {
+    // 1) Load all users
+    List<MUserMaster> users = mUserMasterRepository.findAll();
+
+    // 2) Load empCD → FullName + DistrictName from stored procedure
+    Map<String, FullNameAndDistrict> empCdToInfoMap = getEmpCdToFullNameAndDistrictMap();
+
+    // 3) Emp codes to keep from stored proc
+    List<String> keptEmpCds = users.stream()
+        .map(u -> u.getId().getEmpCd().trim())
+        .filter(empCdToInfoMap::containsKey)
+        .distinct()
+        .collect(Collectors.toList());
+
+    // 4) Load role mappings for those empCds
+    List<T_UserRoleMapping> mappings = userRoleMappingRepository.findByEmpCdIn(keptEmpCds);
+
+    // 5) Build empCd → List<Long> of roleIds
+    Map<String, List<Long>> empCdToRoleIdList = mappings.stream()
+        .collect(Collectors.toMap(
+            m -> m.getEmpCd().trim(),
+            m -> Optional.ofNullable(m.getRoleIds())
+                .map(Arrays::asList)
+                .orElse(Collections.emptyList())));
+
+    // 6) Filter users → Must have Role ID 10 ("Resource Person") and be in SP &
+    // exclude stateID 37
+    return users.stream()
+        .filter(u -> {
+          String empCd = u.getId().getEmpCd().trim();
+
+          if (!empCdToInfoMap.containsKey(empCd) || u.getId().getStateId() == 37) {
+            return false; // Exclude invalid users and stateID 37
+          }
+
+          List<Long> roleIds = empCdToRoleIdList.getOrDefault(empCd, Collections.emptyList());
+          return roleIds.contains(10L); // ✅ Only resource persons
+        })
+        .map(u -> {
+          String empCd = u.getId().getEmpCd().trim();
+          MUserMasterDTO dto = new MUserMasterDTO(u);
+
+          FullNameAndDistrict info = empCdToInfoMap.get(empCd);
+          dto.setFullName(info.getFullName());
+          dto.setDistrict(new DistrictDTO(null, info.getDistrictName()));
+
+          // Optional: Add role names
+          List<String> roles = Collections.singletonList("Resource Person");
+          dto.setRoles(roles);
+
+          return dto;
+        })
+        .sorted(Comparator.comparing(dto -> Integer.parseInt(dto.getId().getEmpCd().trim())))
+        .collect(Collectors.toList());
+  }
+
 }
