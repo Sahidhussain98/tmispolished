@@ -54,25 +54,27 @@ public class UserRoleMappingService {
                 logger.error(errorMsg);
                 throw new IllegalArgumentException(errorMsg);
             }
-            M_District district = districtRepository.findById(districtId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid districtId: " + districtId));
 
-            userRoleMappingRepository.deleteByEmpCd(empCd);
+            M_District district = null;
+            if (districtId != null) {
+                district = districtRepository.findById(districtId)
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid districtId: " + districtId));
+            }
+            // else: leave district as null (mapping will store null)
 
-            // Check if user exists
+            // Check if user exists (optional, can keep)
             Optional<M_TmisUser> userOptional = userRepository.findByEmpCd(empCd);
             logger.debug("User exists: {}", userOptional.isPresent());
 
-            // Delete existing mappings
+            // Delete existing mappings (you had it twice, only need once!)
             userRoleMappingRepository.deleteByEmpCd(empCd);
             logger.debug("Deleted existing role mappings for empCd {}", empCd);
 
-            // Create a new mapping record with all roles in one array
+            // Create a new mapping record
             T_UserRoleMapping mapping = new T_UserRoleMapping();
             mapping.setEmpCd(empCd);
             mapping.setRoleIds(roleIds.toArray(new Long[0]));
-            mapping.setDistrictId(district);
-            // If you need to set additional user info, add the correct setter here
+            mapping.setDistrictId(district); // Works with district == null
 
             userRoleMappingRepository.save(mapping);
             logger.info("Assigned {} roles and district {} to {}", roleIds.size(), districtId, empCd);
@@ -102,20 +104,25 @@ public class UserRoleMappingService {
     public UserRoleMappingDTO assignAndFetch(String empCd,
             List<Long> roleIds,
             Long districtId) {
-        // a) write
+
+        // a) Assign roles and district (handle null district)
         assignRolesToUser(empCd, roleIds, districtId);
 
-        // b) read back roles
+        // b) Fetch assigned roles for response
         List<RoleDTO> roles = getRolesByEmpCd(empCd);
 
-        // c) fetch & map the district
-        M_District districtEntity = districtRepository.findById(districtId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid districtId: " + districtId));
-        DistrictDTO districtDto = new DistrictDTO(
-                districtEntity.getDistrictId(),
-                districtEntity.getDistrictName());
+        // c) Fetch and map district only if districtId is not null
+        DistrictDTO districtDto = null;
+        if (districtId != null) {
+            M_District districtEntity = districtRepository.findById(districtId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid districtId: " + districtId));
+            districtDto = new DistrictDTO(
+                    districtEntity.getDistrictId(),
+                    districtEntity.getDistrictName());
+        }
 
-        // d) wrap up
+        // d) Wrap response DTO
         return new UserRoleMappingDTO(empCd, roles, districtDto);
     }
+
 }

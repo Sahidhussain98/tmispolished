@@ -72,12 +72,12 @@ public class MUserMasterController {
 
   @GetMapping("/{empCd}")
   public ResponseEntity<MUserMasterDTO> getTrainee(@PathVariable String empCd) {
+    System.out.println("Fetching trainee for empCd controller: " + empCd);
     MUserMasterDTO dto = mUserMasterrService.getTraineeByEmpCd(empCd);
     return ResponseEntity.ok(dto);
   }
 
-
-    @GetMapping("/allTrainees")
+  @GetMapping("/allTrainees")
   public ResponseEntity<List<MUserMasterDTO>> getAllTrainees() {
     List<MUserMasterDTO> dtos = mUserMasterrService.getAllTrainees();
     System.out.println("DTOs: " + dtos.get(0).getId().getEmpCd());
