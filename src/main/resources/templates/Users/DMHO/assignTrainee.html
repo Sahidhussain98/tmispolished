@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/default}"
->
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Assign Trainee</title>
-    <!-- <link
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/default}">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assign Trainee</title>
+  <!-- <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
@@ -16,382 +14,435 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
     /> -->
-    <style>
-      .table-danger {
-        background-color: #eb0810 !important;
-      }
+  <style>
+    .table-danger {
+      background-color: #eb0810 !important;
+    }
 
-      .badge {
-        font-size: 0.75em;
-      }
+    .badge {
+      font-size: 0.75em;
+    }
 
-      .disabled-checkbox {
-        cursor: not-allowed;
-        opacity: 0.5;
-      }
+    .disabled-checkbox {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
 
-      .refresh-btn {
-        position: absolute;
-        right: 20px;
-        top: 20px;
-      }
+    .refresh-btn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+    }
 
-      .selection-status {
-        font-weight: bold;
-      }
+    .selection-status {
+      font-weight: bold;
+    }
 
-      .text-warning {
-        color: #ffc107 !important;
-      }
+    .text-warning {
+      color: #ffc107 !important;
+    }
 
-      #targetReachedAlert {
-        display: none;
-      }
-    </style>
-  </head>
+    #targetReachedAlert {
+      display: none;
+    }
+  </style>
+</head>
 
-  <body class="bg-gray-100">
-    <main layout:fragment="content">
-      <h2 class="text-center mb-4">Assign Trainee</h2>
-      <button
-        class="btn btn-sm btn-outline-secondary refresh-btn"
-        onclick="refreshAllData()"
-      >
-        <i class="bi bi-arrow-clockwise"></i> Refresh
+<body class="bg-gray-100">
+  <main layout:fragment="content">
+    <h2 class="text-center mb-4">Assign Trainee and Resource Person</h2>
+    <button class="btn btn-sm btn-outline-secondary refresh-btn" onclick="refreshAllData()">
+      <i class="bi bi-arrow-clockwise"></i> Refresh
+    </button>
+
+    <!-- Calendar Details Section -->
+    <div class="card shadow-sm p-4 mb-4">
+      <h3 class="mb-3">Calendar Details</h3>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <strong>Program Name:</strong> <span id="programName"></span>
+        </div>
+        <div class="col-md-3">
+          <strong>Topic:</strong> <span id="topicName"></span>
+        </div>
+        <div class="col-md-3">
+          <strong>Venue:</strong> <span id="venueName"></span>
+        </div>
+        <div class="col-md-3">
+          <strong>Nature:</strong> <span id="natureOfStaffId"></span>
+        </div>
+        <div class="col-md-3">
+          <strong>Start Date:</strong> <span id="startDate"></span>
+        </div>
+        <div class="col-md-3">
+          <strong>End Date:</strong> <span id="endDate"></span>
+        </div>
+        <div class="col-md-3">
+          <strong>Duration:</strong> <span id="duration"></span>
+        </div>
+        <div class="col-md-3">
+          <strong>Target:</strong> <span id="target"></span>
+        </div>
+      </div>
+    </div>
+    <!-- Assign Resource Person Section -->
+    <div class="card shadow-sm p-4 mb-4">
+      <h3 class="mb-3">Assign Resource Person</h3>
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <select id="resourcePersonSelect" name="resourcePerson" class="form-select form-select-sm w-auto">
+          <option value="">-- Select Resource Person --</option>
+        </select>
+        <button class="btn btn-primary" onclick="assignResourcePerson()">Assign</button>
+      </div>
+
+      <!-- ✅ Keep this outside the flex div -->
+      <div id="resourcePersonAssignedDisplay" class="text-muted">
+        <strong>Assigned:</strong> <span id="assignedResourceInline">None</span>
+      </div>
+    </div>
+
+
+
+    <!-- Target Reached Alert -->
+    <div class="alert alert-success mb-4" id="targetReachedAlert">
+      <i class="bi bi-check-circle-fill"></i> Target number of trainees has
+      been reached!
+    </div>
+
+    <!-- Assigned Trainees Section -->
+    <div class="card shadow-sm p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Currently Assigned Trainees</h3>
+        <span id="assignmentCount" class="badge bg-primary"></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead class="table-primary">
+            <tr>
+              <th>ID</th>
+              <th>Employee Code</th>
+              <th>Employee Name</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="assignedTraineesTableBody">
+            <tr>
+              <td colspan="4" class="text-center">
+                Loading assigned trainees...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Trainee Selection Table -->
+    <div class="card shadow-sm p-4">
+      <h3 class="mb-3">Assign Trainees</h3>
+      <div class="alert alert-warning" id="targetAlert" style="display: none">
+        <strong>Target:</strong>
+        <span id="targetValue" class="fw-bold">0</span> trainees
+        <span id="selectionStatus" class="selection-status"></span>
+      </div>
+      <div class="col-md-3">
+        <strong>Resource Person:</strong> <span id="assignedResourcePerson"></span>
+      </div>
+
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <input type="text" id="searchInput" class="form-control" placeholder="Search Trainees..."
+            oninput="searchTrainees()" />
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" id="entriesSelect" onchange="filterEntries()">
+            <option value="5">Show 5</option>
+            <option value="10" selected>Show 10</option>
+            <option value="20">Show 20</option>
+            <option value="50">Show 50</option>
+            <option value="100">Show 100</option>
+            <option value="1000">Show All</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead class="table-primary">
+            <tr>
+              <th width="10%">Select</th>
+              <th width="20%">EmpCd</th>
+              <th width="30%">Employee Name</th>
+            </tr>
+          </thead>
+          <tbody id="traineeTableBody">
+            <tr>
+              <td colspan="5" class="text-center">Loading trainees...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <span id="entriesInfo">Showing 0 to 0 of 0 entries</span>
+        </div>
+        <div class="col-md-6 text-end">
+          <button id="prevBtn" class="btn btn-sm btn-outline-primary" onclick="previousPage()" disabled>
+            Previous
+          </button>
+          <button id="nextBtn" class="btn btn-sm btn-outline-primary ms-1" onclick="nextPage()" disabled>
+            Next
+          </button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3" onclick="assignTrainees()" id="assignButton">
+        Assign Selected Trainees
       </button>
+    </div>
 
-      <!-- Calendar Details Section -->
-      <div class="card shadow-sm p-4 mb-4">
-        <h3 class="mb-3">Calendar Details</h3>
-        <div class="row g-3">
-          <div class="col-md-3">
-            <strong>Program Name:</strong> <span id="programName"></span>
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Removal</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="col-md-3">
-            <strong>Topic:</strong> <span id="topicName"></span>
+          <div class="modal-body">
+            Are you sure you want to remove trainee
+            <span id="traineeToRemove"></span>?
           </div>
-          <div class="col-md-3">
-            <strong>Venue:</strong> <span id="venueName"></span>
-          </div>
-          <div class="col-md-3">
-            <strong>Nature:</strong> <span id="natureOfStaffId"></span>
-          </div>
-          <div class="col-md-3">
-            <strong>Start Date:</strong> <span id="startDate"></span>
-          </div>
-          <div class="col-md-3">
-            <strong>End Date:</strong> <span id="endDate"></span>
-          </div>
-          <div class="col-md-3">
-            <strong>Duration:</strong> <span id="duration"></span>
-          </div>
-          <div class="col-md-3">
-            <strong>Target:</strong> <span id="target"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Target Reached Alert -->
-      <div class="alert alert-success mb-4" id="targetReachedAlert">
-        <i class="bi bi-check-circle-fill"></i> Target number of trainees has
-        been reached!
-      </div>
-
-      <!-- Assigned Trainees Section -->
-      <div class="card shadow-sm p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h3>Currently Assigned Trainees</h3>
-          <span id="assignmentCount" class="badge bg-primary"></span>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped">
-            <thead class="table-primary">
-              <tr>
-                <th>ID</th>
-                <th>Employee Code</th>
-                <th>Employee Name</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="assignedTraineesTableBody">
-              <tr>
-                <td colspan="4" class="text-center">
-                  Loading assigned trainees...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Trainee Selection Table -->
-      <div class="card shadow-sm p-4">
-        <h3 class="mb-3">Select Trainees</h3>
-        <div class="alert alert-warning" id="targetAlert" style="display: none">
-          <strong>Target:</strong>
-          <span id="targetValue" class="fw-bold">0</span> trainees
-          <span id="selectionStatus" class="selection-status"></span>
-        </div>
-
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <input
-              type="text"
-              id="searchInput"
-              class="form-control"
-              placeholder="Search Trainees..."
-              oninput="searchTrainees()"
-            />
-          </div>
-          <div class="col-md-3">
-            <select
-              class="form-select"
-              id="entriesSelect"
-              onchange="filterEntries()"
-            >
-              <option value="5">Show 5</option>
-              <option value="10" selected>Show 10</option>
-              <option value="20">Show 20</option>
-              <option value="50">Show 50</option>
-              <option value="100">Show 100</option>
-              <option value="1000">Show All</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped">
-            <thead class="table-primary">
-              <tr>
-                <th width="10%">Select</th>
-                <th width="20%">EmpCd</th>
-                <th width="30%">Employee Name</th>
-              </tr>
-            </thead>
-            <tbody id="traineeTableBody">
-              <tr>
-                <td colspan="5" class="text-center">Loading trainees...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination Controls -->
-        <div class="row mt-3">
-          <div class="col-md-6">
-            <span id="entriesInfo">Showing 0 to 0 of 0 entries</span>
-          </div>
-          <div class="col-md-6 text-end">
-            <button
-              id="prevBtn"
-              class="btn btn-sm btn-outline-primary"
-              onclick="previousPage()"
-              disabled
-            >
-              Previous
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Cancel
             </button>
-            <button
-              id="nextBtn"
-              class="btn btn-sm btn-outline-primary ms-1"
-              onclick="nextPage()"
-              disabled
-            >
-              Next
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+              Remove
             </button>
           </div>
         </div>
-
-        <button
-          class="btn btn-primary mt-3"
-          onclick="assignTrainees()"
-          id="assignButton"
-        >
-          Assign Selected Trainees
-        </button>
       </div>
+    </div>
 
-      <!-- Confirmation Modal -->
-      <div
-        class="modal fade"
-        id="confirmDeleteModal"
-        tabindex="-1"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Confirm Removal</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              Are you sure you want to remove trainee
-              <span id="traineeToRemove"></span>?
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                class="btn btn-danger"
-                id="confirmDeleteBtn"
-              >
-                Remove
-              </button>
-            </div>
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">Success</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <span id="successMessage"></span>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+              OK
+            </button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Success Modal -->
-      <div
-        class="modal fade"
-        id="successModal"
-        tabindex="-1"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-              <h5 class="modal-title">Success</h5>
-              <button
-                type="button"
-                class="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <span id="successMessage"></span>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-success"
-                data-bs-dismiss="modal"
-              >
-                OK
-              </button>
-            </div>
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">Error</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <span id="errorMessage"></span>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+              OK
+            </button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Error Modal -->
-      <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-              <h5 class="modal-title">Error</h5>
-              <button
-                type="button"
-                class="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <span id="errorMessage"></span>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-danger"
-                data-bs-dismiss="modal"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <script>
+      let traineeData = [];
+      let filteredTrainees = [];
+      let currentPage = 1;
+      let entriesPerPage = 10;
+      let totalPages = 1;
+      let targetValue = 0;
+      let calendarId = null;
+      let assignedTrainees = [];
 
-      <script>
-        let traineeData = [];
-        let filteredTrainees = [];
-        let currentPage = 1;
-        let entriesPerPage = 10;
-        let totalPages = 1;
-        let targetValue = 0;
-        let calendarId = null;
-        let assignedTrainees = [];
-
-        document.addEventListener("DOMContentLoaded", async function () {
-          calendarId = new URLSearchParams(window.location.search).get(
-            "calendarId"
-          );
-          if (calendarId) {
-            await fetchCalendarDetails(calendarId);
-            await fetchAssignedTrainees(calendarId);
-          } else {
-            showError("Missing calendarId in URL");
-          }
-        });
-
-        async function fetchCalendarDetails(id) {
-          const res = await fetch(`/api/calendar/getCalendarById/${id}`);
-          const cal = await res.json();
-          document.getElementById("programName").innerText =
-            cal?.programeName?.programName || "N/A";
-          document.getElementById("topicName").innerText =
-            cal?.topic?.topicName || "N/A";
-          document.getElementById("venueName").innerText =
-            cal?.venueName?.venueName || "N/A";
-          document.getElementById("natureOfStaffId").innerText =
-            cal?.natureOfStuffName?.natureOfStaffName || "N/A";
-          document.getElementById("startDate").innerText = formatDate(
-            cal?.startDate
-          );
-          document.getElementById("endDate").innerText = formatDate(
-            cal?.endDate
-          );
-          document.getElementById("duration").innerText =
-            cal?.duration || "N/A";
-          targetValue = parseInt(cal?.target || 0);
-          document.getElementById("target").innerText = targetValue;
-          document.getElementById("targetValue").innerText = targetValue;
-          if (targetValue > 0) {
-            document.getElementById("targetAlert").style.display = "block";
-          }
+      document.addEventListener("DOMContentLoaded", async function () {
+        calendarId = new URLSearchParams(window.location.search).get("calendarId");
+        if (calendarId) {
+          await fetchCalendarDetails(calendarId);
+          await fetchAssignedTrainees(calendarId);
+          await fetchAllResourcePersons();      // 💡 make sure executed before fetchAssignedResourcePerson
+          await fetchAssignedResourcePerson();  // disables dropdown conditionally
+        } else {
+          showError("Missing calendarId in URL");
         }
+      });
 
-        async function fetchAssignedTrainees(id) {
-          const res = await fetch(
-            `/api/assignTrainee/getAssignTraineByID/${id}`
-          );
-          let data = await res.json();
-          assignedTrainees = Array.isArray(data) ? data : data?.data || [];
-          renderAssignedTrainees();
-          updateAssignmentCount();
-          await fetchTrainees();
-          const assignBtn = document.getElementById("assignButton");
-          assignBtn.disabled =
-            targetValue > 0 && assignedTrainees.length >= targetValue;
-          document.getElementById("targetReachedAlert").style.display =
-            assignBtn.disabled ? "block" : "none";
+
+
+      async function fetchCalendarDetails(id) {
+        const res = await fetch(`/api/calendar/getCalendarById/${id}`);
+        const cal = await res.json();
+        document.getElementById("programName").innerText =
+          cal?.programeName?.programName || "N/A";
+        document.getElementById("topicName").innerText =
+          cal?.topic?.topicName || "N/A";
+        document.getElementById("venueName").innerText =
+          cal?.venueName?.venueName || "N/A";
+        document.getElementById("natureOfStaffId").innerText =
+          cal?.natureOfStuffName?.natureOfStaffName || "N/A";
+        document.getElementById("startDate").innerText = formatDate(
+          cal?.startDate
+        );
+        document.getElementById("endDate").innerText = formatDate(
+          cal?.endDate
+        );
+        document.getElementById("duration").innerText =
+          cal?.duration || "N/A";
+        targetValue = parseInt(cal?.target || 0);
+        document.getElementById("target").innerText = targetValue;
+        document.getElementById("targetValue").innerText = targetValue;
+        if (targetValue > 0) {
+          document.getElementById("targetAlert").style.display = "block";
         }
+      }
+      async function fetchAllResourcePersons() {
+        try {
+          const res = await fetch('/api/assignRolesAndDistricts/allResourcePersons');
+          if (!res.ok) throw new Error("Failed to load resource persons");
 
-        function renderAssignedTrainees() {
-          const tbody = document.getElementById("assignedTraineesTableBody");
-          tbody.innerHTML = "";
-          if (!assignedTrainees.length) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center">No trainees assigned yet</td></tr>`;
+          const data = await res.json();
+          const select = document.getElementById('resourcePersonSelect');
+          select.innerHTML = '<option value="">-- Select Resource Person --</option>';
+
+          if (data.length === 0) {
+            select.innerHTML = '<option value="">No resource persons found</option>';
             return;
           }
-          assignedTrainees.forEach((tr) => {
-            let empCd = tr.empCd || "N/A";
-            let assignId = tr.assignTraineeId || "N/A";
-            let name = tr.fullName || "N/A";
-            tbody.innerHTML += `
+
+          data.forEach(person => {
+            const option = document.createElement('option');
+            option.value = person.id.empCd.trim();
+            option.textContent = person.fullName;
+            select.appendChild(option);
+          });
+
+        } catch (err) {
+          console.error("Error fetching resource persons:", err);
+          showError("Could not load resource persons: " + err.message);
+        }
+      }
+
+      async function fetchAssignedResourcePerson() {
+        try {
+          const res = await fetch(`/api/assignResourcePerson/byCalendar/${calendarId}`);
+          if (!res.ok) throw new Error("Failed to load assigned resource person");
+
+          const data = await res.json();
+
+          if (data.length > 0) {
+            const rp = data[0];
+            const display = `${rp.fullName || "Name not available"}`;
+
+            document.getElementById("assignedResourcePerson").innerText = display;
+            document.getElementById("assignedResourceInline").innerText = display;
+
+            // Disable input to prevent overwriting
+            document.getElementById("resourcePersonSelect").disabled = true;
+            const btn = document.querySelector("button[onclick='assignResourcePerson()']");
+            if (btn) btn.disabled = true;
+          } else {
+            document.getElementById("assignedResourcePerson").innerText = "None assigned";
+            document.getElementById("assignedResourceInline").innerText = "None";
+
+            // Re-enable selection UI
+            document.getElementById("resourcePersonSelect").disabled = false;
+            const btn = document.querySelector("button[onclick='assignResourcePerson()']");
+            if (btn) btn.disabled = false;
+          }
+        } catch (err) {
+          console.error("Could not load assigned resource person:", err);
+          showError("Could not load assigned resource person");
+        }
+      }
+
+      async function assignResourcePerson() {
+        const select = document.getElementById("resourcePersonSelect");
+        const empCd = select.value;
+
+        if (!empCd) {
+          showError("Please select a Resource Person");
+          return;
+        }
+
+        try {
+          const payload = {
+            empCd: empCd.trim(),
+            calendar: { calendarId: calendarId }
+          };
+
+          const res = await fetch("/api/assignResourcePerson/resource-persons", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            showSuccess("Resource person assigned successfully");
+            await fetchAssignedResourcePerson(); // Disable dropdown + update UI
+          } else {
+            const msg = await res.text();
+            showError(`Failed to assign: ${msg}`);
+          }
+        } catch (err) {
+          console.error("Error assigning resource person:", err);
+          showError("Failed to assign resource person: " + err.message);
+        }
+      }
+
+
+
+      async function fetchAssignedTrainees(id) {
+        const res = await fetch(
+          `/api/assignTrainee/getAssignTraineByID/${id}`
+        );
+        let data = await res.json();
+        assignedTrainees = Array.isArray(data) ? data : data?.data || [];
+        renderAssignedTrainees();
+        updateAssignmentCount();
+        await fetchTrainees();
+        const assignBtn = document.getElementById("assignButton");
+        assignBtn.disabled =
+          targetValue > 0 && assignedTrainees.length >= targetValue;
+        document.getElementById("targetReachedAlert").style.display =
+          assignBtn.disabled ? "block" : "none";
+      }
+
+      function renderAssignedTrainees() {
+        const tbody = document.getElementById("assignedTraineesTableBody");
+        tbody.innerHTML = "";
+        if (!assignedTrainees.length) {
+          tbody.innerHTML = `<tr><td colspan="4" class="text-center">No trainees assigned yet</td></tr>`;
+          return;
+        }
+        assignedTrainees.forEach((tr) => {
+          let empCd = tr.empCd || "N/A";
+          let assignId = tr.assignTraineeId || "N/A";
+          let name = tr.fullName || "N/A";
+          tbody.innerHTML += `
         <tr>
           <td>${assignId}</td>
           <td>${empCd}</td>
@@ -400,86 +451,86 @@
             <button class="btn btn-sm btn-danger" onclick="removeTrainee('${empCd}', '${assignId}')">Remove</button>
           </td>
         </tr>`;
+        });
+      }
+
+      async function removeTrainee(empCd, assignTraineeId) {
+        try {
+          await fetch("/api/assignTrainee/delete", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: assignTraineeId }),
           });
+          await fetchAssignedTrainees(calendarId);
+          showSuccess(`Removed ${empCd} successfully`);
+        } catch (e) {
+          showError(`Failed to remove ${empCd}: ${e.message}`);
         }
+      }
 
-        async function removeTrainee(empCd, assignTraineeId) {
-          try {
-            await fetch("/api/assignTrainee/delete", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: assignTraineeId }),
-            });
-            await fetchAssignedTrainees(calendarId);
-            showSuccess(`Removed ${empCd} successfully`);
-          } catch (e) {
-            showError(`Failed to remove ${empCd}: ${e.message}`);
-          }
+      async function fetchTrainees() {
+        try {
+          // Step 1: Fetch assigned trainees first for exclusion
+          const assignedRes = await fetch(
+            `/api/assignTrainee/getAssignTraineByID/${calendarId}`
+          );
+          let assignedData = await assignedRes.json();
+
+          assignedTrainees = Array.isArray(assignedData)
+            ? assignedData
+            : assignedData?.data || [];
+
+          // Step 2: Build a set of assigned EmpCDs
+          const assignedEmpCdSet = new Set(
+            assignedTrainees.map((t) => t.empCd)
+          );
+
+          // Step 3: Fetch all trainees
+          const res = await fetch("/api/assignRolesAndDistricts/allTrainees");
+          if (!res.ok) throw new Error("Failed to fetch trainee list");
+
+          const all = await res.json();
+
+          // Step 4: Filter out assigned trainees
+          traineeData = all.filter((user) => {
+            const empCd = user.empCd || user.id?.empCd;
+            return empCd && !assignedEmpCdSet.has(empCd);
+          });
+
+          // Step 5: Update UI
+          filteredTrainees = [...traineeData];
+          updatePagination();
+          renderTrainees();
+
+          // Step 6: Update assignment info (optional)
+          renderAssignedTrainees();
+          updateAssignmentCount();
+
+          const assignBtn = document.getElementById("assignButton");
+          assignBtn.disabled =
+            targetValue > 0 && assignedTrainees.length >= targetValue;
+          document.getElementById("targetReachedAlert").style.display =
+            assignBtn.disabled ? "block" : "none";
+        } catch (error) {
+          console.error("Error filtering trainees:", error);
+          showError("Unable to load trainees: " + error.message);
         }
+      }
 
-        async function fetchTrainees() {
-          try {
-            // Step 1: Fetch assigned trainees first for exclusion
-            const assignedRes = await fetch(
-              `/api/assignTrainee/getAssignTraineByID/${calendarId}`
-            );
-            let assignedData = await assignedRes.json();
-
-            assignedTrainees = Array.isArray(assignedData)
-              ? assignedData
-              : assignedData?.data || [];
-
-            // Step 2: Build a set of assigned EmpCDs
-            const assignedEmpCdSet = new Set(
-              assignedTrainees.map((t) => t.empCd)
-            );
-
-            // Step 3: Fetch all trainees
-            const res = await fetch("/api/assignRolesAndDistricts/allTrainees");
-            if (!res.ok) throw new Error("Failed to fetch trainee list");
-
-            const all = await res.json();
-
-            // Step 4: Filter out assigned trainees
-            traineeData = all.filter((user) => {
-              const empCd = user.empCd || user.id?.empCd;
-              return empCd && !assignedEmpCdSet.has(empCd);
-            });
-
-            // Step 5: Update UI
-            filteredTrainees = [...traineeData];
-            updatePagination();
-            renderTrainees();
-
-            // Step 6: Update assignment info (optional)
-            renderAssignedTrainees();
-            updateAssignmentCount();
-
-            const assignBtn = document.getElementById("assignButton");
-            assignBtn.disabled =
-              targetValue > 0 && assignedTrainees.length >= targetValue;
-            document.getElementById("targetReachedAlert").style.display =
-              assignBtn.disabled ? "block" : "none";
-          } catch (error) {
-            console.error("Error filtering trainees:", error);
-            showError("Unable to load trainees: " + error.message);
-          }
+      function renderTrainees() {
+        const tbody = document.getElementById("traineeTableBody");
+        tbody.innerHTML = "";
+        const start = (currentPage - 1) * entriesPerPage;
+        const end = Math.min(filteredTrainees.length, start + entriesPerPage);
+        const trainees = filteredTrainees.slice(start, end);
+        if (!trainees.length) {
+          tbody.innerHTML = `<tr><td colspan="3" class="text-center">No trainees available</td></tr>`;
         }
-
-        function renderTrainees() {
-          const tbody = document.getElementById("traineeTableBody");
-          tbody.innerHTML = "";
-          const start = (currentPage - 1) * entriesPerPage;
-          const end = Math.min(filteredTrainees.length, start + entriesPerPage);
-          const trainees = filteredTrainees.slice(start, end);
-          if (!trainees.length) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center">No trainees available</td></tr>`;
-          }
-          trainees.forEach((user) => {
-            const empCd = user.empCd || user.id?.empCd || "N/A";
-            const fullName =
-              user.fullName || `${user.firstName || ""} ${user.lastName || ""}`;
-            tbody.innerHTML += `
+        trainees.forEach((user) => {
+          const empCd = user.empCd || user.id?.empCd || "N/A";
+          const fullName =
+            user.fullName || `${user.firstName || ""} ${user.lastName || ""}`;
+          tbody.innerHTML += `
         <tr>
           <td>
             <input type="checkbox" value="${empCd}" data-empcd="${empCd}" onchange="validateSelection()">
@@ -487,203 +538,205 @@
           <td>${empCd}</td>
           <td>${fullName}</td>
         </tr>`;
-          });
-          updatePaginationInfo();
-          updatePaginationButtons();
-          validateSelection();
-        }
+        });
+        updatePaginationInfo();
+        updatePaginationButtons();
+        validateSelection();
+      }
 
-        function validateSelection() {
-          let checked = document.querySelectorAll(
-            'input[type="checkbox"]:checked'
-          ).length;
-          let status = document.getElementById("selectionStatus");
-          if (targetValue > 0) {
-            if (checked === targetValue) {
-              status.innerHTML =
-                '<span class="text-success"> - Target reached!</span>';
-            } else if (checked > targetValue) {
-              status.innerHTML =
-                '<span class="text-danger"> - Over target!</span>';
-            } else {
-              status.innerHTML = "";
-            }
-            const checkboxes = document.querySelectorAll(
-              'input[type="checkbox"]'
-            );
-            checkboxes.forEach((cb) => {
-              cb.disabled = checked >= targetValue && !cb.checked;
-              cb.classList.toggle("disabled-checkbox", cb.disabled);
-            });
-          }
-        }
-
-        function updateAssignmentCount() {
-          const countElement = document.getElementById("assignmentCount");
-          const targetReachedAlert =
-            document.getElementById("targetReachedAlert");
-
-          if (targetValue > 0) {
-            countElement.innerText = `${assignedTrainees.length} of ${targetValue} assigned`;
-
-            if (assignedTrainees.length >= targetValue) {
-              countElement.classList.remove("bg-primary");
-              countElement.classList.add("bg-success");
-              targetReachedAlert.style.display = "block";
-            } else {
-              countElement.classList.remove("bg-success");
-              countElement.classList.add("bg-primary");
-              targetReachedAlert.style.display = "none";
-            }
+      function validateSelection() {
+        let checked = document.querySelectorAll(
+          'input[type="checkbox"]:checked'
+        ).length;
+        let status = document.getElementById("selectionStatus");
+        if (targetValue > 0) {
+          if (checked === targetValue) {
+            status.innerHTML =
+              '<span class="text-success"> - Target reached!</span>';
+          } else if (checked > targetValue) {
+            status.innerHTML =
+              '<span class="text-danger"> - Over target!</span>';
           } else {
-            countElement.innerText = `${assignedTrainees.length} assigned`;
+            status.innerHTML = "";
+          }
+          const checkboxes = document.querySelectorAll(
+            'input[type="checkbox"]'
+          );
+          checkboxes.forEach((cb) => {
+            cb.disabled = checked >= targetValue && !cb.checked;
+            cb.classList.toggle("disabled-checkbox", cb.disabled);
+          });
+        }
+      }
+
+      function updateAssignmentCount() {
+        const countElement = document.getElementById("assignmentCount");
+        const targetReachedAlert =
+          document.getElementById("targetReachedAlert");
+
+        if (targetValue > 0) {
+          countElement.innerText = `${assignedTrainees.length} of ${targetValue} assigned`;
+
+          if (assignedTrainees.length >= targetValue) {
+            countElement.classList.remove("bg-primary");
+            countElement.classList.add("bg-success");
+            targetReachedAlert.style.display = "block";
+          } else {
+            countElement.classList.remove("bg-success");
+            countElement.classList.add("bg-primary");
             targetReachedAlert.style.display = "none";
           }
+        } else {
+          countElement.innerText = `${assignedTrainees.length} assigned`;
+          targetReachedAlert.style.display = "none";
+        }
+      }
+
+      async function assignTrainees() {
+        const checkboxes = document.querySelectorAll(
+          "tbody#traineeTableBody input[type='checkbox']:checked"
+        );
+        if (!checkboxes.length) {
+          showError("Please select at least one trainee");
+          return;
+        }
+        if (
+          targetValue > 0 &&
+          assignedTrainees.length + checkboxes.length > targetValue
+        ) {
+          showError(`Cannot assign more than ${targetValue} trainees`);
+          return;
         }
 
-        async function assignTrainees() {
-          const checkboxes = document.querySelectorAll(
-            "tbody#traineeTableBody input[type='checkbox']:checked"
-          );
-          if (!checkboxes.length) {
-            showError("Please select at least one trainee");
-            return;
-          }
-          if (
-            targetValue > 0 &&
-            assignedTrainees.length + checkboxes.length > targetValue
-          ) {
-            showError(`Cannot assign more than ${targetValue} trainees`);
-            return;
-          }
+        const assignBtn = document.getElementById("assignButton");
+        assignBtn.disabled = true;
+        assignBtn.innerHTML = "Assigning...";
 
-          const assignBtn = document.getElementById("assignButton");
-          assignBtn.disabled = true;
-          assignBtn.innerHTML = "Assigning...";
+        let successCount = 0;
 
-          let successCount = 0;
-
-          for (const cb of checkboxes) {
-            const empCd = cb.dataset.empcd;
-            const payload = {
-              empCd: empCd,
-              calendar: { calendarId: calendarId },
-            };
-            try {
-              const res = await fetch("/api/assignTrainee/trainees", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
-              if (res.ok) successCount++;
-            } catch (e) {
-              console.error(`Error assigning ${empCd}:`, e);
-            }
-          }
-
-          if (successCount > 0) {
-            showSuccess(`${successCount} trainee(s) assigned successfully`);
-          } else {
-            showError("Failed to assign selected trainees");
-          }
-
-          await fetchAssignedTrainees(calendarId);
-          assignBtn.disabled = false;
-          assignBtn.innerHTML = "Assign Selected Trainees";
-        }
-
-        // Pagination
-        function updatePagination() {
-          totalPages = Math.ceil(filteredTrainees.length / entriesPerPage);
-          if (currentPage > totalPages) currentPage = totalPages;
-        }
-
-        function updatePaginationInfo() {
-          let start = (currentPage - 1) * entriesPerPage + 1;
-          let end = Math.min(
-            currentPage * entriesPerPage,
-            filteredTrainees.length
-          );
-          document.getElementById(
-            "entriesInfo"
-          ).textContent = `Showing ${start} to ${end} of ${filteredTrainees.length} entries`;
-        }
-
-        function updatePaginationButtons() {
-          document.getElementById("prevBtn").disabled = currentPage <= 1;
-          document.getElementById("nextBtn").disabled =
-            currentPage >= totalPages;
-        }
-
-        function nextPage() {
-          if (currentPage < totalPages) {
-            currentPage++;
-            renderTrainees();
+        for (const cb of checkboxes) {
+          const empCd = cb.dataset.empcd;
+          const payload = {
+            empCd: empCd.trim(),
+            calendar: { calendarId: calendarId },
+          };
+          try {
+            const res = await fetch("/api/assignTrainee/trainees", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            if (res.ok) successCount++;
+          } catch (e) {
+            console.error(`Error assigning ${empCd}:`, e);
           }
         }
 
-        function previousPage() {
-          if (currentPage > 1) {
-            currentPage--;
-            renderTrainees();
-          }
+        if (successCount > 0) {
+          showSuccess(`${successCount} trainee(s) assigned successfully`);
+        } else {
+          showError("Failed to assign selected trainees");
         }
 
-        function formatDate(datetime) {
-          if (!datetime) return "N/A";
-          return new Date(datetime).toLocaleString();
-        }
+        await fetchAssignedTrainees(calendarId);
+        assignBtn.disabled = false;
+        assignBtn.innerHTML = "Assign Selected Trainees";
+      }
 
-        function showSuccess(msg) {
-          const modal = new bootstrap.Modal(
-            document.getElementById("successModal")
-          );
-          document.getElementById("successMessage").textContent = msg;
-          modal.show();
-        }
+      // Pagination
+      function updatePagination() {
+        totalPages = Math.ceil(filteredTrainees.length / entriesPerPage);
+        if (currentPage > totalPages) currentPage = totalPages;
+      }
 
-        function showError(msg) {
-          const modal = new bootstrap.Modal(
-            document.getElementById("errorModal")
-          );
-          document.getElementById("errorMessage").textContent = msg;
-          modal.show();
-        }
+      function updatePaginationInfo() {
+        let start = (currentPage - 1) * entriesPerPage + 1;
+        let end = Math.min(
+          currentPage * entriesPerPage,
+          filteredTrainees.length
+        );
+        document.getElementById(
+          "entriesInfo"
+        ).textContent = `Showing ${start} to ${end} of ${filteredTrainees.length} entries`;
+      }
 
-        function searchTrainees() {
-          const val = document
-            .getElementById("searchInput")
-            .value.toLowerCase();
-          filteredTrainees = traineeData.filter((t) => {
-            const empCd = t.empCd || t.id?.empCd || "";
-            const fullName = (
-              t.fullName || `${t.firstName || ""} ${t.lastName || ""}`
-            )
-              .trim()
-              .toLowerCase();
-            return empCd.toLowerCase().includes(val) || fullName.includes(val);
-          });
-          currentPage = 1;
-          updatePagination();
+      function updatePaginationButtons() {
+        document.getElementById("prevBtn").disabled = currentPage <= 1;
+        document.getElementById("nextBtn").disabled =
+          currentPage >= totalPages;
+      }
+
+      function nextPage() {
+        if (currentPage < totalPages) {
+          currentPage++;
           renderTrainees();
         }
+      }
 
-        function filterEntries() {
-          entriesPerPage = parseInt(
-            document.getElementById("entriesSelect").value
-          );
-          currentPage = 1;
-          updatePagination();
+      function previousPage() {
+        if (currentPage > 1) {
+          currentPage--;
           renderTrainees();
         }
+      }
 
-        function refreshAllData() {
-          if (calendarId) {
-            fetchCalendarDetails(calendarId);
-            fetchAssignedTrainees(calendarId);
-          }
+      function formatDate(datetime) {
+        if (!datetime) return "N/A";
+        return new Date(datetime).toLocaleDateString(); // This shows only date 👌
+
+      }
+
+      function showSuccess(msg) {
+        const modal = new bootstrap.Modal(
+          document.getElementById("successModal")
+        );
+        document.getElementById("successMessage").textContent = msg;
+        modal.show();
+      }
+
+      function showError(msg) {
+        const modal = new bootstrap.Modal(
+          document.getElementById("errorModal")
+        );
+        document.getElementById("errorMessage").textContent = msg;
+        modal.show();
+      }
+
+      function searchTrainees() {
+        const val = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        filteredTrainees = traineeData.filter((t) => {
+          const empCd = t.empCd || t.id?.empCd || "";
+          const fullName = (
+            t.fullName || `${t.firstName || ""} ${t.lastName || ""}`
+          )
+            .trim()
+            .toLowerCase();
+          return empCd.toLowerCase().includes(val) || fullName.includes(val);
+        });
+        currentPage = 1;
+        updatePagination();
+        renderTrainees();
+      }
+
+      function filterEntries() {
+        entriesPerPage = parseInt(
+          document.getElementById("entriesSelect").value
+        );
+        currentPage = 1;
+        updatePagination();
+        renderTrainees();
+      }
+
+      function refreshAllData() {
+        if (calendarId) {
+          fetchCalendarDetails(calendarId);
+          fetchAssignedTrainees(calendarId);
         }
-      </script>
-    </main>
-  </body>
+      }
+    </script>
+  </main>
+</body>
+
 </html>

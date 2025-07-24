@@ -21,7 +21,7 @@ public class T_AssignResourcePerson {
     @Column(name = "emp_cd", nullable = false)
     private String empCd;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+   @ManyToOne
     @JoinColumn(name = "calendar_id", nullable = false)
     private M_Calendar calendar;
 }

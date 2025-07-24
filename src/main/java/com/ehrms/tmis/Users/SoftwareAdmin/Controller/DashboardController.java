@@ -22,7 +22,7 @@ public class DashboardController {
 
 
        @GetMapping("/DashboardData")
-    public ResponseEntity<DashboardDTO> getDashboard(
+        public ResponseEntity<DashboardDTO> getDashboard(
         @RequestParam(value = "date", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate date) {

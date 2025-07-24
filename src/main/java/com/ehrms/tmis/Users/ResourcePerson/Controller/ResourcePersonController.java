@@ -2,6 +2,7 @@ package com.ehrms.tmis.Users.ResourcePerson.Controller;
 
 import com.ehrms.tmis.Users.ResourcePerson.Servcie.ResourcePersonService;
 import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_Resources;
+import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Calendar;
 import com.ehrms.tmis.securityAndAuthentication.jwt.JwtHelper;
 
 import jakarta.servlet.http.Cookie;
@@ -44,7 +45,8 @@ public class ResourcePersonController {
 
   private String extractEmpCdFromRequest(HttpServletRequest request) {
     String jwt = extractJwtFromCookie(request);
-    if (jwt == null) return null;
+    if (jwt == null)
+      return null;
 
     try {
       return jwtHelper.getUsernameFromToken(jwt); // username is empCd
@@ -54,7 +56,8 @@ public class ResourcePersonController {
   }
 
   private String extractJwtFromCookie(HttpServletRequest request) {
-    if (request.getCookies() == null) return null;
+    if (request.getCookies() == null)
+      return null;
 
     for (Cookie cookie : request.getCookies()) {
       if ("JWT".equals(cookie.getName())) {
@@ -63,29 +66,50 @@ public class ResourcePersonController {
     }
     return null;
   }
-@GetMapping("/files")
-public ResponseEntity<?> getUploadedResources(HttpServletRequest request) {
-  String empCd = extractEmpCdFromRequest(request);
-  if (empCd == null) {
-    return ResponseEntity.status(401).body("Unauthorized");
+
+  @GetMapping("/files")
+  public ResponseEntity<?> getUploadedResources(HttpServletRequest request) {
+    String empCd = extractEmpCdFromRequest(request);
+    if (empCd == null) {
+      return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    List<T_Resources> resources = resourcePersonService.getResourcesByEmpCd(empCd);
+    return ResponseEntity.ok(resources);
   }
 
-  List<T_Resources> resources = resourcePersonService.getResourcesByEmpCd(empCd);
-  return ResponseEntity.ok(resources);
-}
+  @GetMapping("/download/{id}")
+  public ResponseEntity<byte[]> downloadResource(@PathVariable Long id) {
+    T_Resources resource = resourcePersonService.getResourceById(id);
+    if (resource == null) {
+      return ResponseEntity.notFound().build();
+    }
 
-@GetMapping("/download/{id}")
-public ResponseEntity<byte[]> downloadResource(@PathVariable Long id) {
-  T_Resources resource = resourcePersonService.getResourceById(id);
-  if (resource == null) {
-    return ResponseEntity.notFound().build();
+    return ResponseEntity.ok()
+        .header("Content-Disposition", "attachment; filename=\"" + resource.getFileName() + "\"")
+        .header("Content-Type", resource.getFileType())
+        .body(resource.getResource());
   }
 
-  return ResponseEntity.ok()
-      .header("Content-Disposition", "attachment; filename=\"" + resource.getFileName() + "\"")
-      .header("Content-Type", resource.getFileType())
-      .body(resource.getResource());
-}
+  @PostMapping("/calendar")
+  public ResponseEntity<List<M_Calendar>> getCalendarsByEmpCd(HttpServletRequest request) {
 
+    String jwt = extractJwtFromCookie(request);
+
+    if (jwt == null || jwt.isEmpty()) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    String empCd;
+    try {
+      empCd = jwtHelper.getUsernameFromToken(jwt);
+    } catch (Exception e) {
+      return ResponseEntity.status(401).build(); // unauthorized
+    }
+    System.out.println("Employee Code: " + empCd);
+    List<M_Calendar> calendars = resourcePersonService.getCalendarsByEmpCd(empCd);
+    System.out.println("Calendars: " + calendars);
+    return ResponseEntity.ok(calendars);
+  }
 
 }
