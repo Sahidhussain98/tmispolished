@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+      layout:decorate="~{layouts/default}">
+<body>
+
+<main layout:fragment="content" class="p-4">
+    <h4 class="page-title">Edit Profile</h4>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Update Information</div>
+                </div>
+                <form th:action="@{'/Users/' + ${currentRole} + '/profile/update'}" method="POST">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 col-lg-
+                            4">
+                                <div class="form-group">
+                                    <label for="fullName">Full Name</label>
+                                    <input type="text" class="form-control" id="fullName" name="fullName" th:value="${employeeInfo.fullName}" placeholder="Enter Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com">
+                                    <small class="form-text text-muted">We'll never share your email with anyone else.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="+91 ...">
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="form-group">
+                                    <label for="role">Role (Read Only)</label>
+                                    <input type="text" class="form-control" id="role" th:value="${primaryRoleName}" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="district">District (Read Only)</label>
+                                    <input type="text" class="form-control" id="district" th:value="${employeeInfo.district}" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="form-group">
+                                    <label>Profile Picture</label>
+                                    <div class="input-file-image">
+                                        <img class="img-upload-preview img-circle" width="100" height="100" src="/assets/img/profile.jpg" alt="preview">
+                                        <input type="file" class="form-control form-control-file" id="uploadImg" name="uploadImg" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action">
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                        <button class="btn btn-danger">Cancel</button>
+                    </div>
+                </form>
+                </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

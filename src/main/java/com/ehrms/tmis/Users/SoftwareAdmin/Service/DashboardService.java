@@ -34,16 +34,22 @@ public class DashboardService {
         long totalPrograms = m_ProgramRepository.count();
         long totalVenues = m_VenuerRepository.count();
 
+        // Pending = Start Date is After Today
         long pendingEvents = m_CalendarRepository.countByStartDateAfter(referenceDate);
+
+        // New = Start Date is Today
         long newEvents = m_CalendarRepository.countByStartDateEquals(referenceDate);
-        long conductedEvents = m_CalendarRepository.countByEndDateAfter(referenceDate);
+
+        // Conducted = End Date is Before Today (Past events)
+        // NOTE: Make sure countByEndDateBefore exists in your Repository!
+        long conductedEvents = m_CalendarRepository.countByEndDateBefore(referenceDate);
 
         // Avoid divide-by-zero
         double avgCompletion = 0;
         long totalEvents = pendingEvents + newEvents + conductedEvents;
         if (totalEvents > 0) {
             avgCompletion = 100.0 * conductedEvents / totalEvents;
-            avgCompletion = Math.round(avgCompletion * 10.0) / 10.0; // round to 1 decimal
+            avgCompletion = Math.round(avgCompletion * 10.0) / 10.0;
         }
 
         // Count users per roleName
@@ -53,14 +59,12 @@ public class DashboardService {
                     return Arrays.stream(mapping.getRoleIds())
                             .map(roleId -> new AbstractMap.SimpleEntry<Long, String>(roleId, emp));
                 })
-                // Group by roleId -> set of emp codes
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(Map.Entry::getValue, Collectors.toSet())))
-                // Convert roleId -> count of unique empCds
                 .entrySet().stream()
                 .collect(Collectors.toMap(
-                        e -> "ROLE_" + e.getKey(), // Optional: resolve actual role name from RoleRepo
+                        e -> "ROLE_" + e.getKey(),
                         e -> (long) e.getValue().size()));
 
         DashboardDTO dto = new DashboardDTO();
@@ -74,5 +78,4 @@ public class DashboardService {
 
         return dto;
     }
-
 }

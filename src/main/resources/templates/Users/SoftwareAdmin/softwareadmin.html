@@ -1,198 +1,193 @@
 <!DOCTYPE html>
 <html
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/default}"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/default}"
 >
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EHRMS Training MIssion Director Dashboard</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      header {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      .dropdown:hover .dropdown-menu {
-        display: block;
-      }
-      .dropdown-menu {
-        display: none;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100">
-    <main layout:fragment="content">
-      <div class="min-h-screen flex flex-col">
-        <main class="flex-grow container mx-auto p-6">
-          <div class="bg-white shadow-md rounded-lg p-4 mb-6">
-            <div class="flex flex-wrap justify-between items-center">
-              <label class="font-semibold">Session Start Date</label>
-              <select class="border p-2 rounded">
-                <option>Between</option>
-              </select>
-              <input type="date" class="border p-2 rounded" />
-              <input type="date" class="border p-2 rounded" />
-              <select class="border p-2 rounded">
-                <option>Select Districts</option>
-              </select>
-              <button class="bg-gray-300 p-2 rounded">Clear</button>
-              <button class="bg-blue-500 text-white p-2 rounded">Apply</button>
+<head>
+  <title>Training Mission Director Dashboard</title>
+  <style>
+    /* --- Professional Dashboard CSS --- */
+    .card-stats {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        color: #fff;
+        overflow: hidden;
+        position: relative;
+        min-height: 125px;
+    }
+
+    .card-stats:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+        padding: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .icon-big {
+        font-size: 2.2rem;
+        margin-bottom: 4px;
+        opacity: 0.85;
+    }
+
+    .numbers {
+        text-align: center;
+        width: 100%;
+    }
+
+    .card-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0px;
+        line-height: 1.1;
+    }
+
+    .card-category {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+        opacity: 0.9;
+        margin-top: 2px;
+        white-space: nowrap;
+    }
+
+    /* Colors for the 3 specific cards */
+    .card-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); } /* Programs */
+    .card-warning { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); } /* Trainees */
+    .card-info { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); }    /* Resource Persons */
+
+    .list-group-item {
+        border: none;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="p-3">
+
+    <h4 class="page-title mb-3 font-weight-bold text-dark pl-2">Dashboard Overview</h4>
+
+    <div class="row">
+
+      <div class="col-xl-4 col-md-6 mb-3">
+        <div class="card card-stats card-primary">
+          <div class="card-body">
+            <i class="la la-th-list icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value" th:text="${stats != null ? stats.totalPrograms : 0}">0</h3>
+              <p class="card-category">Total Programs</p>
             </div>
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-lg shadow">
-              <h3 class="text-xl font-semibold">Total Trainees</h3>
-              <p class="text-3xl font-bold text-blue-600">11025</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-              <h3 class="text-xl font-semibold">Total Programs</h3>
-              <p class="text-3xl font-bold text-green-600">21</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-              <h3 class="text-xl font-semibold">Total Sessions</h3>
-              <p class="text-3xl font-bold text-indigo-600">3446</p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-lg shadow">
-              <h3 class="text-xl font-semibold mb-4">Training Details</h3>
-              <table class="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr class="bg-gray-100">
-                    <th class="border p-2">Program Name</th>
-                    <th class="border p-2">Users Trained</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="border p-2">Child Health</td>
-                    <td class="border p-2">4530</td>
-                  </tr>
-                  <tr>
-                    <td class="border p-2">Immunization</td>
-                    <td class="border p-2">5770</td>
-                  </tr>
-                  <tr>
-                    <td class="border p-2">Maternal Health</td>
-                    <td class="border p-2">1355</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow">
-              <h3 class="text-xl font-semibold mb-4">
-                Training Session Details
-              </h3>
-              <table class="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr class="bg-gray-100">
-                    <th class="border p-2">District</th>
-                    <th class="border p-2">Users Trained</th>
-                    <th class="border p-2">Total Sessions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="border p-2">West Garo Hills</td>
-                    <td class="border p-2">952</td>
-                    <td class="border p-2">972</td>
-                  </tr>
-                  <tr>
-                    <td class="border p-2">Ri Bhoi</td>
-                    <td class="border p-2">824</td>
-                    <td class="border p-2">735</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div
-              class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-            >
-              <h3 class="text-xl font-semibold mb-2">Upcoming Sessions</h3>
-              <div class="overflow-auto h-60 border rounded">
-                <table class="min-w-full text-left">
-                  <thead class="bg-blue-500 text-white">
-                    <tr>
-                      <th class="p-2">Program Name</th>
-                      <th class="p-2">Topic Name</th>
-                      <th class="p-2">Session Start Date</th>
-                      <th class="p-2">Session Venue</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      th:each="session : ${upcomingSessions}"
-                      class="border-b"
-                    >
-                      <td class="p-2" th:text="${session.programName}"></td>
-                      <td class="p-2" th:text="${session.topicName}"></td>
-                      <td class="p-2" th:text="${session.startDate}"></td>
-                      <td class="p-2" th:text="${session.venue}"></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div
-              class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-            >
-              <h3 class="text-xl font-semibold mb-2">Completed Trainings</h3>
-              <div class="h-60 bg-blue-500 rounded"></div>
-            </div>
-          </div>
-
-          <div class="mt-8">
-            <h3 class="text-xl font-semibold mb-2 text-blue-600">
-              Non Programmatic Training
-            </h3>
-            <div class="overflow-auto border rounded">
-              <table class="min-w-full text-left">
-                <thead class="bg-blue-300">
-                  <tr>
-                    <th class="p-2">District</th>
-                    <th class="p-2">Activities Name</th>
-                    <th class="p-2">Date Of Training</th>
-                    <th class="p-2">ANMs</th>
-                    <th class="p-2">MLHP</th>
-                    <th class="p-2">Staff Nurses</th>
-                    <th class="p-2">Supervisors</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    th:each="training : ${nonProgrammaticTrainings}"
-                    class="border-b"
-                  >
-                    <td class="p-2" th:text="${training.district}"></td>
-                    <td class="p-2" th:text="${training.activityName}"></td>
-                    <td class="p-2" th:text="${training.date}"></td>
-                    <td class="p-2" th:text="${training.anms}"></td>
-                    <td class="p-2" th:text="${training.mlph}"></td>
-                    <td class="p-2" th:text="${training.staffNurses}"></td>
-                    <td class="p-2" th:text="${training.supervisors}"></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </main>
-
-        <footer class="bg-gray-200 text-center p-4 mt-10">
-          <p>&copy; 2023 EHRMS Training System. All rights reserved.</p>
-        </footer>
+        </div>
       </div>
-    </main>
-  </body>
+
+      <div class="col-xl-4 col-md-6 mb-3">
+        <div class="card card-stats card-info">
+          <div class="card-body">
+            <i class="la la-user-circle icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value"
+                  th:text="${stats != null and stats.usersByRole != null and stats.usersByRole.containsKey('ROLE_10') ? stats.usersByRole['ROLE_10'] : 0}">
+                0
+              </h3>
+              <p class="card-category">Resource Persons</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-4 col-md-6 mb-3">
+        <div class="card card-stats card-warning">
+          <div class="card-body">
+            <i class="la la-users icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value"
+                  th:text="${stats != null and stats.usersByRole != null and stats.usersByRole.containsKey('ROLE_11') ? stats.usersByRole['ROLE_11'] : 0}">
+                0
+              </h3>
+              <p class="card-category">Total Trainees</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row mt-2">
+      <div class="col-lg-12 mb-4">
+        <div class="card shadow-sm border-0" style="min-height: 300px;">
+          <div class="card-header bg-white border-bottom-0 pt-3 pl-4">
+            <h5 class="card-title font-weight-bold text-dark">Upcoming Programs</h5>
+          </div>
+          <div class="card-body pt-0">
+            <ul id="upcomingEventsList" class="list-unstyled mt-2">
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function fetchEvents() {
+          const today = new Date();
+          const todayStr = today.toISOString().split("T")[0];
+
+          // Ensure this API endpoint exists in your backend
+          fetch(`/api/events/list?date=${todayStr}`)
+              .then((response) => {
+                  if (!response.ok) throw new Error("API not found");
+                  return response.json();
+              })
+              .then((eventData) => {
+                  if (!eventData) return;
+
+                  const upcomingEvents = eventData.upcomingEvents || [];
+                  const listContainer = document.getElementById("upcomingEventsList");
+                  listContainer.innerHTML = "";
+
+                  if (upcomingEvents.length === 0) {
+                      listContainer.innerHTML = '<li class="text-muted text-center py-4">No upcoming events found.</li>';
+                  } else {
+                      upcomingEvents.forEach((event) => {
+                          const li = document.createElement("li");
+                          li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+                          const pName = event.programeName ? event.programeName.programName : "Program";
+                          const tName = event.topic ? event.topic.topicName : "Topic";
+
+                          li.innerHTML = `
+            <div>
+              <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">${pName}</div>
+              <small class="text-muted">${tName}</small>
+            </div>
+            <span class="badge badge-primary badge-pill px-3 py-2">${event.startDate}</span>
+          `;
+                          listContainer.appendChild(li);
+                      });
+                  }
+              })
+              .catch((err) => {
+                  console.log("Events API info:", err.message);
+              });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+          fetchEvents();
+      });
+    </script>
+  </div>
+</main>
+</body>
 </html>

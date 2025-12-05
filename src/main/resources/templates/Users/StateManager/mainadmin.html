@@ -1,339 +1,287 @@
 <!DOCTYPE html>
 <html
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/default}"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/default}"
 >
-  <head>
-    <title>Dashboard</title>
-  </head>
-  <body>
-    <main layout:fragment="content">
-      <div class="p-6">
-        <h4 class="page-title">Dashboard</h4>
+<head>
+  <title>Dashboard</title>
+  <style>
+    /* --- Professional Dashboard CSS --- */
 
-        <!-- ✅ FIRST ROW OF METRICS -->
-        <div class="row">
-          <!-- Total Programs -->
-          <div class="col-md-3">
-            <div class="card card-stats card-primary">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5 text-center">
-                    <i class="la la-th-list text-primary icon-big"></i>
-                  </div>
-                  <div class="col-7 d-flex align-items-center">
-                    <div class="numbers">
-                      <p class="card-category">Total Programs</p>
-                      <h4 class="card-title" id="totalProgramsValue">--</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    .card-stats {
+      border: none;
+      border-radius: 10px; /* Slightly sharper corners for rectangular look */
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+      min-height: 125px; /* Reduced height for rectangular shape */
+    }
 
-          <!-- Total Venues -->
-          <div class="col-md-3">
-            <div class="card card-stats card-success">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5 text-center">
-                    <i class="la la-building text-success icon-big"></i>
-                  </div>
-                  <div class="col-7 d-flex align-items-center">
-                    <div class="numbers">
-                      <p class="card-category">Total Venues</p>
-                      <h4 class="card-title" id="totalVenuesValue">--</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    .card-stats:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px 0 rgba(0, 0, 0, 0.1);
+    }
 
-          <!-- Avg Completion -->
-          <div class="col-md-3">
-            <div class="card card-stats card-warning">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5 text-center">
-                    <i class="la la-line-chart text-warning icon-big"></i>
-                  </div>
-                  <div class="col-7 d-flex align-items-center">
-                    <div class="numbers">
-                      <p class="card-category">Avg Completion</p>
-                      <h4 class="card-title" id="avgCompletionValue">--</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    .card-body {
+      padding: 0.8rem; /* Reduced padding to fit content in smaller height */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
 
-          <!-- Pending Events -->
-          <div class="col-md-3">
-            <div class="card card-stats card-danger">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5 text-center">
-                    <i class="la la-clock-o text-danger icon-big"></i>
-                  </div>
-                  <div class="col-7 d-flex align-items-center">
-                    <div class="numbers">
-                      <p class="card-category">Upcoming Events</p>
-                      <h4 class="card-title" id="pendingEventsValue">--</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    /* Icons */
+    .icon-big {
+      font-size: 2.2rem; /* Slightly smaller icon to save vertical space */
+      margin-bottom: 4px;
+      opacity: 0.85;
+    }
 
-          <!-- New Events -->
-          <div class="col-md-3">
-            <div class="card card-stats card-info">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5 text-center">
-                    <i class="la la-calendar-plus-o text-info icon-big"></i>
-                  </div>
-                  <div class="col-7 d-flex align-items-center">
-                    <div class="numbers">
-                      <p class="card-category">New Events</p>
-                      <h4 class="card-title" id="newEventsValue">--</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    /* Typography */
+    .numbers {
+      text-align: center;
+      width: 100%;
+    }
 
-          <!-- Conducted Events -->
-          <div class="col-md-3">
-            <div class="card card-stats card-secondary">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5 text-center">
-                    <i class="la la-check-circle text-secondary icon-big"></i>
-                  </div>
-                  <div class="col-7 d-flex align-items-center">
-                    <div class="numbers">
-                      <p class="card-category">Conducted Events</p>
-                      <h4 class="card-title" id="conductedEventsValue">--</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    .card-value {
+      font-size: 1.8rem; /* Adjusted font size */
+      font-weight: 700;
+      margin-bottom: 0px;
+      line-height: 1.1;
+    }
 
-          <!-- Total Trainees -->
-          <div class="col-md-3">
-            <div class="card card-stats card-warning">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5 text-center">
-                    <i class="la la-users text-warning icon-big"></i>
-                  </div>
-                  <div class="col-7 d-flex align-items-center">
-                    <div class="numbers">
-                      <p class="card-category">Total Trainees</p>
-                    <h4 class="card-title" id="totalTraineesValue">340</h4>
+    .card-category {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-top: 2px;
+      white-space: nowrap; /* Prevents wrapping to keep rectangle shape */
+    }
 
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    /* --- Gradients --- */
+    .card-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .card-success { background: linear-gradient(135deg, #2af598 0%, #009efd 100%); }
+    .card-warning { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+    .card-danger { background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%); }
+    .card-info { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); }
+    .card-secondary {
+      background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+      color: #4a4a4a;
+    }
+    .card-secondary .icon-big,
+    .card-secondary .card-value,
+    .card-secondary .card-category { color: #4a4a4a; }
 
-          <!-- Total Resource Persons -->
-          <div class="col-md-3">
-            <div class="card card-stats card-info">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5 text-center">
-                    <i class="la la-user-circle text-info icon-big"></i>
-                  </div>
-                  <div class="col-7 d-flex align-items-center">
-                    <div class="numbers">
-                      <p class="card-category">Resource Persons</p>
-                     <h4 class="card-title" id="resourcePersonsValue">28</h4>
+    /* List Styling */
+    .list-group-item {
+      border: none;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="p-3">
 
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <h4 class="page-title mb-3 font-weight-bold text-dark pl-2">Dashboard Overview</h4>
 
-      <!-- ✅ SECOND ROW: Tentative Programs & Recent Events -->
-      <div class="row mt-4">
-        <!-- Upcoming Programs -->
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <h4 class="card-title">Upcoming Programs</h4>
-            </div>
-            <div class="card-body">
-              <canvas id="userProgressChart"></canvas>
-              <!-- Add a list for upcoming events -->
-              <ul id="upcomingEventsList" class="list-unstyled mt-3">
-                <!-- Events will be loaded here by JavaScript -->
-              </ul>
-            </div>
-          </div>
-        </div>
+    <div class="row">
 
-        <!-- Recent Events -->
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <h4 class="card-title">Recent Events</h4>
-            </div>
-            <div class="card-body">
-              <!-- This list is for Thymeleaf-populated data -->
-              <ul class="list-unstyled">
-                <li
-                  th:each="activity : ${recentActivities}"
-                  class="d-flex justify-content-between py-2 border-bottom"
-                >
-                  <span th:text="${activity.description}">User completed Course X</span>
-                  <span
-                    class="text-muted small"
-                    th:text="${#temporals.format(activity.timestamp, 'dd-MM-yyyy HH:mm')}"
-                  >
-                    01-01-2023 14:30
-                  </span>
-                </li>
-              </ul>
-              <!-- Add a separate list for JavaScript-populated recent events -->
-              <ul id="recentEventsList" class="list-unstyled mt-3">
-                 <!-- JavaScript populated recent events -->
-              </ul>
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="card card-stats card-primary">
+          <div class="card-body">
+            <i class="la la-th-list icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value" th:text="${stats.totalPrograms}">0</h3>
+              <p class="card-category">Total Programs</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ✅ JavaScript to fetch and populate dashboard data -->
-            <script>
-        // Function to fetch and display dashboard metrics
-        function fetchDashboardMetrics() {
-          fetch("/Sadmin/DashboardData")
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.json();
-            })
-            .then((data) => {
-              console.log("Dashboard data:", data);
-              document.getElementById("totalProgramsValue").innerText = data.totalPrograms || '--';
-              document.getElementById("totalVenuesValue").innerText = data.totalVenues || '--';
-              document.getElementById("avgCompletionValue").innerText = (data.avgCompletion !== undefined ? data.avgCompletion + "%" : '--');
-              document.getElementById("pendingEventsValue").innerText = data.pendingEvents || '--';
-              document.getElementById("newEventsValue").innerText = data.newEvents || 0;
-              document.getElementById("conductedEventsValue").innerText = data.conductedEvents || '--';
-              // Fetch and display dynamic trainee/resource person counts if available
-              document.getElementById("totalTraineesValue").innerText = data.usersByRole?.ROLE_11 || 0;
-              document.getElementById("resourcePersonsValue").innerText = data.usersByRole?.ROLE_10 || 0;
-            })
-            .catch((error) => {
-              console.error("Dashboard metrics fetch failed:", error);
-              // Optionally display a message to the user
-              document.getElementById("totalProgramsValue").innerText = "Error";
-              // ... and so on for other metrics
-            });
-        }
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="card card-stats card-success">
+          <div class="card-body">
+            <i class="la la-building icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value" th:text="${stats.totalVenues}">0</h3>
+              <p class="card-category">Total Venues</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        // Function to fetch and display upcoming and recent events
-        function fetchEvents() {
-          const today = new Date();
-          const todayStr = today.toISOString().split("T")[0];
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="card card-stats card-warning">
+          <div class="card-body">
+            <i class="la la-line-chart icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value" th:text="${stats.avgCompletion} + '%'">0%</h3>
+              <p class="card-category">Avg Completion</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          fetch(`/api/events/list?date=${todayStr}`)
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.json();
-            })
-            .then((eventData) => {
-              const upcomingEvents = eventData.upcomingEvents || [];
-              const listContainer = document.getElementById("upcomingEventsList");
-              listContainer.innerHTML = ""; // Clear previous content
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="card card-stats card-danger">
+          <div class="card-body">
+            <i class="la la-clock-o icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value" th:text="${stats.pendingEvents}">0</h3>
+              <p class="card-category">Upcoming Events</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              if (upcomingEvents.length === 0) {
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="card card-stats card-info">
+          <div class="card-body">
+            <i class="la la-calendar-plus-o icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value" th:text="${stats.newEvents}">0</h3>
+              <p class="card-category">New Events</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="card card-stats card-secondary">
+          <div class="card-body">
+            <i class="la la-check-circle icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value" th:text="${stats.conductedEvents}">0</h3>
+              <p class="card-category">Conducted Events</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="card card-stats card-warning">
+          <div class="card-body">
+            <i class="la la-users icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value"
+                  th:text="${stats.usersByRole != null and stats.usersByRole.containsKey('ROLE_11') ? stats.usersByRole['ROLE_11'] : 0}">
+                0
+              </h3>
+              <p class="card-category">Total Trainees</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="card card-stats card-info">
+          <div class="card-body">
+            <i class="la la-user-circle icon-big"></i>
+            <div class="numbers">
+              <h3 class="card-value"
+                  th:text="${stats.usersByRole != null and stats.usersByRole.containsKey('ROLE_10') ? stats.usersByRole['ROLE_10'] : 0}">
+                0
+              </h3>
+              <p class="card-category">Resource Persons</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-2">
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-0" style="min-height: 300px;">
+          <div class="card-header bg-white border-bottom-0 pt-3 pl-4">
+            <h5 class="card-title font-weight-bold text-dark">Upcoming Programs</h5>
+          </div>
+          <div class="card-body pt-0">
+            <ul id="upcomingEventsList" class="list-unstyled mt-2">
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-0" style="min-height: 300px;">
+          <div class="card-header bg-white border-bottom-0 pt-3 pl-4">
+            <h5 class="card-title font-weight-bold text-dark">Recent Events</h5>
+          </div>
+          <div class="card-body pt-0">
+            <ul class="list-unstyled">
+              <li
+                      th:if="${recentActivities != null}"
+                      th:each="activity : ${recentActivities}"
+                      class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <span class="font-weight-bold text-secondary" th:text="${activity.description}">Course Name</span>
+                <span class="badge badge-light" th:text="${#temporals.format(activity.timestamp, 'dd-MM-yyyy HH:mm')}">
+                      Date
+                    </span>
+              </li>
+            </ul>
+            <ul id="recentEventsList" class="list-unstyled mt-2"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function fetchEvents() {
+        const today = new Date();
+        const todayStr = today.toISOString().split("T")[0];
+
+        fetch(`/api/events/list?date=${todayStr}`)
+          .then((response) => {
+            if (!response.ok) throw new Error("API not found");
+            return response.json();
+          })
+          .then((eventData) => {
+            if (!eventData) return;
+
+            const upcomingEvents = eventData.upcomingEvents || [];
+            const listContainer = document.getElementById("upcomingEventsList");
+            listContainer.innerHTML = "";
+
+            if (upcomingEvents.length === 0) {
+              listContainer.innerHTML = '<li class="text-muted text-center py-4">No upcoming events found.</li>';
+            } else {
+              upcomingEvents.forEach((event) => {
                 const li = document.createElement("li");
-                li.className = "py-2";
-                li.textContent = "No upcoming events for today.";
+                li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+                const pName = event.programeName ? event.programeName.programName : "Program";
+                const tName = event.topic ? event.topic.topicName : "Topic";
+
+                li.innerHTML = `
+                  <div>
+                    <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">${pName}</div>
+                    <small class="text-muted">${tName}</small>
+                  </div>
+                  <span class="badge badge-primary badge-pill px-3 py-2">${event.startDate}</span>
+                `;
                 listContainer.appendChild(li);
-              } else {
-                upcomingEvents.forEach((event) => {
-                  const li = document.createElement("li");
-                  li.className = "py-2 border-bottom";
-                  // More robust display for potential nulls
-                  const programName = event.programeName?.programName || "Unnamed Program";
-                  const topicName = event.topic?.topicName || "No Topic";
-                  li.textContent = `${programName} — ${topicName} — ${event.startDate}`;
-                  listContainer.appendChild(li);
-                });
-              }
-
-              const allEvents = [
-                ...(eventData.upcomingEvents || []),
-                ...(eventData.ongoingEvents || []),
-                ...(eventData.completedEvents || []),
-              ];
-
-              const recentEvents = allEvents.filter((event) => {
-                if (!event.startDate) return false;
-                const start = new Date(event.startDate);
-                // Calculate difference in days, consider time of day for accuracy if needed
-                const diffInMs = start - today;
-                const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-                return Math.abs(diffInDays) <= 3;
               });
+            }
+          })
+          .catch((err) => {
+            console.log("Events API info:", err.message);
+          });
+      }
 
-              const recentListContainer = document.getElementById("recentEventsList");
-              recentListContainer.innerHTML = ""; // Clear previous content
-
-              if (recentEvents.length === 0) {
-                const li = document.createElement("li");
-                li.className = "py-2";
-                li.textContent = "No recent events found.";
-                recentListContainer.appendChild(li);
-              } else {
-                recentEvents.forEach((event) => {
-                  const li = document.createElement("li");
-                  li.className = "d-flex justify-content-between py-2 border-bottom";
-                  const programName = event.programeName?.programName || "Unnamed Program";
-                  const topicName = event.topic?.topicName || "No Topic";
-                  li.textContent = `${programName} - ${topicName} (${event.startDate})`;
-                  recentListContainer.appendChild(li);
-                });
-              }
-            })
-            .catch((err) => {
-              console.error("Event list fetch failed:", err);
-              // Display error messages in the lists
-              const upcomingListContainer = document.getElementById("upcomingEventsList");
-              upcomingListContainer.innerHTML = '<li class="py-2 text-danger">Failed to load upcoming events.</li>';
-              const recentListContainer = document.getElementById("recentEventsList");
-              recentListContainer.innerHTML = '<li class="py-2 text-danger">Failed to load recent events.</li>';
-            });
-        }
-
-        // Execute both functions when the window loads
-        window.onload = function () {
-          fetchDashboardMetrics();
-          fetchEvents();
-          // Add chart initialization here if you implement charting
-        };
-      </script>
-    </main>
-  </body>
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchEvents();
+      });
+    </script>
+  </div>
+</main>
+</body>
 </html>

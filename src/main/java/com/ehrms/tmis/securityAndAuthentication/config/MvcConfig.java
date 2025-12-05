@@ -23,6 +23,6 @@ public class MvcConfig implements WebMvcConfigurer {
     // 2️⃣ Use addViewControllers purely for simple view-to-URL mappings:
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("login");
+        registry.addViewController("/").setViewName("redirect:/login");
     }
 }

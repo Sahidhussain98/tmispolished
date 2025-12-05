@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<body>
+<main layout:fragment="content" class="p-4">
+    <h4 class="page-title">User Profile</h4>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card card-profile">
+                <div class="card-header" style="background-image: url('/assets/img/blogpost.jpg')">
+                    <div class="profile-picture">
+                        <div class="avatar avatar-xl">
+                            <img src="/assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="user-profile text-center">
+                        <div class="name" th:text="${employeeInfo.fullName}">Full Name</div>
+                        <div class="job" th:text="${employeeInfo.roleName}">Role Name</div>
+                        <div class="desc" th:text="${employeeInfo.district}">District Name</div>
+                        <div class="view-profile mt-3">
+                            <a th:href="@{'/Users/' + ${currentRole} + '/editprofile'}" class="btn btn-secondary w-100">Edit Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold text-muted">Full Name</label>
+                            <p class="fs-5 text-dark" th:text="${employeeInfo.fullName}">Daphishisha Kharphuli</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold text-muted">Employee ID</label>
+                            <p class="fs-5 text-dark" th:text="${employeeInfo.empCode}">EMP-001</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold text-muted">Email Address</label>
+                            <p class="fs-5 text-dark" th:text="${employeeInfo.email}">daphi@example.com</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold text-muted">Phone Number</label>
+                            <p class="fs-5 text-dark" th:text="${employeeInfo.phone}">+91 98765 43210</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="fw-bold text-muted">District / Location</label>
+                            <p class="fs-5 text-dark" th:text="${employeeInfo.district}">Ri Bhoi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

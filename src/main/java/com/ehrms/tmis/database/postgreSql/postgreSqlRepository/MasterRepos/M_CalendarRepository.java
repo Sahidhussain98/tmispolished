@@ -21,7 +21,7 @@ public interface M_CalendarRepository extends JpaRepository<M_Calendar, Long> {
 
     long countByStartDateAfter(LocalDate date);
     long countByStartDateEquals(LocalDate date);
-    long countByEndDateAfter(LocalDate date);
+    long countByEndDateBefore(LocalDate date);
 
     List<M_Calendar> findByDistrictDistrictId(Long districtId);
 

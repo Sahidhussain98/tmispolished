@@ -24,27 +24,27 @@ public class AssignResourcePersonController {
     @Autowired
     private EmployeeService employeeService;
 
-   @PostMapping("/resource-persons")
-public ResponseEntity<?> addAssignResourcePerson(@RequestBody T_AssignResourcePerson rp) {
-    try {
-        Long calendarId = rp.getCalendar().getCalendarId();
+    @PostMapping("/resource-persons")
+    public ResponseEntity<?> addAssignResourcePerson(@RequestBody T_AssignResourcePerson rp) {
+        try {
+            Long calendarId = rp.getCalendar().getCalendarId();
 
-        // 💡 CHECK if calendar already has a resource person
-        List<T_AssignResourcePerson> existing = assignResourcePersonService.getAssignedResourcePersonsByCalendarId(calendarId);
-        if (!existing.isEmpty()) {
-            return ResponseEntity.status(400).body("A Resource Person is already assigned to this Calendar.");
+            // 💡 CHECK if calendar already has a resource person
+            List<T_AssignResourcePerson> existing = assignResourcePersonService.getAssignedResourcePersonsByCalendarId(calendarId);
+            if (!existing.isEmpty()) {
+                return ResponseEntity.status(400).body("A Resource Person is already assigned to this Calendar.");
+            }
+
+            T_AssignResourcePerson saved = assignResourcePersonService.save(rp);
+            return ResponseEntity.ok(saved);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
-
-        T_AssignResourcePerson saved = assignResourcePersonService.save(rp);
-        return ResponseEntity.ok(saved);
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(500).body("Error: " + e.getMessage());
     }
-}
 
-    
+
     @GetMapping("/byCalendar/{calendarId}")
     public ResponseEntity<?> getAssignedResourcePersonsByCalendarId(@PathVariable Long calendarId) {
         try {

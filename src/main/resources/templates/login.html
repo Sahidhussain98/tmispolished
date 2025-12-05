@@ -136,38 +136,46 @@
     </div>
 
     <script>
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const errorDiv = document.getElementById("errorMessage");
-          errorDiv.style.display = "none";
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const errorDiv = document.getElementById("errorMessage");
+        errorDiv.style.display = "none";
 
-          const username = document.getElementById("username").value.trim();
-          const password = document.getElementById("password").value;
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
 
+        try {
+          const res = await fetch("/Users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+
+          // 1. Read the raw text first to avoid the crash
+          const rawText = await res.text();
+
+          // 2. Try to parse it as JSON
+          let data;
           try {
-            const res = await fetch("/user/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password }),
-            });
-
-            const data = await res.json();
-            if (res.ok && data.token) {
-              // store token (and optionally remember-me)
-              localStorage.setItem("jwtToken", data.token);
-              // redirect to your landing page
-              window.location.href = data.redirect || "/";
-            } else {
-              throw new Error(data.message || "Authentication failed");
-            }
-          } catch (err) {
-            console.error("Login error", err);
-            errorDiv.textContent = err.message;
-            errorDiv.style.display = "block";
+              data = JSON.parse(rawText);
+          } catch (jsonError) {
+              // If parsing fails, it means we got HTML (Error page)
+              console.error("Server returned HTML instead of JSON:", rawText);
+              throw new Error("Server error: Check console for details.");
           }
-        });
+
+          if (res.ok && data.token) {
+            localStorage.setItem("jwtToken", data.token);
+            window.location.href = data.redirect || "/";
+          } else {
+            throw new Error(data.message || "Authentication failed");
+          }
+        } catch (err) {
+          console.error("Login error", err);
+          errorDiv.textContent = err.message;
+          errorDiv.style.display = "block";
+        }
+      });
     </script>
   </body>
 </html>

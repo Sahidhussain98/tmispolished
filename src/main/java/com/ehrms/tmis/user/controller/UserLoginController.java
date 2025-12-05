@@ -24,7 +24,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/test")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserLoginController {
 

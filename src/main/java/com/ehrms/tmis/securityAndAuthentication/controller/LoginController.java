@@ -8,10 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.Transactional.T_UserRoleMapping;
 import com.ehrms.tmis.database.postgreSql.postgreSqlEntity.master.M_Role;
@@ -36,8 +34,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RestController
-@RequestMapping("/user")
+@Controller
+@RequestMapping("/Users")
 public class LoginController {
 
         private static final Logger log = LoggerFactory.getLogger(LoginController.class);
@@ -63,6 +61,11 @@ public class LoginController {
 
         @Autowired
         private T_UserRoleMappingRepository mappingRepo;
+
+        @GetMapping("/login")
+        public String showLoginPage() {
+                return "login"; // This looks for login.html in templates
+        }
 
         @PostMapping("/login")
         public ResponseEntity<Map<String, String>> login(
